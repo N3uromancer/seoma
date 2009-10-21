@@ -3,10 +3,16 @@ package mapEditor;
 import java.awt.*;
 
 import javax.swing.*;
+
+import mapEditor.editorObject.EditorObject;
 import util.Camera;
 
-
-
+/*beginnings of the map editor
+ * TODO
+ * -loading objects from files as EditorObjects (unit editor will be separate, EditorObject just for display)
+ * -placing/removing objects
+ * -saving/loading map files
+ */
 public class MapEditor extends JFrame  implements Runnable
 {
 	JFrame jf;
@@ -14,13 +20,15 @@ public class MapEditor extends JFrame  implements Runnable
 	EditorDisplay ed;
 	InputHandler ih;
 	Camera c;
+	EditorObjectManager eom;
 	int editorWidth = 800;
 	int editorHeight = 600;
 	
 	public MapEditor()
 	{
 		c = new Camera(editorWidth, editorHeight);
-		ed = new EditorDisplay(this, c);
+		eom = new EditorObjectManager(c);
+		ed = new EditorDisplay(c, this, eom);
 		ih = new InputHandler();
 		
 		JPanel content = new JPanel();
@@ -46,6 +54,7 @@ public class MapEditor extends JFrame  implements Runnable
 	
 	public void run()
 	{
+		eom.addObject(new EditorObject(50,50,50,50));
 		for (;;)
 		{
 			jf.repaint();
