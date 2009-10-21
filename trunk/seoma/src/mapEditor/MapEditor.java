@@ -1,10 +1,8 @@
 package mapEditor;
 
 import java.awt.*;
-
 import javax.swing.*;
 
-import mapEditor.editorObject.EditorObject;
 import util.Camera;
 
 /*beginnings of the map editor

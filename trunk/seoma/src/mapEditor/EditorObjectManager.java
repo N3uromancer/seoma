@@ -3,7 +3,6 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 
 import util.Camera;
-import mapEditor.editorObject.EditorObject;
 
 public class EditorObjectManager
 {
