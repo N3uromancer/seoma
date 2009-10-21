@@ -1,4 +1,4 @@
-package mapEditor.editorObject;
+package mapEditor;
 
 import java.awt.Color;
 import java.awt.Graphics;
