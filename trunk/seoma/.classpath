@@ -6,16 +6,15 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="SGStest/lib/natives/win32-x86"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/Users/Kyle/workspace/BoxGame4/sgs-client-0.9.10/lib/mina-core-1.1.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kyle/workspace/BoxGame4/sgs-client-0.9.10/lib/sgs-client.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kyle/workspace/BoxGame4/sgs-client-0.9.10/lib/sgs-shared-1.7.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kyle/workspace/BoxGame4/sgs-client-0.9.10/lib/slf4j-api-1.4.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kyle/workspace/BoxGame4/sgs-client-0.9.10/lib/slf4j-jdk14-1.4.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kyle/workspace/BoxGame4/sgs-server-dist-0.9.10/lib/db-4.5.20.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kyle/workspace/BoxGame4/sgs-server-dist-0.9.10/lib/je-3.3.75.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kyle/workspace/BoxGame4/sgs-server-dist-0.9.10/lib/sgs-server-0.9.10.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kyle/workspace/BoxGame4/sgs-server-dist-0.9.10/lib/sgs-server-api-0.9.10.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kyle/workspace/BoxGame4/sgs-server-dist-0.9.10/lib/sgs-server-internal-api-0.9.10.jar"/>
-	<classpathentry kind="lib" path="C:/Users/Kyle/workspace/BoxGame4/sgs-server-dist-0.9.10/lib/sgs-shared-1.7.jar"/>
+	<classpathentry kind="lib" path="lib/db-4.5.20.jar"/>
+	<classpathentry kind="lib" path="lib/mina-core-1.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/sgs-server-0.9.10.jar"/>
+	<classpathentry kind="lib" path="lib/je-3.3.75.jar"/>
+	<classpathentry kind="lib" path="lib/sgs-client.jar"/>
+	<classpathentry kind="lib" path="lib/sgs-server-internal-api-0.9.10.jar"/>
+	<classpathentry kind="lib" path="lib/sgs-server-api-0.9.10.jar"/>
+	<classpathentry kind="lib" path="lib/sgs-shared-1.7.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-api-1.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/slf4j-jdk14-1.4.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
