@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/jogl lib/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="lib/jogl lib/jogl.jar"/>
+	<classpathentry kind="lib" path="lib/sgs sdk/db-4.5.20.jar"/>
+	<classpathentry kind="lib" path="lib/sgs sdk/je-3.3.75.jar"/>
+	<classpathentry kind="lib" path="lib/sgs sdk/mina-core-1.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/sgs sdk/sgs-client.jar"/>
+	<classpathentry kind="lib" path="lib/sgs sdk/sgs-server-0.9.10.jar"/>
+	<classpathentry kind="lib" path="lib/sgs sdk/sgs-server-api-0.9.10.jar"/>
+	<classpathentry kind="lib" path="lib/sgs sdk/sgs-server-internal-api-0.9.10.jar"/>
+	<classpathentry kind="lib" path="lib/sgs sdk/sgs-shared-1.7.jar"/>
+	<classpathentry kind="lib" path="lib/sgs sdk/slf4j-api-1.4.0.jar"/>
+	<classpathentry kind="lib" path="lib/sgs sdk/slf4j-jdk14-1.4.0.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
