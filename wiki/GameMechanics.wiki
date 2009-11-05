@@ -1,0 +1,36 @@
+#summary Game Mechanics of the RPG.
+#labels Phase-Design
+
+= Damage Types =
+
+An attack or spell can be composed of any of these damage types, which should all be independently reduced by armor, resistances, blocking, etc.
+
+  *Reducable/Blockable
+    #Physical
+  *Resistable (Magic)
+    #Fire
+    #Frost
+    #Lightning
+    #Spirit
+    #Poison
+
+= Items =
+
+Items should be divided into 2 classes, equippable and consumable. Equippable items will be armor and equipment, as well as charms or trinkets that give bonuses just for having them in the inventory. Consumables will be potions or other limited use items which restore life/mana or give a temporary boost to stats/skills.
+
+Item properties:
+
+  *Equippable
+    #Weildable (for weapons)
+      *Physical damage
+      *Attack speed
+    #Defense bonus
+    #Where the item is equipped to
+    #Damage modifiers
+    #Resistance modifiers
+    #Skill/stats modifiers
+    #Item wielding requirements
+
+  *Consumable
+    #Mana/Life restored
+    #Skill/stat temporary modifiers
