@@ -1,9 +1,9 @@
 package gameEngine.world.unit;
 
 import ai.AI;
-import utilities.Region;
+import utilities.region.RectRegion;
 
-public class Unit extends Region
+public class Unit extends RectRegion
 {
 	double movement;
 	AI ai; //the ai managing this unit

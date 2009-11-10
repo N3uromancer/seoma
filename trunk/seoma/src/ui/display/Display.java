@@ -18,7 +18,7 @@ public final class Display implements GLEventListener
 	//Font font = new Font("SansSerif", Font.PLAIN, 12);
     //TextRenderer tr = new TextRenderer(font, true, false);
     
-    Displayable displayable;
+    DisplayManager displayable;
     
 	public void display(GLAutoDrawable d)
 	{
@@ -42,7 +42,7 @@ public final class Display implements GLEventListener
 	 * sets the displayable that the display displays
 	 * @param d
 	 */
-	public void setDisplayable(Displayable d)
+	public void setDisplayable(DisplayManager d)
 	{
 		displayable = d;
 	}

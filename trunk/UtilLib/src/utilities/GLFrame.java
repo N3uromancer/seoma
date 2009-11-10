@@ -8,6 +8,8 @@ import javax.media.opengl.GLCanvas;
 import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLEventListener;
 
+import com.sun.opengl.util.Animator;
+
 /**
  * a convenience class, creates a frame, adds the passed GLEventListener
  * to a canvas, canvas added to the frame
@@ -18,6 +20,7 @@ public class GLFrame extends Frame
 {
 	private static final long serialVersionUID = 1L;
 	GLCanvas canvas;
+	Animator animator;
 	
 	public GLFrame(GLEventListener glel)
 	{
@@ -27,8 +30,7 @@ public class GLFrame extends Frame
         setSize(900, 600);
         setLocationRelativeTo(null); //centers window in the screen
         
-        final com.sun.opengl.util.Animator animator =
-            new com.sun.opengl.util.Animator(canvas);
+       animator = new Animator(canvas);
         
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
@@ -45,6 +47,10 @@ public class GLFrame extends Frame
         });
         setVisible(true);
         animator.start();
+	}
+	public Animator getAnimator()
+	{
+		return animator;
 	}
 	/**
 	 * gets the frame's glcanvas

@@ -1,57 +1,83 @@
 package mapEditor;
 
-import java.util.HashMap;
+import gameEngine.world.World;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
 import javax.media.opengl.GL;
 
-import mapEditor.mapEditorMenuBar.MapEditorMenuBar;
+import mapEditor.menus.MapEditorMenuBar;
+import mapEditor.menus.fileMenu.ExitDialog;
+import mapEditor.toolBar.MapEditorToolBar;
 import ui.UIFrame;
-import ui.display.Displayable;
+import ui.display.DisplayManager;
 import ui.userIO.UserInputInterpreter;
 import utilities.Location;
 import utilities.MathUtil;
 import utilities.Polygon;
-import utilities.Region;
 
-public class MapEditor extends UserInputInterpreter implements Displayable
+public class MapEditor extends UserInputInterpreter implements DisplayManager
 {
-	HashMap<Character, Integer> modes = new HashMap<Character, Integer>();
-	private final static int NO_MODE = 0;
-	private final static int RECTANGLE_MODE = 1;
-	private final static int START_LOCATION_MODE = 6;
+	/**
+	 * represents the keys that cause movement
+	 */
+	HashMap<Character, double[]> viewControls = new HashMap<Character, double[]>();
+	int xt = 0; //x translational amount of the view area
+	int yt = 0;
+	double zoom = 1;
 	
-	//moving the view area
-	private final static int MOVE_UP = 2;
-	private final static int MOVE_RIGHT = 3;
-	private final static int MOVE_DOWN = 4;
-	private final static int MOVE_LEFT = 5;
-	double xt = 0; //x translational amount of the view area
-	double yt = 0;
+	World w = new World();
+	UIFrame uif;
 	
-	
-	int mode = NO_MODE;
-	boolean dragging = false;
-	int[] dstart; //the starting position of the mouse drag
-	int[] mcurrent = new int[2]; //the current position of the mouse
-	
-	Rectangle[] r = new Rectangle[30];
-	int rindex = 0;
-	
-	World m = new World();
+	//.class directories
+	File terrainDir;
 	
 	public MapEditor()
 	{
-		modes.put('r', RECTANGLE_MODE);
-		modes.put('e', START_LOCATION_MODE);
+		int movement = 20;
+		double zoom = .01;
+		viewControls.put('w', new double[]{0, movement, 0}); //third index zoom amount
+		viewControls.put('d', new double[]{movement, 0, 0});
+		viewControls.put('s', new double[]{0, -movement, 0});
+		viewControls.put('a', new double[]{-movement, 0, 0});
+		viewControls.put('r', new double[]{0, 0, zoom});
+		viewControls.put('f', new double[]{0, 0, -zoom});
 		
-		modes.put('w', MOVE_UP);
-		modes.put('d', MOVE_RIGHT);
-		modes.put('s', MOVE_DOWN);
-		modes.put('a', MOVE_LEFT);
+		uif = new UIFrame(this, this);
+		uif.setJMenuBar(new MapEditorMenuBar(this, uif, w));
+		uif.setTitle("Map Editor Beta");
+		uif.validate();
 		
-		UIFrame uif = new UIFrame(this, this);
-		uif.setTitle("Map Editor");
-		uif.setMenuBar(new MapEditorMenuBar(uif, m));
+		uif.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e)
+            {
+                new ExitDialog(uif);
+            }
+        });
+	}
+	/**
+	 * writes the map data to the passed stream, map data includes
+	 * locations of the .class directories, as well as things such
+	 * as the width and height of the map, etc
+	 * @param dos
+	 */
+	public void writeMapEditorData(DataOutputStream dos) throws IOException
+	{
+		dos.writeDouble(1); //version
+		dos.writeInt(terrainDir.getAbsolutePath().length());
+		dos.writeChars(terrainDir.getAbsolutePath());
+	}
+	public File getTerrainDirectory()
+	{
+		return terrainDir;
+	}
+	public void setTerrainDirectory(File terrainDir)
+	{
+		this.terrainDir = terrainDir;
 	}
 	/**
 	 * creates a rectangular polygon based off the passed parameters
@@ -94,90 +120,23 @@ public class MapEditor extends UserInputInterpreter implements Displayable
 	{
 		if(pressed)
 		{
-			mode = modes.get(c);
-			double t = 10;
-			if(mode == MOVE_UP)
-			{
-				yt+=t;
-			}
-			else if(mode == MOVE_DOWN)
-			{
-				yt-=t;
-			}
-			else if(mode == MOVE_RIGHT)
-			{
-				xt+=t;
-			}
-			else if(mode == MOVE_LEFT)
-			{
-				xt-=t;
-			}
+			xt+=viewControls.get(c)[0];
+			yt+=viewControls.get(c)[1];
+			zoom+=viewControls.get(c)[2];
 		}
 	}
 	public void mouseAction(int x, int y, boolean pressed, boolean rightClick)
 	{
-		if(!pressed && dragging)
-		{
-			dragging = false;
-			if(mode == RECTANGLE_MODE)
-			{
-				if(!rightClick)
-				{
-					//r[rindex] = new Rectangle(x, y, dstart[0], dstart[1], 40);
-					//rindex++;
-					m.addPolygon(calculatePolygon(x+(int)xt, y+(int)yt, dstart[0], dstart[1], 40));
-				}
-			}
-		}
-		else if(pressed)
-		{
-			if(rightClick)
-			{
-				if(mode == RECTANGLE_MODE)
-				{
-					//System.out.println("x="+x+", y="+y);
-					m.removePolygon(x, y);
-				}
-			}
-			else
-			{
-				if(mode == START_LOCATION_MODE)
-				{
-					double w = 50;
-					m.addStartLocation(new Region(x+xt-w/2, y+yt-w/2, w, w));
-				}
-			}
-		}
+		
 	}
 	public void mouseMoveAction(int x, int y, boolean dragged, boolean rightClick)
 	{
-		mcurrent[0] = x+(int)xt;
-		mcurrent[1] = y+(int)yt;
 		
-		if(dragged && !dragging)
-		{
-			dstart = new int[2];
-			dstart[0] = x+(int)xt;
-			dstart[1] = y+(int)yt;
-			dragging = true;
-		}
 	}
 	public void display(GL gl, int viewWidth, int viewHeight)
 	{
 		gl.glTranslated(-xt, -yt, 0);
-		if(dragging)
-		{
-			gl.glColor3d(1, 1, 1);
-			gl.glBegin(GL.GL_LINES);
-			gl.glVertex2d(dstart[0], dstart[1]);
-			gl.glVertex2d(mcurrent[0], mcurrent[1]);
-			gl.glEnd();
-		}
-		/*gl.glColor3d(0, 1, 0);
-		for(int i = 0; i < rindex; i++)
-		{
-			r[i].drawRectangle(gl);
-		}*/
-		m.drawMapElements(gl);
+		gl.glScaled(zoom, zoom, 0);
+		w.drawWorld(gl, xt, yt, viewWidth, viewHeight);
 	}
 }
