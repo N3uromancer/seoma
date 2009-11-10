@@ -10,8 +10,9 @@ import java.util.Iterator;
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLEventListener;
-import utilities.Region;
 import utilities.SpatialPartition;
+import utilities.region.RectRegion;
+
 import com.sun.opengl.util.j2d.TextRenderer;
 
 /**
@@ -30,8 +31,8 @@ public class SpatialPartitionDebugDisplay implements GLEventListener, KeyListene
     
     SpatialPartition sp = new SpatialPartition(0, 0, 500, 500, 20, 8, 150);
 
-	HashSet<Region> r = new HashSet<Region>();
-	HashSet<Region> intersects = new HashSet<Region>();
+	HashSet<RectRegion> r = new HashSet<RectRegion>();
+	HashSet<RectRegion> intersects = new HashSet<RectRegion>();
 	
 	int intersections = 0; //the number of intersections on the last intersection test
 	long intTestTime = 0; //the time it took for the last intersection test
@@ -79,7 +80,7 @@ public class SpatialPartitionDebugDisplay implements GLEventListener, KeyListene
 		sp.drawPartition(gl, width, height);
 		
 		gl.glColor3d(1, 0, 0);
-		Iterator<Region> i = r.iterator();
+		Iterator<RectRegion> i = r.iterator();
 		while(i.hasNext())
 		{
 			i.next().drawRegion(gl);
@@ -157,7 +158,7 @@ public class SpatialPartitionDebugDisplay implements GLEventListener, KeyListene
 			int width = 500;
 			int height = 500;
 			int bwidth = 50;
-			Region temp = new Region(Math.random()*width, Math.random()*height, bwidth, bwidth);
+			RectRegion temp = new RectRegion(Math.random()*width, Math.random()*height, bwidth, bwidth);
 			//System.out.println("testing "+temp);
 			sp.addRegion(temp);
 			r.add(temp);
@@ -169,7 +170,7 @@ public class SpatialPartitionDebugDisplay implements GLEventListener, KeyListene
 				int width = 500;
 				int height = 500;
 				int bwidth = 50;
-				Region temp = new Region(Math.random()*width, Math.random()*height, bwidth, bwidth);
+				RectRegion temp = new RectRegion(Math.random()*width, Math.random()*height, bwidth, bwidth);
 				//System.out.println("testing "+temp);
 				sp.addRegion(temp);
 				r.add(temp);
@@ -180,8 +181,8 @@ public class SpatialPartitionDebugDisplay implements GLEventListener, KeyListene
 			int width = 500;
 			int height = 500;
 			long start = System.currentTimeMillis();
-			Region temp = new Region(Math.random()*width, Math.random()*height, 100, 100);
-			HashSet<Region> inter = sp.getIntersections(temp);
+			RectRegion temp = new RectRegion(Math.random()*width, Math.random()*height, 100, 100);
+			HashSet<RectRegion> inter = sp.getIntersections(temp);
 			long diff = System.currentTimeMillis()-start;
 			intersects.add(temp);
 			intersections = inter.size();
@@ -195,8 +196,8 @@ public class SpatialPartitionDebugDisplay implements GLEventListener, KeyListene
 				int width = 500;
 				int height = 500;
 				long start = System.currentTimeMillis();
-				Region temp = new Region(Math.random()*width, Math.random()*height, 100, 100);
-				HashSet<Region> inter = sp.getIntersections(temp);
+				RectRegion temp = new RectRegion(Math.random()*width, Math.random()*height, 100, 100);
+				HashSet<RectRegion> inter = sp.getIntersections(temp);
 				long diff = System.currentTimeMillis()-start;
 				intersects.add(temp);
 				intersections = inter.size();
@@ -207,14 +208,14 @@ public class SpatialPartitionDebugDisplay implements GLEventListener, KeyListene
 		else if(e.getKeyChar() == 'a')
 		{
 			int index = (int)(Math.random()*r.size());
-			Iterator<Region> i = r.iterator();
+			Iterator<RectRegion> i = r.iterator();
 			int count = 0;
 			while(i.hasNext() && count < index)
 			{
 				count++;
 				i.next();
 			}
-			Region temp = i.next();
+			RectRegion temp = i.next();
 			sp.removeRegion(temp);
 			r.remove(temp);
 		}
@@ -226,11 +227,11 @@ public class SpatialPartitionDebugDisplay implements GLEventListener, KeyListene
 			double x = e.getPoint().x;
 			double y = height-e.getPoint().y;
 			//HashSet<Region> temp = sp.getIntersections(new Region(x, y, 1, 1));
-			HashSet<Region> temp = sp.getRegions(x, y, 20);
-			Iterator<Region> i = temp.iterator();
+			HashSet<RectRegion> temp = sp.getRegions(x, y, 20);
+			Iterator<RectRegion> i = temp.iterator();
 			if(temp.size() > 0)
 			{
-				Region reg = i.next();
+				RectRegion reg = i.next();
 				r.remove(reg);
 				sp.removeRegion(reg);
 			}

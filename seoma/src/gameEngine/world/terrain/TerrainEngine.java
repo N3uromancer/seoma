@@ -1,16 +1,23 @@
 package gameEngine.world.terrain;
 
+import gameEngine.world.Destructable;
 import gameEngine.world.World;
 import utilities.Polygon;
 import utilities.SpatialPartition;
 
+/**
+ * handles all terrain features as well as weather effects
+ * @author Jack
+ *
+ */
 public class TerrainEngine
 {
-	SpatialPartition t; //terrain partition
+	SpatialPartition it; //indestructable terrain partition
+	SpatialPartition dt; //desctructable terrain partition
 	
 	public TerrainEngine(World w)
 	{
-		t = new SpatialPartition(0, 0, w.getWidth(), w.getHeight(), 20, 75, 200);
+		it = new SpatialPartition(0, 0, w.getWidth(), w.getHeight(), 20, 75, 200);
 	}
 	/**
 	 * tests to see if the passed polygon intersects any terrain
@@ -21,6 +28,24 @@ public class TerrainEngine
 	 */
 	public boolean intersects(Polygon p)
 	{
+		return false;
+	}
+	public void registerTerrain(Terrain t)
+	{
+		if(isDestructable(t))
+		{
+			dt.addRegion(t);
+		}
+	}
+	private boolean isDestructable(Terrain t)
+	{
+		for(int i = 0; i < t.getClass().getInterfaces().length; i++)
+		{
+			if(t.getClass().getInterfaces()[i] == Destructable.class)
+			{
+				return true;
+			}
+		}
 		return false;
 	}
 }

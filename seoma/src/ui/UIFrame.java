@@ -1,15 +1,13 @@
 package ui;
 
-import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import javax.media.opengl.GLCanvas;
 import javax.media.opengl.GLCapabilities;
-
+import javax.swing.JFrame;
+import com.sun.opengl.util.Animator;
 import ui.display.Display;
-import ui.display.Displayable;
+import ui.display.DisplayManager;
 import ui.userIO.UserInputInterpreter;
 import ui.userIO.UserInputListener;
 
@@ -18,14 +16,21 @@ import ui.userIO.UserInputListener;
  * @author Jack
  *
  */
-public class UIFrame extends Frame
+public class UIFrame extends JFrame
 {
 	private static final long serialVersionUID = 1L;
 	Display display = new Display();
 	UserInputListener uil = new UserInputListener();
 	GLCanvas canvas;
+	Animator animator;
 	
-	public UIFrame(UserInputInterpreter uii, Displayable d)
+	/**
+	 * creates a new ui frame, a ui frame includes a built in display
+	 * @param uii
+	 * @param d the display manager, determines what will be displayed by
+	 * the built in display
+	 */
+	public UIFrame(UserInputInterpreter uii, DisplayManager d)
 	{
         canvas = new GLCanvas(new GLCapabilities());
         canvas.addGLEventListener(display);
@@ -34,9 +39,12 @@ public class UIFrame extends Frame
         setLocationRelativeTo(null);
         
         //declares all the user input listeners
-        canvas.addKeyListener(uil);
-        canvas.addMouseListener(uil);
-        canvas.addMouseMotionListener(uil);
+        if(uil != null)
+        {
+        	canvas.addKeyListener(uil);
+            canvas.addMouseListener(uil);
+            canvas.addMouseMotionListener(uil);
+        }
         
         uil.setViewHeight(canvas.getHeight());
         canvas.addComponentListener(new ComponentAdapter(){
@@ -55,9 +63,9 @@ public class UIFrame extends Frame
             display.setDisplayable(d);
         }
         
-        final com.sun.opengl.util.Animator animator = new com.sun.opengl.util.Animator(canvas);
+        animator = new Animator(canvas);
         
-        addWindowListener(new WindowAdapter(){
+        /*addWindowListener(new WindowAdapter(){
             public void windowClosing(WindowEvent e){
                 new Thread(new Runnable() {
                     public void run() {
@@ -66,9 +74,13 @@ public class UIFrame extends Frame
                     }
                 }).start();
             }
-        });
+        });*/
         setVisible(true);
         animator.start();
+	}
+	public Animator getAnimator()
+	{
+		return animator;
 	}
 	/**
 	 * gets the frame's glcanvas

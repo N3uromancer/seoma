@@ -9,7 +9,7 @@ import javax.media.opengl.GL;
 import pathFinder.PathFinder;
 import utilities.Location;
 import utilities.Polygon;
-import utilities.Region;
+import utilities.region.RectRegion;
 
 /**
  * change log:
@@ -354,7 +354,7 @@ public final class EPFV2 extends PathFinder
 		}
 	}
 }
-class SNode extends Region
+class SNode extends RectRegion
 {
 	private SNode[] an; //adjacent nodes
 	

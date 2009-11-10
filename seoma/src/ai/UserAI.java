@@ -23,7 +23,7 @@ public class UserAI extends AI
 	 */
 	public void interpretUserInput(UserInput ui)
 	{
-		if(ui.getClass() == MouseClick.class)
+		if(ui instanceof MouseClick)
 		{
 			MouseClick mc = (MouseClick)ui;
 			targetLocation = new double[]{mc.getLocation()[0], mc.getLocation()[1]};

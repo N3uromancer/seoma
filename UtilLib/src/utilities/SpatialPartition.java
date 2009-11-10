@@ -6,6 +6,8 @@ import java.util.Iterator;
 
 import javax.media.opengl.GL;
 
+import utilities.region.RectRegion;
+
 import com.sun.opengl.util.j2d.TextRenderer;
 
 /**
@@ -20,9 +22,9 @@ import com.sun.opengl.util.j2d.TextRenderer;
  * @author Jack
  *
  */
-public final class SpatialPartition extends Region
+public final class SpatialPartition extends RectRegion
 {
-	HashSet<Region> r = new HashSet<Region>();
+	HashSet<RectRegion> r = new HashSet<RectRegion>();
 	int minItems;
 	int maxItems;
 	double minArea;
@@ -37,14 +39,14 @@ public final class SpatialPartition extends Region
 		
 		int width = 2000;
 		int height = 2000;
-		Region[] regions = new Region[regionCount];
+		RectRegion[] regions = new RectRegion[regionCount];
 		SpatialPartition sp = new SpatialPartition(0, 0, width, height, 40, 40, 100);
 		for(int i = 0; i < regions.length; i++)
 		{
-			regions[i] = new Region((int)(Math.random()*width), (int)(Math.random()*height), 20, 20);
+			regions[i] = new RectRegion((int)(Math.random()*width), (int)(Math.random()*height), 20, 20);
 			sp.addRegion(regions[i]);
 		}
-		HashSet<Region> rset = sp.getRegions(sp);
+		HashSet<RectRegion> rset = sp.getRegions(sp);
 		System.out.println("item count = "+sp.size());
 		System.out.println("regions actually stored = "+rset.size());
 		int missing = 0;
@@ -114,7 +116,7 @@ public final class SpatialPartition extends Region
 	{
 		return r==null;
 	}
-	public void addRegion(Region region)
+	public void addRegion(RectRegion region)
 	{
 		if(intersects(region))
 		{
@@ -144,7 +146,7 @@ public final class SpatialPartition extends Region
 			}
 		}
 	}
-	public boolean removeRegion(Region region)
+	public boolean removeRegion(RectRegion region)
 	{
 		boolean removed = false; //true if it removed the region
 		
@@ -205,7 +207,7 @@ public final class SpatialPartition extends Region
 	 * gets all the regions in this partition
 	 * @return returns all the regions in this partition
 	 */
-	private HashSet<Region> getRegions(SpatialPartition sp)
+	private HashSet<RectRegion> getRegions(SpatialPartition sp)
 	{
 		//System.out.println(this);
 		if(sp.r != null)
@@ -214,7 +216,7 @@ public final class SpatialPartition extends Region
 		}
 		else
 		{
-			HashSet<Region> r = new HashSet<Region>();
+			HashSet<RectRegion> r = new HashSet<RectRegion>();
 			for(int i = sp.sp.length-1; i >= 0; i--)
 			{
 				r.addAll(getRegions(sp.sp[i]));
@@ -261,10 +263,10 @@ public final class SpatialPartition extends Region
 			}
 			System.out.println("======================================");*/
 			
-			Iterator<Region> ri = r.iterator();
+			Iterator<RectRegion> ri = r.iterator();
 			while(ri.hasNext())
 			{
-				Region region = ri.next();
+				RectRegion region = ri.next();
 				for(int i = sp.length-1; i >= 0; i--)
 				{
 					sp[i].addRegion(region);
@@ -308,18 +310,18 @@ public final class SpatialPartition extends Region
 	 * @param height the height of the region
 	 * @return returns all regions that intersect with the passed region
 	 */
-	public HashSet<Region> getIntersections(double x, double y, double width, double height)
+	public HashSet<RectRegion> getIntersections(double x, double y, double width, double height)
 	{
-		return getIntersections(new Region(x, y, width, height));
+		return getIntersections(new RectRegion(x, y, width, height));
 	}
 	/**
 	 * returns all regions that intersect with the passed region
 	 * @param region
 	 * @return returns all regions that intersect with the passed region
 	 */
-	public HashSet<Region> getIntersections(Region region)
+	public HashSet<RectRegion> getIntersections(RectRegion region)
 	{
-		HashSet<Region> intersections = new HashSet<Region>();
+		HashSet<RectRegion> intersections = new HashSet<RectRegion>();
 		getItersectionsHelper(intersections, region, this);
 		return intersections;
 	}
@@ -328,16 +330,16 @@ public final class SpatialPartition extends Region
 	 * @param intersections
 	 * @param region
 	 */
-	private void getItersectionsHelper(HashSet<Region> intersections, Region region, SpatialPartition sp)
+	private void getItersectionsHelper(HashSet<RectRegion> intersections, RectRegion region, SpatialPartition sp)
 	{
 		if(intersects(region))
 		{
 			if(sp.r != null)
 			{
-				Iterator<Region> i = sp.r.iterator();
+				Iterator<RectRegion> i = sp.r.iterator();
 				while(i.hasNext())
 				{
-					Region rtemp = i.next();
+					RectRegion rtemp = i.next();
 					if(!intersections.contains(rtemp) && rtemp.intersects(region))
 					{
 						intersections.add(rtemp);
@@ -363,16 +365,16 @@ public final class SpatialPartition extends Region
 	 * @return returns a hashset of regions whose center is within the passed radius of the passed
 	 * position
 	 */
-	public HashSet<Region> getRegions(double x, double y, double radius)
+	public HashSet<RectRegion> getRegions(double x, double y, double radius)
 	{
-		Region bounds = new Region(x-radius, y-radius, radius*2, radius*2);
-		HashSet<Region> r = getIntersections(bounds);
+		RectRegion bounds = new RectRegion(x-radius, y-radius, radius*2, radius*2);
+		HashSet<RectRegion> r = getIntersections(bounds);
 		
-		HashSet<Region> regions = new HashSet<Region>();
-		Iterator<Region> i = r.iterator();
+		HashSet<RectRegion> regions = new HashSet<RectRegion>();
+		Iterator<RectRegion> i = r.iterator();
 		while(i.hasNext())
 		{
-			Region rtemp = i.next();
+			RectRegion rtemp = i.next();
 			if(!regions.contains(rtemp) && MathUtil.distance(x, y, rtemp.x+rtemp.width/2, rtemp.y+rtemp.height/2) <= radius)
 			{
 				regions.add(rtemp);

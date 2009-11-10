@@ -6,6 +6,8 @@ import java.io.IOException;
 
 import javax.media.opengl.GL;
 
+import utilities.region.RectRegion;
+
 /**
  * defines a convex polygon
  * 
@@ -21,7 +23,7 @@ import javax.media.opengl.GL;
  * @author Jack
  *
  */
-public final class Polygon extends Region
+public class Polygon extends RectRegion
 {
 	private Location[] vertices;
 	/**
@@ -79,7 +81,7 @@ public final class Polygon extends Region
 	 * @param vertices vertex locations relative to the bounds, vertices must be defined in
 	 * clockwise order or the normals will be incorrectly calculated
 	 */
-	public Polygon(Region bounds, Location[] vertices)
+	public Polygon(RectRegion bounds, Location[] vertices)
 	{
 		super(bounds.x, bounds.y, bounds.width, bounds.height);
 		this.vertices = vertices;
@@ -111,7 +113,7 @@ public final class Polygon extends Region
 			vertices[i] = new Location(vertices[i].x-x, vertices[i].y-y);
 		}
 	}
-	public static Region determineBoundingRegion(Location[] vertices)
+	public static RectRegion determineBoundingRegion(Location[] vertices)
 	{
 		//for determining the bounding rectanle
 		double lowx = 0;
@@ -145,7 +147,7 @@ public final class Polygon extends Region
 		double width = highx - lowx;
 		double height = highy - lowy;
 		
-		return new Region(lowx, lowy, width, height);
+		return new RectRegion(lowx, lowy, width, height);
 	}
 	/**
 	 * returns the vertices of this polygon
