@@ -20,6 +20,7 @@ public class PropertiesMenu extends JMenu
 		super("Properties");
 		owner = frame;
 		me = editor;
+		getPopupMenu().setLightWeightPopupEnabled(false);
 		JMenuItem sourceSettings = new JMenuItem("Source Settings");
 		sourceSettings.setToolTipText("sets the paths to the .class files used to make the game");
 		sourceSettings.addActionListener(new ActionListener(){

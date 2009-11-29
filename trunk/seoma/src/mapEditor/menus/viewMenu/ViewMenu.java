@@ -12,5 +12,6 @@ public class ViewMenu extends JMenu
 	public ViewMenu(World w)
 	{
 		super("View");
+		getPopupMenu().setLightWeightPopupEnabled(false);
 	}
 }

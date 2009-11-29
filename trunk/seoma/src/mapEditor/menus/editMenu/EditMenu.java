@@ -18,6 +18,7 @@ public class EditMenu extends JMenu
 		super("Edit");
 		final MapEditor me = editor;
 		final JFrame owner = frame;
+		getPopupMenu().setLightWeightPopupEnabled(false);
 		
 		JMenuItem placeTerrain = new JMenuItem("Place Terrain");
 		placeTerrain.addActionListener(new ActionListener(){
