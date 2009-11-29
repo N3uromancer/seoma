@@ -17,6 +17,7 @@ public class FileMenu extends JMenu
 	{
 		super("File");
 		final JFrame owner = o;
+		getPopupMenu().setLightWeightPopupEnabled(false);
 		
 		JMenuItem save = new JMenuItem("Save");
 		JMenuItem load = new JMenuItem("Load");
