@@ -25,8 +25,11 @@ public class SingleStarter
 {
 	public static void main(String[] args)
 	{
+		int width = 300;
+		int height = 300;
+		
 		World world = new World();
-		UnitEngine ue = new UnitEngine(300, 300);
+		UnitEngine ue = new UnitEngine(width, height);
 		world.registerUpdater(ue);
 		world.registerUpdater(new TerrainEngine());
 		
@@ -35,7 +38,7 @@ public class SingleStarter
 		UIFrame uif = new UIFrame(ge, c, new Display(world));
 		uif.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
-		Unit u = new Unit(ge.getOwner(), 100, 100, 50, 50, 30);
+		Unit u = new Unit(ge.getOwner(), 100, 100, 50, 50, 90);
 		u.setAI(new UserAI(u));
 		ue.register((Updateable)u);
 	}
