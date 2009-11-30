@@ -1,5 +1,0 @@
-editor should be able to place terrain/units
-editor should also be able to save/load maps
-basic engine still needs to be done
-server needs to be finished, to allow playing the game
-then come skills/items
