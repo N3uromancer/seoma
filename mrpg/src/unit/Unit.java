@@ -26,6 +26,8 @@ public class Unit extends RectRegion implements Updateable, Drawable
 		super(x, y, width, height);
 		this.owner = owner;
 		this.movement = movement;
+		
+		life = maxLife;
 	}
 	public void setAI(AI ai)
 	{

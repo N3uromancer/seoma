@@ -30,6 +30,8 @@ public class UnitEngine implements Updater
 			Unit u = (Unit)i.next();
 			u.draw(gl);
 		}
+		gl.glColor3d(0, 0, 0);
+		u.drawPartition(gl, (int)width, (int)height);
 	}
 	public void register(Updateable u)
 	{
@@ -62,7 +64,15 @@ public class UnitEngine implements Updater
 				Unit unit = i2.next();
 				u.removeRegion(unit);
 				unit.update(um, tdiff, ui);
-				u.addRegion(unit);
+				if(unit.isDead())
+				{
+					i2.remove();
+					System.out.println("unit removed");
+				}
+				else
+				{
+					u.addRegion(unit);
+				}
 			}
 		}
 	}
