@@ -83,7 +83,7 @@ public class Polygon extends RectRegion
 	 */
 	public Polygon(RectRegion bounds, Location[] vertices)
 	{
-		super(bounds.x, bounds.y, bounds.width, bounds.height);
+		super(bounds.getLocation()[0], bounds.getLocation()[1], bounds.getWidth(), bounds.getHeight());
 		this.vertices = vertices;
 		offSetVertices();
 		

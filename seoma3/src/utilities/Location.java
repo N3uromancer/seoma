@@ -2,7 +2,7 @@ package utilities;
 
 import java.awt.Point;
 
-public class Location
+public class Location implements Comparable<Location>
 {
 	public double x;
 	public double y;
@@ -33,5 +33,16 @@ public class Location
 	public String toString()
 	{
 		return new String("("+x+", "+y+")");
+	}
+	public int compareTo(Location l)
+	{
+		if(l.x == x && l.y == y)
+		{
+			return 0;
+		}
+		else
+		{
+			return -1;
+		}
 	}
 }
