@@ -3,6 +3,8 @@ package ai.computerAI;
 import gameEngine.world.World;
 import gameEngine.world.owner.Owner;
 import gameEngine.world.unit.Unit;
+import gameEngine.world.unit.units.Leader;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -30,7 +32,8 @@ public class TesterAI extends AI
 		while(i.hasNext())
 		{
 			Unit u = i.next();
-			u.setSelected(true);
+			//u.setSelected(true);
+			buildUnit(Leader.class, u, w);
 			if(u.getCurrentAction() == null)
 			{
 				randomlyMoveUnit(u, w);

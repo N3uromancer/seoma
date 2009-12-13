@@ -6,7 +6,9 @@ import java.util.LinkedList;
 import gameEngine.world.World;
 import gameEngine.world.action.actions.*;
 import gameEngine.world.owner.Owner;
+import gameEngine.world.unit.BuildOrder;
 import gameEngine.world.unit.Unit;
+import gameEngine.world.unit.unitModifiers.Builder;
 
 import javax.media.opengl.GL;
 
@@ -28,6 +30,18 @@ public abstract class AI
 	public AI(Owner o)
 	{
 		this.o = o;
+	}
+	public void buildUnit(Class<? extends Unit> u, Unit builder, World w)
+	{
+		if(builder instanceof Builder)
+		{
+			Builder b = (Builder)builder;
+			if(b.canBuild(u))
+			{
+				BuildOrder bo = new BuildOrder(3, u, builder);
+				w.getUnitEngine().registerBuildOrder(bo);
+			}
+		}
 	}
 	/**
 	 * gets the units controlled by this ai
