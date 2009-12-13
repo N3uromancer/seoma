@@ -16,10 +16,10 @@ public class Leader extends Unit implements Builder
 
 	public Leader(Owner o, double x, double y)
 	{
-		super("leader", o, x, y, 15, 11, 100, null);
+		super("leader", o, x, y, 30, 20, 60, null);
 	}
 	public boolean canBuild(Class<? extends Unit> c)
 	{
-		return c == Factory.class;
+		return c == Factory.class || c == Refinery.class;
 	}
 }

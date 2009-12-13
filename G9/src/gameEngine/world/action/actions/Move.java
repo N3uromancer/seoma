@@ -66,4 +66,9 @@ public final class Move extends Action
 		gl.glVertex3d(tx, ty, d);
 		gl.glEnd();
 	}
+	public void startAction(){}
+	public String toString()
+	{
+		return getName()+" to ("+tx+", "+ty+")";
+	}
 }

@@ -32,9 +32,30 @@ public class ResourceDeposit
 	{
 		this.location = location;
 		this.total = total;
+		this.increase = increase;
 		max = total;
 		this.radius = radius;
 		this.sides = sides;
+	}
+	public double[] getLocation()
+	{
+		return location;
+	}
+	/**
+	 * gets the total amount of resources remaining at this resource deposit
+	 * @return
+	 */
+	public double getTotalResources()
+	{
+		return total;
+	}
+	/**
+	 * sets the total resources remaining at this resource deposit
+	 * @param setter
+	 */
+	public void setTotalResources(double setter)
+	{
+		total = setter;
 	}
 	public ResourceDeposit(DataInputStream dis) throws IOException
 	{
@@ -43,7 +64,8 @@ public class ResourceDeposit
 		{
 			location[i] = dis.readDouble();
 		}
-		total = dis.readDouble();
+		max = dis.readDouble();
+		total = max;
 		increase = dis.readDouble();
 		radius = dis.readDouble();
 		sides = dis.readInt();
@@ -62,7 +84,7 @@ public class ResourceDeposit
 	public void draw(GL gl, double depth)
 	{
 		gl.glPushMatrix();
-		gl.glColor4d(.7, .2, .9, .7);
+		gl.glColor4d(.7, .2, .9, .4);
 		gl.glTranslated(location[0], location[1], depth);
 		gl.glScaled(1+Math.sin(expansion)*expansionScale, 1+Math.sin(expansion)*expansionScale, 0);
 		gl.glRotated(r, 0, 0, 1);
@@ -83,6 +105,8 @@ public class ResourceDeposit
 	public void update(World w, double tdiff)
 	{
 		total+=increase*tdiff;
+		//System.out.println("total = "+total+", increase = "+increase);
+		//System.out.println(max);
 		r+=ra*tdiff;
 		//expansion+=3*tdiff;
 		if(total > max)

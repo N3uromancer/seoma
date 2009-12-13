@@ -24,6 +24,8 @@ public class UnitEngine
 	
 	LinkedList<BuildOrder> bo = new LinkedList<BuildOrder>();
 	
+	World w;
+	
 	/**
 	 * creates the unit engine
 	 * @param width the width of the game world
@@ -32,6 +34,7 @@ public class UnitEngine
 	public UnitEngine(StartSettings ss, World w)
 	{
 		ausp = new SpatialPartition(0, 0, ss.getMapWidth(), ss.getMapHeight(), 30, 50, 100);
+		this.w = w;
 		
 		System.out.print("creating starting units... ");
 		Owner[] o = ss.getOwners();
@@ -81,6 +84,8 @@ public class UnitEngine
 		usp.get(unit.getOwner()).addRegion(unit);
 		ausp.addRegion(unit);
 		u.get(unit.getOwner()).add(unit);
+		
+		w.getAIs().get(unit.getOwner()).unitConstructed(unit);
 	}
 	/**
 	 * updates game units, removes dead units from the game
@@ -102,6 +107,7 @@ public class UnitEngine
 					usp.get(unit.getOwner()).removeRegion(unit);
 					ausp.removeRegion(unit);
 					ui.remove();
+					w.getAIs().get(unit.getOwner()).unitDestroy(unit);
 					//System.out.println("unit died");
 				}
 				else
@@ -157,10 +163,6 @@ public class UnitEngine
 	public SpatialPartition getAllUnits()
 	{
 		return ausp;
-	}
-	public boolean isDead()
-	{
-		return false;
 	}
 	public void drawAll(double x, double y, double width, double height, GL gl)
 	{

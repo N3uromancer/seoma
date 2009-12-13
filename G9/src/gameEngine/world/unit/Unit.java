@@ -1,6 +1,5 @@
 package gameEngine.world.unit;
 
-import java.util.HashSet;
 import java.util.concurrent.LinkedBlockingQueue;
 import javax.media.opengl.GL;
 import updateManager.Drawable;
@@ -46,6 +45,10 @@ public abstract class Unit extends RectRegion implements Drawable
 	{
 		return life;
 	}
+	/**
+	 * gets the action that the unit is currently performing
+	 * @return returns the action the unit is currently performing
+	 */
 	public Action getCurrentAction()
 	{
 		if(a.size() > 0)
@@ -71,6 +74,10 @@ public abstract class Unit extends RectRegion implements Drawable
 	public void addAction(Action action)
 	{
 		a.add(action);
+		if(a.size() == 1)
+		{
+			action.startAction();
+		}
 	}
 	public boolean isDead()
 	{
@@ -102,6 +109,10 @@ public abstract class Unit extends RectRegion implements Drawable
 				if(done)
 				{
 					a.remove();
+					if(a.size() > 0)
+					{
+						a.peek().startAction();
+					}
 				}
 			}
 		}
@@ -141,6 +152,7 @@ public abstract class Unit extends RectRegion implements Drawable
 	}
 	public void draw(GL gl)
 	{
+		gl.glPushMatrix();
 		double d = 0; //depth
 		double[] c = o.getColor();
 		gl.glColor3d(c[0], c[1], c[2]);
@@ -150,6 +162,7 @@ public abstract class Unit extends RectRegion implements Drawable
 		gl.glVertex3d(x+width, y+height, d);
 		gl.glVertex3d(x, y+height, d);
 		gl.glEnd();
+		gl.glPopMatrix();
 		
 		if(a.size() > 0)
 		{

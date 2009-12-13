@@ -1,10 +1,14 @@
 package mapEditor;
 
+import gameEngine.world.World;
 import gameEngine.world.resource.MediumDeposit;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+
 import javax.media.opengl.GL;
 import javax.media.opengl.GLCanvas;
 import javax.media.opengl.GLCapabilities;
@@ -12,6 +16,15 @@ import mapEditor.mapEditorMenuBar.MapEditorMenuBar;
 import ui.UIFrame;
 import ui.display.DisplayManager;
 import ui.userIO.UserInputInterpreter;
+import ui.userIO.userInput.KeyPress;
+import ui.userIO.userInput.KeyRelease;
+import ui.userIO.userInput.KeyTyped;
+import ui.userIO.userInput.MouseClick;
+import ui.userIO.userInput.MouseDrag;
+import ui.userIO.userInput.MouseMove;
+import ui.userIO.userInput.MousePress;
+import ui.userIO.userInput.MouseRelease;
+import ui.userIO.userInput.UserInput;
 import utilities.Location;
 import utilities.MathUtil;
 import utilities.Polygon;
@@ -142,7 +155,7 @@ public class MapEditor implements UserInputInterpreter, DisplayManager, Runnable
 			}
 		}
 	}
-	public void mouseAction(int x, int y, boolean pressed, boolean rightClick)
+	private void mouseAction(int x, int y, boolean pressed, boolean rightClick)
 	{
 		if(!pressed && dragging)
 		{
@@ -182,7 +195,7 @@ public class MapEditor implements UserInputInterpreter, DisplayManager, Runnable
 			}
 		}
 	}
-	public void mouseMotionAction(int x, int y, boolean dragged, boolean rightClick)
+	private void mouseMotionAction(int x, int y, boolean dragged, boolean rightClick)
 	{
 		mcurrent[0] = x+(int)xt;
 		mcurrent[1] = y+(int)yt;
@@ -220,12 +233,56 @@ public class MapEditor implements UserInputInterpreter, DisplayManager, Runnable
 		}*/
 		m.drawMapElements(gl);
 	}
-	public void keyTyped(char c)
+	public void keyTypeAction(char c)
 	{
 		
 	}
-	public void mouseClickAction(int x, int y, boolean rightClick)
+	private void mouseClickAction(int x, int y, boolean rightClick)
 	{
 		
+	}
+	public void registerUserInput(UserInput input)
+	{
+		if(input instanceof MouseClick)
+		{
+			MouseClick m = (MouseClick)input;
+			mouseClickAction(m.getLocation()[0], m.getLocation()[1], m.isRightClick());
+		}
+		else if(input instanceof MouseRelease)
+		{
+			MouseRelease m = (MouseRelease)input;
+			mouseAction(m.getLocation()[0], m.getLocation()[1], false, m.isRightClick());
+		}
+		else if(input instanceof MousePress)
+		{
+			MousePress m = (MousePress)input;
+			mouseAction(m.getLocation()[0], m.getLocation()[1], true, m.isRightClick());
+		}
+		else if(input instanceof MouseMove)
+		{
+			MouseMove m = (MouseMove)input;
+			mouseMotionAction(m.getLocation()[0], m.getLocation()[1], false, m.isRightClick());
+		}
+		else if(input instanceof MouseDrag)
+		{
+			MouseDrag m = (MouseDrag)input;
+			mouseMotionAction(m.getLocation()[0], m.getLocation()[1], true, m.isRightClick());
+		}
+		else if(input instanceof KeyPress)
+		{
+			//System.out.println("here");
+			KeyPress m = (KeyPress)input;
+			keyAction(m.getCharacter(), true);
+		}
+		else if(input instanceof KeyRelease)
+		{
+			KeyRelease m = (KeyRelease)input;
+			keyAction(m.getCharacter(), true);
+		}
+		else if(input instanceof KeyTyped)
+		{
+			KeyTyped m = (KeyTyped)input;
+			keyTypeAction(m.getCharacter());
+		}
 	}
 }

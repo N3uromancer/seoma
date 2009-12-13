@@ -19,6 +19,15 @@ public class Owner
 		this.name = name;
 		this.c = c;
 	}
+	public double getResources()
+	{
+		return resources;
+	}
+	public void setResources(double setter)
+	{
+		resources = setter;
+		System.out.println("resources = "+resources);
+	}
 	public byte getID()
 	{
 		return id;
