@@ -25,7 +25,7 @@ public class SimpleStarter
 		double[] c1 = {1, 0, 0};
 		double[] c2 = {0, 0, 1};
 		final Owner[] owners = {new Owner((byte)0, "player 1", c1), new Owner((byte)2, "player 2", c2)};
-		String[] startingUnits = {"tank"};
+		String[] startingUnits = {"leader"};
 		//String[] startingUnits = {"factory s1", "builder s1"};
 		StartSettings ss = new StartSettings(700, 700, owners, startingUnits);
 		

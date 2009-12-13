@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.concurrent.LinkedBlockingQueue;
 import javax.media.opengl.GL;
 import updateManager.Drawable;
-import updateManager.Updateable;
 import utilities.region.RectRegion;
 import gameEngine.world.World;
 import gameEngine.world.action.Action;
@@ -21,7 +20,6 @@ public abstract class Unit extends RectRegion implements Drawable
 	double maxLife;
 	LinkedBlockingQueue<Action> a = new LinkedBlockingQueue<Action>();
 	boolean selected = false;
-	protected HashSet<String> buildTree = new HashSet<String>(); //names of buildable units
 	boolean dead = false;
 	
 	/**
@@ -39,10 +37,6 @@ public abstract class Unit extends RectRegion implements Drawable
 		this.o = o;
 		this.w = w;
 		this.movement = movement;
-	}
-	public HashSet<String> getBuildTree()
-	{
-		return buildTree;
 	}
 	public void setLife(double setter)
 	{

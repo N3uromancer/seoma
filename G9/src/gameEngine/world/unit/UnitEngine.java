@@ -18,9 +18,11 @@ import utilities.region.Region;
  */
 public class UnitEngine
 {
-	SpatialPartition ausp; //all units spatial partition
+	SpatialPartition ausp; //all units spatial partition, for drawing
 	HashMap<Owner, SpatialPartition> usp = new HashMap<Owner, SpatialPartition>(); //unit spatial partitions
 	HashMap<Owner, LinkedList<Unit>> u = new HashMap<Owner, LinkedList<Unit>>(); //units
+	
+	LinkedList<BuildOrder> bo = new LinkedList<BuildOrder>();
 	
 	/**
 	 * creates the unit engine
@@ -104,12 +106,27 @@ public class UnitEngine
 				}
 				else
 				{
-					usp.get(unit.getOwner()).removeRegion(unit);
-					ausp.removeRegion(unit);
+					if(unit.getMovement() > 0)
+					{
+						usp.get(unit.getOwner()).removeRegion(unit);
+						ausp.removeRegion(unit);
+					}
 					unit.update(w, tdiff);
-					usp.get(unit.getOwner()).addRegion(unit);
-					ausp.addRegion(unit);
+					if(unit.getMovement() > 0)
+					{
+						usp.get(unit.getOwner()).addRegion(unit);
+						ausp.addRegion(unit);
+					}
 				}
+			}
+		}
+		//updates and removes all build orders
+		Iterator<BuildOrder> bi = bo.iterator(); //build iterator
+		while(bi.hasNext())
+		{
+			if(bi.next().update(tdiff, this))
+			{
+				bi.remove();
 			}
 		}
 	}
@@ -126,6 +143,10 @@ public class UnitEngine
 	public SpatialPartition getUnitPartition(Owner o)
 	{
 		return usp.get(o);
+	}
+	public void registerBuildOrder(BuildOrder order)
+	{
+		bo.add(order);
 	}
 	/**
 	 * returns a single spatial partition representing all game units, used

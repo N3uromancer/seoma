@@ -11,9 +11,9 @@ public final class UnitFactory
 		{
 			return new Tank(o, x, y);
 		}
-		else if(name.equalsIgnoreCase("builder s1"))
+		else if(name.equalsIgnoreCase("leader"))
 		{
-			return new Builder(o, x, y);
+			return new Leader(o, x, y);
 		}
 		else if(name.equalsIgnoreCase("factory s1"))
 		{

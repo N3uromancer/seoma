@@ -12,8 +12,7 @@ public class Factory extends Building
 {
 	public Factory(Owner o, double x, double y)
 	{
-		super("factory s1", o, x, y, 50, 50, null);
+		super("factory", o, x, y, 50, 50, null);
 		buildTree.add("tank");
-		buildTree.add("builder");
 	}
 }
