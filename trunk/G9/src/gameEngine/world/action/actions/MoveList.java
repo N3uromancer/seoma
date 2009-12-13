@@ -14,7 +14,7 @@ public final class MoveList extends ActionList
 {
 	public MoveList(Unit u, Location[] l)
 	{
-		super("move");
+		super("move list");
 		for(int i = 0; i < l.length; i++)
 		{
 			addActionToList(new Move(u, l[i].x, l[i].y));

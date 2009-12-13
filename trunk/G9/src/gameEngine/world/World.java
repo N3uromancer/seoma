@@ -54,6 +54,14 @@ public class World
 	{
 		return se;
 	}
+	public ResourceEngine getResourceEngine()
+	{
+		return re;
+	}
+	public HashMap<Owner, AI> getAIs()
+	{
+		return ais;
+	}
 	public World(StartSettings ss, HashMap<Owner, AI> ais)
 	{
 		this.ais = ais;
@@ -136,7 +144,7 @@ public class World
 		}
 		ue.updateUnitEngine(tdiff, this);
 		se.updateShotEngine(tdiff, ue);
-		re.updateResourceDeposits(tdiff, this);
+		re.updateResourceEngine(tdiff, this);
 	}
 	/**
 	 * draws the world

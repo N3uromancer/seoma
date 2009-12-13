@@ -35,4 +35,10 @@ public abstract class Action
 		return name;
 	}
 	public abstract void drawAction(GL gl);
+	/**
+	 * called when the action is initially begun, for intsance, if there
+	 * were several actions queued in a units action queue this action may
+	 * not run immediately when it was assigned
+	 */
+	public abstract void startAction();
 }

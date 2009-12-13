@@ -13,7 +13,7 @@ import javax.media.opengl.GL;
 public class ActionList extends Action
 {
 	private ArrayList<Action> a = new ArrayList<Action>();
-	private int index; //the index of the action that the list is on
+	private int index = 0; //the index of the action that the list is on
 	
 	public ActionList(String name)
 	{
@@ -27,7 +27,8 @@ public class ActionList extends Action
 	{
 		if(index < a.size())
 		{
-			a.get(index).drawAction(gl);
+			//a.get(index).drawAction(gl);
+			a.get(a.size()-1).drawAction(gl);
 		}
 		/*for(int i = a.size()-1; i >= index; i--)
 		{
@@ -41,12 +42,12 @@ public class ActionList extends Action
 		if(done)
 		{
 			index++;
+			if(index < a.size())
+			{
+				a.get(index).startAction();
+			}
 		}
-		if(index == a.size())
-		{
-			return true;
-		}
-		return false;
+		return index == a.size();
 	}
 	/**
 	 * cancels all the actions in the list
@@ -57,5 +58,17 @@ public class ActionList extends Action
 		{
 			a.get(i).cancelAction();
 		}
+	}
+	public void startAction()
+	{
+		a.get(0).startAction();
+	}
+	public String toString()
+	{
+		if(index < a.size())
+		{
+			return getName()+", "+a.get(index);
+		}
+		return getName()+", done";
 	}
 }

@@ -9,23 +9,27 @@ import javax.media.opengl.GL;
 
 public class ResourceEngine
 {
-	ArrayList<ResourceDeposit> r = new ArrayList<ResourceDeposit>();
+	ArrayList<ResourceDeposit> rd = new ArrayList<ResourceDeposit>();
 	
 	public ResourceEngine(ArrayList<ResourceDeposit> r)
 	{
-		this.r = r;
+		this.rd = r;
 	}
-	public void  updateResourceDeposits(double tdiff, World w)
+	public void  updateResourceEngine(double tdiff, World w)
 	{
-		Iterator<ResourceDeposit> i = r.iterator();
+		Iterator<ResourceDeposit> i = rd.iterator();
 		while(i.hasNext())
 		{
 			i.next().update(w, tdiff);
 		}
 	}
+	public ArrayList<ResourceDeposit> getResourceDeposits()
+	{
+		return rd;
+	}
 	public void drawResourceDeposits(GL gl)
 	{
-		Iterator<ResourceDeposit> i = r.iterator();
+		Iterator<ResourceDeposit> i = rd.iterator();
 		while(i.hasNext())
 		{
 			i.next().draw(gl, 1);

@@ -1,15 +1,14 @@
 package ai.computerAI;
 
 import gameEngine.world.World;
+
 import gameEngine.world.owner.Owner;
 import gameEngine.world.unit.Unit;
-import gameEngine.world.unit.units.Leader;
-
+import gameEngine.world.unit.units.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import javax.media.opengl.GL;
-
 import ai.AI;
 import ui.userIO.userInput.UserInput;
 import utilities.Camera;
@@ -17,6 +16,9 @@ import utilities.Location;
 
 public class TesterAI extends AI
 {
+	int factories = 0;
+	int harvesters = 0;
+	
 	public TesterAI(Owner o)
 	{
 		super(o);
@@ -32,8 +34,25 @@ public class TesterAI extends AI
 		while(i.hasNext())
 		{
 			Unit u = i.next();
-			//u.setSelected(true);
-			buildUnit(Leader.class, u, w);
+			if(u.getCurrentAction() == null && getUnits().get(Refinery.class) == null)
+			{
+				buildUnit(Refinery.class, u, w);
+				randomlyMoveUnit(u, w);
+				buildUnit(Factory.class, u, w);
+			}
+			/*if(factories == 0 && buildUnit(Factory.class, u, w))
+			{
+				factories++;
+			}*/
+			if(harvesters < 1 && buildUnit(Harvester.class, u, w))
+			{
+				harvesters++;
+			}
+			gatherResources(u, getResourceDeposits(w).get(1), w);
+			if(u instanceof Harvester)
+			{
+				System.out.println(u.getCurrentAction());
+			}
 			if(u.getCurrentAction() == null)
 			{
 				randomlyMoveUnit(u, w);
