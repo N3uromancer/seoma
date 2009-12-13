@@ -2,8 +2,8 @@ package ui.userIO.userInput;
 
 public class KeyTyped extends KeyInput
 {
-	public KeyTyped(byte owner, char c)
+	public KeyTyped(char c)
 	{
-		super(owner, c);
+		super(c);
 	}
 }

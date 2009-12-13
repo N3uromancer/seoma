@@ -31,6 +31,17 @@ public class RectRegion implements Region
 		this.width = width;
 		this.height = height;
 	}
+	public RectRegion(DataInputStream dis)
+	{
+		try
+		{
+			readRegion(dis);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
 	public boolean contains(double px, double py)
 	{
 		return px >= x && px <= x+width && py >= y && py <= y+height;

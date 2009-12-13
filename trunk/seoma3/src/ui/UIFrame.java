@@ -63,7 +63,7 @@ public class UIFrame extends JFrame
             display.setDisplayable(d);
         }
         
-        animator = new Animator(canvas);
+        //animator = new Animator(canvas);
         
         /*addWindowListener(new WindowAdapter(){
             public void windowClosing(WindowEvent e){
@@ -76,11 +76,7 @@ public class UIFrame extends JFrame
             }
         });*/
         setVisible(true);
-        animator.start();
-	}
-	public Animator getAnimator()
-	{
-		return animator;
+        //animator.start();
 	}
 	/**
 	 * gets the frame's glcanvas

@@ -5,6 +5,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import ui.userIO.userInput.*;
 
 /**
  * listens for all user input, mouse events, key events, etc., sends the input
@@ -24,14 +25,16 @@ public class UserInputListener implements KeyListener, MouseListener, MouseMotio
 	{
 		if(uii != null)
 		{
-			uii.keyAction(e.getKeyChar(), true);
+			//uii.keyAction(e.getKeyChar(), true);
+			uii.registerUserInput(new KeyPress(e.getKeyChar()));
 		}
 	}
 	public void keyReleased(KeyEvent e)
 	{
 		if(uii != null)
 		{
-			uii.keyAction(e.getKeyChar(), false);
+			//uii.keyAction(e.getKeyChar(), false);
+			uii.registerUserInput(new KeyRelease(e.getKeyChar()));
 		}
 	}
 	public void keyTyped(KeyEvent arg0){}
@@ -39,7 +42,8 @@ public class UserInputListener implements KeyListener, MouseListener, MouseMotio
 	{
 		if(uii != null)
 		{
-			uii.mouseClickAction(e.getPoint().x, height-e.getPoint().y, e.getButton()==MouseEvent.BUTTON3);
+			//uii.mouseClickAction(e.getPoint().x, height-e.getPoint().y, e.getButton()==MouseEvent.BUTTON3);
+			uii.registerUserInput(new MouseClick(e.getPoint().x, height-e.getPoint().y, e.getButton()==MouseEvent.BUTTON3));
 		}
 	}
 	public void mouseEntered(MouseEvent arg0){}
@@ -48,14 +52,16 @@ public class UserInputListener implements KeyListener, MouseListener, MouseMotio
 	{
 		if(uii != null)
 		{
-			uii.mouseAction(e.getPoint().x, height-e.getPoint().y, true, e.getButton()==MouseEvent.BUTTON3);
+			//uii.mouseAction(e.getPoint().x, height-e.getPoint().y, true, e.getButton()==MouseEvent.BUTTON3);
+			uii.registerUserInput(new MousePress(e.getPoint().x, height-e.getPoint().y, e.getButton()==MouseEvent.BUTTON3));
 		}
 	}
 	public void mouseReleased(MouseEvent e)
 	{
 		if(uii != null)
 		{
-			uii.mouseAction(e.getPoint().x, height-e.getPoint().y, false, e.getButton()==MouseEvent.BUTTON3);
+			//uii.mouseAction(e.getPoint().x, height-e.getPoint().y, false, e.getButton()==MouseEvent.BUTTON3);
+			uii.registerUserInput(new MouseRelease(e.getPoint().x, height-e.getPoint().y, e.getButton()==MouseEvent.BUTTON3));
 		}
 	}
 	public void setUserInputInterpreter(UserInputInterpreter uii)
@@ -73,10 +79,12 @@ public class UserInputListener implements KeyListener, MouseListener, MouseMotio
 	}
 	public void mouseDragged(MouseEvent e)
 	{
-		uii.mouseMoveAction(e.getPoint().x, height-e.getPoint().y, true, e.getButton()==MouseEvent.BUTTON3);
+		//uii.mouseMotionAction(e.getPoint().x, height-e.getPoint().y, true, e.getButton()==MouseEvent.BUTTON3);
+		uii.registerUserInput(new MouseDrag(e.getPoint().x, height-e.getPoint().y, e.getButton()==MouseEvent.BUTTON3));
 	}
 	public void mouseMoved(MouseEvent e)
 	{
-		uii.mouseMoveAction(e.getPoint().x, height-e.getPoint().y, false, e.getButton()==MouseEvent.BUTTON3);
+		//uii.mouseMotionAction(e.getPoint().x, height-e.getPoint().y, false, e.getButton()==MouseEvent.BUTTON3);
+		uii.registerUserInput(new MouseMove(e.getPoint().x, height-e.getPoint().y, e.getButton()==MouseEvent.BUTTON3));
 	}
 }

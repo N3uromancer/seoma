@@ -22,7 +22,7 @@ public class UpdateManager
 	{
 		u.add(updater);
 	}
-	public void drawAll(double x, double y, double width, double height, GL gl)
+	public void drawAll(GL gl, double x, double y, double width, double height)
 	{
 		Iterator<Updater> i = u.iterator();
 		while(i.hasNext())

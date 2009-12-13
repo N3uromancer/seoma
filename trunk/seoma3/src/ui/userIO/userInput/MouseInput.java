@@ -1,18 +1,17 @@
 package ui.userIO.userInput;
 
-public abstract class MouseInput extends UserInput
+public abstract class MouseInput implements UserInput
 {
 	private int x, y;
 	private boolean rightClick;
 	
 	/**
 	 * the location that the mouse click occured at in the opengl coordinate system
-	 * @param x
-	 * @param y
+	 * @param x the x location of the click in the opengl coordinate system
+	 * @param y the y location of the click in the opengl coordinate system
 	 */
-	public MouseInput(byte owner, int x, int y, boolean rightClick)
+	public MouseInput(int x, int y, boolean rightClick)
 	{
-		super(owner);
 		this.x = x;
 		this.y = y;
 		this.rightClick = rightClick;
