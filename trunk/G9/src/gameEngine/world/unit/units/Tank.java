@@ -15,7 +15,7 @@ public class Tank extends Unit
 {
 	public Tank(Owner o, double x, double y)
 	{
-		super("tank", o, x, y, 20, 15, 30, 70, new MachineGun(), 10, 20);
+		super("tank", o, x, y, 20, 15, 30, 70, new MachineGun(), 5, 20);
 	}
 	
 }
