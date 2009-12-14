@@ -51,7 +51,7 @@ public class TesterAI extends AI
 			gatherResources(u, getResourceDeposits(w).get(1), w);
 			if(u instanceof Harvester)
 			{
-				System.out.println(u.getCurrentAction());
+				//System.out.println(u.getCurrentAction());
 			}
 			if(u.getCurrentAction() == null)
 			{

@@ -8,6 +8,6 @@ public class Refinery extends Building implements Refiner
 {
 	public Refinery(Owner o, double x, double y)
 	{
-		super("refinery", o, x, y, 70, 70, null);
+		super("refinery", o, x, y, 70, 70, null, 20);
 	}
 }

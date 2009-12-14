@@ -14,7 +14,7 @@ public class Factory extends Building implements Builder
 {
 	public Factory(Owner o, double x, double y)
 	{
-		super("factory", o, x, y, 50, 50, null);
+		super("factory", o, x, y, 50, 50, null, 15);
 	}
 	public boolean canBuild(Class<? extends Unit> c)
 	{
