@@ -3,3 +3,6 @@
 -change center of units to their center, instead of bottom left corner
 -balance units
 -add moving/zooming in/out while ingame
+-air units
+-homing shots
+-transport units
