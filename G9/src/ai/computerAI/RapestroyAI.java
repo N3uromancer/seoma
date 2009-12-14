@@ -48,26 +48,28 @@ public class RapestroyAI extends AI
 						buildUnit(Refinery.class, u, w);
 					else if(getUnits().get(Factory.class) == null)
 						buildUnit(Factory.class, u, w);
+					else if (getUnits().get(Factory.class).size() < 15)
+						buildUnit(Factory.class, u, w);
 					//else moveUnitRandomlyAroundArea(u, w, getUnits().get(Factory.class).get(0).getLocation()[0], getUnits().get(Factory.class).get(0).getLocation()[1], 20);
 				}
 				if(u instanceof Factory)
 				{
 					if(getUnits().get(Harvester.class) == null)
 						buildUnit(Harvester.class, u, w);
-					else if (getUnits().get(Harvester.class).size() < 2)
+					else if (getUnits().get(Harvester.class).size() < 5)
 						buildUnit(Harvester.class, u, w);
 					if(getUnits().get(Tank.class) == null)
 						buildUnit(Tank.class, u, w);
-					else //if (getUnits().get(Tank.class).size() < 40)
+					else if (getUnits().get(Tank.class).size() < 60)
 						buildUnit(Tank.class, u, w);
 				}
 				if(u instanceof Gatherer)
 				{
-					//gatherResources(u, getClosestResourceDeposit(u.getLocation()[0], u.getLocation()[1], w), w);
+					gatherResources(u, getClosestResourceDeposit(u.getLocation()[0], u.getLocation()[1], w), w);
 				}
 				if(u instanceof Tank)
 				{
-					if (getUnits().get(Tank.class).size() < 20)
+					if (getUnits().get(Tank.class).size() < 25)
 						moveUnitRandomlyAroundArea(u, w, getClosestResourceDeposit(u.getLocation()[0], u.getLocation()[1], w).getLocation()[0], getClosestResourceDeposit(u.getLocation()[0], u.getLocation()[1], w).getLocation()[1], 20);
 					else
 						moveUnitRandomly(u, w);

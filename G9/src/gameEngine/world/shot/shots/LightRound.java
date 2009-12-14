@@ -8,6 +8,6 @@ public class LightRound extends StaticVelocityShot
 {
 	public LightRound(double x, double y, Unit target, Owner o)
 	{
-		super(x, y, 2, 2, target, 170, 10, o);
+		super(x, y, 2, 2, target, 170, 3, o);
 	}
 }
