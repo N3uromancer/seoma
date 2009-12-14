@@ -1,5 +1,6 @@
 package ai;
 
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -103,10 +104,20 @@ public abstract class AI
 		{
 			Builder b = (Builder)builder;
 			//System.out.println(builder.getClass().getSimpleName()+" is a builder");
-			if(b.canBuild(u))
+			Unit temp = null;
+			try
+			{
+				Class<?>[] arguments = {Owner.class, double.class, double.class};
+				Object[] parameters = {builder.getOwner(), 0, 0};
+				Constructor<? extends Unit> c = u.getConstructor(arguments);
+				temp = c.newInstance(parameters);
+			}
+			catch(Exception e){}
+			if(b.canBuild(u) && builder.getOwner().getResources() >= temp.getCost())
 			{
 				//System.out.println("can build "+u.getSimpleName());
-				BuildOrder bo = new BuildOrder(u, builder);
+				builder.getOwner().setResources(builder.getOwner().getResources()-temp.getCost());
+				BuildOrder bo = new BuildOrder(temp.getBuildTime(), u, builder);
 				builder.addAction(new Build(bo, w));
 				return true;
 			}
