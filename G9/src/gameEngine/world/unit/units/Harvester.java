@@ -15,7 +15,7 @@ public class Harvester extends Unit implements Gatherer
 	
 	public Harvester(Owner o, double x, double y)
 	{
-		super("harvester", o, x, y, 15, 11, 100, null, 5);
+		super("harvester", o, x, y, 15, 11, 20, 100, null, 5, 10);
 	}
 	public double getLoad()
 	{

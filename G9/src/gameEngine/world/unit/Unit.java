@@ -21,6 +21,7 @@ public abstract class Unit extends RectRegion implements Drawable
 	boolean selected = false;
 	boolean dead = false;
 	double buildTime;
+	double cost;
 	
 	/**
 	 * creates a unit
@@ -30,14 +31,20 @@ public abstract class Unit extends RectRegion implements Drawable
 	 * @param width
 	 * @param height
 	 */
-	public Unit(String name, Owner o, double x, double y, double width, double height, double movement, Weapon w, double buildTime)
+	public Unit(String name, Owner o, double x, double y, double width, double height, double life, double movement, Weapon w, double buildTime, double cost)
 	{
 		super(x, y, width, height);
 		this.name = name;
 		this.o = o;
 		this.w = w;
+		this.life = life;
 		this.movement = movement;
 		this.buildTime = buildTime;
+		this.cost = cost;
+	}
+	public double getCost()
+	{
+		return cost;
 	}
 	public double getBuildTime()
 	{
