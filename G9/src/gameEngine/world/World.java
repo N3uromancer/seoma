@@ -83,7 +83,7 @@ public class World
 		{
 			File f = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+
 					System.getProperty("file.separator")+"maps"+System.getProperty("file.separator")+
-					"Standard.map");
+					"a test map with resources.map");
 			FileInputStream fis = new FileInputStream(f);
 			DataInputStream dis = new DataInputStream(fis);
 			m.readMap(dis);
