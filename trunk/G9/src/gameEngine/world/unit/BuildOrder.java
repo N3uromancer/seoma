@@ -24,12 +24,13 @@ public final class BuildOrder
 	 * @param u the unit to create
 	 * @param the unit that initiated the build order
 	 */
-	public BuildOrder(Class<? extends Unit> u, Unit builder)
+	public BuildOrder(double buildTime, Class<? extends Unit> u, Unit builder)
 	{
 		this.u = u;
 		this.builder = builder;
+		this.buildTime = buildTime;
 		
-		try
+		/*try
 		{
 			Class<?>[] arguments = {Owner.class, double.class, double.class};
 			Object[] parameters = {builder.getOwner(), 0, 0};
@@ -37,7 +38,7 @@ public final class BuildOrder
 			Unit temp = c.newInstance(parameters);
 			buildTime = temp.getBuildTime();
 		}
-		catch(Exception e){}
+		catch(Exception e){}*/
 	}
 	/**
 	 * updates the build order, increments the timer
