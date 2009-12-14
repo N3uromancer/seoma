@@ -106,7 +106,7 @@ public abstract class AI
 			if(b.canBuild(u))
 			{
 				//System.out.println("can build "+u.getSimpleName());
-				BuildOrder bo = new BuildOrder(0, u, builder);
+				BuildOrder bo = new BuildOrder(u, builder);
 				builder.addAction(new Build(bo, w));
 				return true;
 			}

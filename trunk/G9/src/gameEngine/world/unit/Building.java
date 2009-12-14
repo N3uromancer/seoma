@@ -7,9 +7,9 @@ import gameEngine.world.weapon.Weapon;
 
 public abstract class Building extends Unit
 {
-	public Building(String name, Owner o, double x, double y, double width, double height, Weapon w)
+	public Building(String name, Owner o, double x, double y, double width, double height, Weapon w, double buildTime)
 	{
-		super(name, o, x, y, width, height, 0, w);
+		super(name, o, x, y, width, height, 0, w, buildTime);
 	}
 	public void draw(GL gl)
 	{

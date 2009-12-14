@@ -16,7 +16,7 @@ public class Leader extends Unit implements Builder
 
 	public Leader(Owner o, double x, double y)
 	{
-		super("leader", o, x, y, 30, 20, 60, null);
+		super("leader", o, x, y, 30, 20, 60, null, 0);
 	}
 	public boolean canBuild(Class<? extends Unit> c)
 	{

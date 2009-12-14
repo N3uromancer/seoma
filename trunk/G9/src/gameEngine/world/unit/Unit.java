@@ -20,6 +20,7 @@ public abstract class Unit extends RectRegion implements Drawable
 	LinkedBlockingQueue<Action> a = new LinkedBlockingQueue<Action>();
 	boolean selected = false;
 	boolean dead = false;
+	double buildTime;
 	
 	/**
 	 * creates a unit
@@ -29,13 +30,18 @@ public abstract class Unit extends RectRegion implements Drawable
 	 * @param width
 	 * @param height
 	 */
-	public Unit(String name, Owner o, double x, double y, double width, double height, double movement, Weapon w)
+	public Unit(String name, Owner o, double x, double y, double width, double height, double movement, Weapon w, double buildTime)
 	{
 		super(x, y, width, height);
 		this.name = name;
 		this.o = o;
 		this.w = w;
 		this.movement = movement;
+		this.buildTime = buildTime;
+	}
+	public double getBuildTime()
+	{
+		return buildTime;
 	}
 	public void setLife(double setter)
 	{
