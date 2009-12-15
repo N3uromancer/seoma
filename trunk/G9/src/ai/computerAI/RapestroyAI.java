@@ -11,6 +11,8 @@ import gameEngine.world.unit.unitModifiers.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Random;
+
 import javax.media.opengl.GL;
 import utilities.MathUtil;
 import ai.AI;
@@ -20,9 +22,12 @@ import utilities.Location;
 
 public class RapestroyAI extends AI
 {
-	public RapestroyAI(Owner o)
+	Random rand;
+	
+	public RapestroyAI(Owner o, Long seed)
 	{
-		super(o);
+		super(o, seed);
+		rand = new Random(seed);
 	}
 	public Camera getCamera()
 	{
@@ -78,12 +83,12 @@ public class RapestroyAI extends AI
 	public void moveUnitRandomly(Unit u, World w)
 	{
 		if(u.getCurrentAction() == null)
-			moveUnit(u, Math.random()*w.getMapWidth(), Math.random()*w.getMapHeight(), w);
+			moveUnit(u, rand.nextDouble()*w.getMapWidth(), rand.nextDouble()*w.getMapHeight(), w);
 	}
 	public void moveUnitRandomlyAroundArea(Unit u, World w, double x, double y, int bounds)
 	{
 		if(u.getCurrentAction() == null)
-			moveUnit(u, x-bounds+Math.random()*bounds*2, y-bounds+Math.random()*bounds*2, w);
+			moveUnit(u, x-bounds+rand.nextDouble()*bounds*2, y-bounds+rand.nextDouble()*bounds*2, w);
 	}
 	public ResourceDeposit getClosestResourceDeposit(double x, double y, World w)
 	{

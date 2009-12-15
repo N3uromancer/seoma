@@ -8,6 +8,8 @@ import gameEngine.world.unit.units.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Random;
+
 import javax.media.opengl.GL;
 import ai.AI;
 import ui.userIO.userInput.UserInput;
@@ -19,9 +21,12 @@ public class TesterAI extends AI
 	int factories = 0;
 	int harvesters = 0;
 	
-	public TesterAI(Owner o)
+	Random rand;
+	
+	public TesterAI(Owner o, Long seed)
 	{
-		super(o);
+		super(o, seed);
+		rand = new Random(seed);
 	}
 	public Camera getCamera()
 	{
@@ -65,7 +70,7 @@ public class TesterAI extends AI
 	 */
 	private Location getRandomMapLocation(World w)
 	{
-		return new Location(Math.random()*w.getMapWidth(), Math.random()*w.getMapHeight());
+		return new Location(rand.nextDouble()*w.getMapWidth(), rand.nextDouble()*w.getMapHeight());
 	}
 	private void randomlyMoveUnit(Unit u, World w)
 	{

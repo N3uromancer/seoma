@@ -35,7 +35,7 @@ public abstract class AI
 	HashMap<Class<? extends Unit>, ArrayList<Unit>> units = 
 		new HashMap<Class<? extends Unit>, ArrayList<Unit>>();
 	
-	public AI(Owner o)
+	public AI(Owner o, long seed)
 	{
 		this.o = o;
 	}
