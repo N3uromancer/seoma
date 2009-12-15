@@ -71,7 +71,8 @@ public class HookServ implements Runnable {
 			
 				if (oldFile == null || !oldFile.lastModified().equals(f.lastModified()))
 				{
-					File localFile = File.createTempFile(f.getName(), "");
+					File localFile = new File(f.getName());
+					localFile.createNewFile();
 				
 					fClient.get(new FileOutputStream(localFile), dir + f.getName());
 				
