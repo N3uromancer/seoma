@@ -3,6 +3,8 @@ package server;
 import gameEngine.StartSettings;
 import gameEngine.world.owner.Owner;
 
+import io.SimpleClassLoader;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -11,7 +13,6 @@ import java.util.HashMap;
 
 import ai.AI;
 
-import starter.SimpleClassLoader;
 import starter.Starter;
 import uploadHookServer.HookCallbacks;
 import uploadHookServer.HookServ;
@@ -27,6 +28,7 @@ public class GamePlayServer extends Thread implements HookCallbacks {
 		cLoader = new SimpleClassLoader();
 		ais = new ArrayList<AIListEntry>();
 		System.out.println("done");
+		System.out.println("Waiting for files...");
 	}
 	
 	public void run() {
@@ -105,6 +107,8 @@ public class GamePlayServer extends Thread implements HookCallbacks {
 		while (this.isAlive()) Thread.yield();
 		
 		ais.add(new AIListEntry(c));
+		
+		start();
 	}
 }
 
