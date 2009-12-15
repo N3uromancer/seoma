@@ -8,7 +8,7 @@ package gameEngine.world.owner;
 public class Owner
 {
 	String name;
-	double resources = 500;
+	double resources = 160;
 	int unitCount = 0;
 	double[] c; //owner color
 	byte id;
