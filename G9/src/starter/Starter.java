@@ -22,9 +22,9 @@ import ui.userIO.userInput.UserInput;
 import ai.AI;
 
 public class Starter {
-	public static World startGame(final HashMap<Owner, AI> ais, StartSettings ss, final Owner[] o, final boolean drawGUI)
+	public static World startGame(final HashMap<Owner, AI> ais, StartSettings ss, final Owner[] o, long randSeed, final boolean drawGUI)
 	{
-		final World w = new World(ss, ais);
+		final World w = new World(ss, ais, randSeed);
 		
 		GLCanvas c = new GLCanvas(new GLCapabilities());
 		final GameEngine ge = new GameEngine(false, c)

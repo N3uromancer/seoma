@@ -24,10 +24,9 @@ public class RapestroyAI extends AI
 {
 	Random rand;
 	
-	public RapestroyAI(Owner o, Long seed)
+	public RapestroyAI(Owner o)
 	{
-		super(o, seed);
-		rand = new Random(seed);
+		super(o);
 	}
 	public Camera getCamera()
 	{
@@ -35,7 +34,8 @@ public class RapestroyAI extends AI
 	}
 	public void performAIFunctions(World w, ArrayList<UserInput> ui)
 	{
-		System.out.println("resources: " + o.getResources());
+		//System.out.println("resources: " + o.getResources());
+		rand = new Random(w.getRandomSeed());
 		LinkedList<Unit> units = getUnits(w);
 		Iterator<Unit> i = units.iterator();
 		while(i.hasNext())
