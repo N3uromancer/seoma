@@ -26,7 +26,7 @@ public class Owner
 	public void setResources(double setter)
 	{
 		resources = setter;
-		System.out.println("resources = "+resources);
+		//System.out.println("resources = "+resources);
 	}
 	public byte getID()
 	{
