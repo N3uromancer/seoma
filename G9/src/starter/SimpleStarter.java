@@ -34,6 +34,6 @@ public class SimpleStarter
 		ais.put(owners[0], new RapestroyAI(owners[0]));
 		ais.put(owners[1], new RapestroyAI(owners[1]));
 		
-		Starter.startGame(ais, ss, owners);
+		Starter.startGame(ais, ss, owners, true);
 	}
 }
