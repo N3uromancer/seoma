@@ -136,6 +136,19 @@ public class UnitEngine
 			}
 		}
 	}
+	/**
+	 * gets a list of units for every owner
+	 * @return returns a master list of all units sorted my owner into a map
+	 */
+	public HashMap<Owner, LinkedList<Unit>> getUnitList()
+	{
+		return u;
+	}
+	/**
+	 * gets the list of units under the control of the passed owner
+	 * @param o
+	 * @return
+	 */
 	public LinkedList<Unit> getUnitList(Owner o)
 	{
 		return u.get(o);
