@@ -37,6 +37,14 @@ public class ResourceDeposit
 		this.radius = radius;
 		this.sides = sides;
 	}
+	/**
+	 * returns the radius of the resource deposit
+	 * @return
+	 */
+	public double getRadius()
+	{
+		return radius;
+	}
 	public double[] getLocation()
 	{
 		return location;

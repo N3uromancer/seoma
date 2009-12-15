@@ -90,10 +90,13 @@ class MoveToRefinery extends Action
 	{
 		target = getClosestRefiner(Refinery.class);
 		
-		double[] s = u.getLocation();
-		double[] t = target.getLocation();
-		Location[] l = w.getPathFinder().determinePath(s[0], s[1], t[0], t[1]);
-		mover = new MoveList(u, l);
+		if(target != null)
+		{
+			double[] s = u.getLocation();
+			double[] t = target.getLocation();
+			Location[] l = w.getPathFinder().determinePath(s[0], s[1], t[0], t[1]);
+			mover = new MoveList(u, l);
+		}
 	}
 	private Unit getClosestRefiner(Class<? extends Unit> c)
 	{
