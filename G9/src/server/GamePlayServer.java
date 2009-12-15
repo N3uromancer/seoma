@@ -152,11 +152,12 @@ class GamePlayThread implements Runnable {
 					StartSettings ss = new StartSettings(700, 700, owners, startingUnits);
 					World w;
 					AI ai1, ai2;
+					long seed = System.currentTimeMillis();
 
 					HashMap<Owner, AI> aiHashMap = new HashMap<Owner, AI>();
 					try {
-						ai1 = (AI) cLoader.constructObjectFromClass(aiEntry1.c, new Class[] {Owner.class}, new Object[] {owners[0]});
-						ai2 = (AI) cLoader.constructObjectFromClass(aiEntry2.c, new Class[] {Owner.class}, new Object[] {owners[1]});
+						ai1 = (AI) cLoader.constructObjectFromClass(aiEntry1.c, new Class[] {Owner.class, Long.class}, new Object[] {owners[0], seed});
+						ai2 = (AI) cLoader.constructObjectFromClass(aiEntry2.c, new Class[] {Owner.class, Long.class}, new Object[] {owners[1], seed});
 						
 						aiHashMap.put(owners[0], ai1);
 						aiHashMap.put(owners[1], ai2);
@@ -187,13 +188,13 @@ class GamePlayThread implements Runnable {
 						Thread.yield();
 					}
 					
-					saveRecord(0, aiEntry1, aiEntry2);
+					saveRecord(seed, aiEntry1, aiEntry2);
 				}
 			}
 		}
 	}
 	
-	private void saveRecord(int seed, AIListEntry ai1, AIListEntry ai2)
+	private void saveRecord(long seed, AIListEntry ai1, AIListEntry ai2)
 	{
 		games.add(new Game(seed, ai1.fName, ai2.fName, ai1.wins.contains(ai2.c)));
 		
@@ -225,11 +226,11 @@ class GamePlayThread implements Runnable {
 
 class Game implements Serializable {
 	private static final long serialVersionUID = -443607570575906060L;
-	int seed;
+	long seed;
 	String  aiFile1, aiFile2;
 	boolean aWon;
 	
-	public Game(int seed, String ai1, String ai2, boolean aWon)
+	public Game(long seed, String ai1, String ai2, boolean aWon)
 	{
 		System.out.println("Game completed! Winner "+(aWon ? ai1 : ai2)+" ("+seed+")");
 		this.seed = seed;

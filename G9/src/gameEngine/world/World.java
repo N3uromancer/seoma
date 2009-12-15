@@ -113,17 +113,19 @@ public class World
 	{
 		boolean winner;
 		
-		for (Owner own : o)
-		{
-			winner = true;
-			for (ArrayList<Unit> a : ais.get(own).getUnits().values())
-				for (Unit u : a)
-					if (!u.isDead())
-						winner = false;
+		try {
+			for (Owner own : o)
+			{
+				winner = true;
+				for (ArrayList<Unit> a : ais.get(own).getUnits().values())
+					for (Unit u : a)
+						if (!u.isDead())
+							winner = false;
 			
-			if (winner)
-				return ais.get(own);
-		}
+				if (winner)
+					return ais.get(own);
+			}
+		} catch (Exception e) {}
 		
 		return null;
 	}
