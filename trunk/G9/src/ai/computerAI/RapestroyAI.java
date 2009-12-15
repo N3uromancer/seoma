@@ -20,9 +20,6 @@ import utilities.Location;
 
 public class RapestroyAI extends AI
 {
-	int factories = 0;
-	int harvesters = 0;
-	
 	public RapestroyAI(Owner o)
 	{
 		super(o);
@@ -33,6 +30,7 @@ public class RapestroyAI extends AI
 	}
 	public void performAIFunctions(World w, ArrayList<UserInput> ui)
 	{
+		System.out.println("resources: " + o.getResources());
 		LinkedList<Unit> units = getUnits(w);
 		Iterator<Unit> i = units.iterator();
 		while(i.hasNext())
@@ -48,9 +46,7 @@ public class RapestroyAI extends AI
 						buildUnit(Refinery.class, u, w);
 					else if(getUnits().get(Factory.class) == null)
 						buildUnit(Factory.class, u, w);
-					else if (getUnits().get(Refinery.class).size() < 3)
-						buildUnit(Refinery.class, u, w);
-					else if (getUnits().get(Factory.class).size() < 15)
+					else if (getUnits().get(Factory.class).size() < 10 && getUnits().get(Harvester.class) != null && getUnits().get(Factory.class).size()+1 < getUnits().get(Harvester.class).size()*3)
 						buildUnit(Factory.class, u, w);
 					//else moveUnitRandomlyAroundArea(u, w, getUnits().get(Factory.class).get(0).getLocation()[0], getUnits().get(Factory.class).get(0).getLocation()[1], 20);
 				}
@@ -58,9 +54,9 @@ public class RapestroyAI extends AI
 				{
 					if(getUnits().get(Harvester.class) == null)
 						buildUnit(Harvester.class, u, w);
-					else if (getUnits().get(Harvester.class).size() < 5)
+					else if (getUnits().get(Harvester.class).size() < 30)
 						buildUnit(Harvester.class, u, w);
-					if(getUnits().get(Tank.class) == null)
+					else if(getUnits().get(Tank.class) == null)
 						buildUnit(Tank.class, u, w);
 					else if (getUnits().get(Tank.class).size() < 60)
 						buildUnit(Tank.class, u, w);
