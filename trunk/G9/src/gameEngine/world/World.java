@@ -54,6 +54,10 @@ public class World
 	{
 		return se;
 	}
+	public Owner[] getOwners()
+	{
+		return o;
+	}
 	public ResourceEngine getResourceEngine()
 	{
 		return re;

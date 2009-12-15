@@ -3,6 +3,7 @@ package ai;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import gameEngine.world.World;
 import gameEngine.world.action.actions.*;
@@ -91,6 +92,26 @@ public abstract class AI
 			return true;
 		}
 		return false;
+	}
+	/**
+	 * gets and compacts all enemy units into a hash map
+	 * @param w
+	 * @return returns a map representing all enemy units
+	 */
+	public HashMap<Owner, LinkedList<Unit>> getEnemyUnits(World w)
+	{
+		HashMap<Owner, LinkedList<Unit>> m = new HashMap<Owner, LinkedList<Unit>>();
+		HashMap<Owner, LinkedList<Unit>> master = w.getUnitEngine().getUnitList();
+		Iterator<Owner> i = master.keySet().iterator();
+		while(i.hasNext())
+		{
+			Owner temp = i.next();
+			if(temp != o)
+			{
+				m.put(temp, master.get(temp));
+			}
+		}
+		return m;
 	}
 	/**
 	 * orders a unit to build another unit

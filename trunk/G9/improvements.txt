@@ -1,0 +1,5 @@
+improvements:
+
+sort units in unit engine in HashMap<Owner, HashMap<Class<? extends Unit>, LinkedList<Unit>>>,
+it will speed up processes in the ais because they will no longer need to traverse a list to find
+a specific building or such to attack
