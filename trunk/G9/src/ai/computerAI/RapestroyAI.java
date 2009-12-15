@@ -42,12 +42,14 @@ public class RapestroyAI extends AI
 			{
 				if(u instanceof Leader)
 				{
-					if(u.getLocation() != getClosestResourceDeposit(u.getLocation()[0], u.getLocation()[1], w).getLocation())
-						moveUnit(u, getClosestResourceDeposit(u.getLocation()[0], u.getLocation()[1], w).getLocation()[0], getClosestResourceDeposit(u.getLocation()[0], u.getLocation()[1], w).getLocation()[1], w);
+					//if(u.getLocation() != getClosestResourceDeposit(u.getLocation()[0], u.getLocation()[1], w).getLocation())
+						//moveUnit(u, getClosestResourceDeposit(u.getLocation()[0], u.getLocation()[1], w).getLocation()[0], getClosestResourceDeposit(u.getLocation()[0], u.getLocation()[1], w).getLocation()[1], w);
 					if(getUnits().get(Refinery.class) == null)
 						buildUnit(Refinery.class, u, w);
 					else if(getUnits().get(Factory.class) == null)
 						buildUnit(Factory.class, u, w);
+					else if (getUnits().get(Refinery.class).size() < 3)
+						buildUnit(Refinery.class, u, w);
 					else if (getUnits().get(Factory.class).size() < 15)
 						buildUnit(Factory.class, u, w);
 					//else moveUnitRandomlyAroundArea(u, w, getUnits().get(Factory.class).get(0).getLocation()[0], getUnits().get(Factory.class).get(0).getLocation()[1], 20);
