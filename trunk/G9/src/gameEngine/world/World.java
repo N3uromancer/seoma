@@ -109,6 +109,24 @@ public class World
 		
 		pf = new EPFV2(width, height, p.toArray(new Polygon[p.size()]));
 	}
+	public AI getLoser()
+	{
+		boolean winner;
+		
+		for (Owner own : o)
+		{
+			winner = true;
+			for (ArrayList<Unit> a : ais.get(own).getUnits().values())
+				for (Unit u : a)
+					if (!u.isDead())
+						winner = false;
+			
+			if (winner)
+				return ais.get(own);
+		}
+		
+		return null;
+	}
 	public ArrayList<Region> getStartLocations()
 	{
 		return startLocations;

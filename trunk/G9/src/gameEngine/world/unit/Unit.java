@@ -53,6 +53,9 @@ public abstract class Unit extends RectRegion implements Drawable
 	public void setLife(double setter)
 	{
 		life = setter;
+		
+		if (life <= 0)
+			dead = true;
 	}
 	public double getLife()
 	{
@@ -95,10 +98,6 @@ public abstract class Unit extends RectRegion implements Drawable
 	public boolean isDead()
 	{
 		return dead;
-	}
-	public void setDead()
-	{
-		dead = true;
 	}
 	/**
 	 * updates the unit, performs its current action, fires the weapon

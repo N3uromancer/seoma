@@ -22,7 +22,7 @@ import ui.userIO.userInput.UserInput;
 import ai.AI;
 
 public class Starter {
-	public static void startGame(final HashMap<Owner, AI> ais, StartSettings ss, final Owner[] o)
+	public static World startGame(final HashMap<Owner, AI> ais, StartSettings ss, final Owner[] o, final boolean drawGUI)
 	{
 		final World w = new World(ss, ais);
 		
@@ -34,11 +34,15 @@ public class Starter {
 				w.updateWorld(tdiff, ui);
 			}
 		};
+		
+		/* The rest is just for GUI stuff */
+		if (!drawGUI) return w;
+		
 		DisplayManager dm = new DisplayManager()
 		{
 			public void display(GL gl, int width, int height)
 			{
-				w.drawWorld(o[0], width, height, gl);
+					w.drawWorld(o[0], width, height, gl);
 			}
 		};
 		UIFrame f = new UIFrame(ge, c, dm);
@@ -48,5 +52,7 @@ public class Starter {
 				System.exit(0);
 			}
 		});
+		
+		return w;
 	}
 }
