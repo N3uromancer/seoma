@@ -23,10 +23,9 @@ public class TesterAI extends AI
 	
 	Random rand;
 	
-	public TesterAI(Owner o, Long seed)
+	public TesterAI(Owner o)
 	{
-		super(o, seed);
-		rand = new Random(seed);
+		super(o);
 	}
 	public Camera getCamera()
 	{
@@ -36,6 +35,7 @@ public class TesterAI extends AI
 	{
 		LinkedList<Unit> units = getUnits(w);
 		Iterator<Unit> i = units.iterator();
+		rand = new Random(w.getRandomSeed());
 		while(i.hasNext())
 		{
 			Unit u = i.next();

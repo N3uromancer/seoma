@@ -156,8 +156,8 @@ class GamePlayThread implements Runnable {
 
 					HashMap<Owner, AI> aiHashMap = new HashMap<Owner, AI>();
 					try {
-						ai1 = (AI) cLoader.constructObjectFromClass(aiEntry1.c, new Class[] {Owner.class, Long.class}, new Object[] {owners[0], seed});
-						ai2 = (AI) cLoader.constructObjectFromClass(aiEntry2.c, new Class[] {Owner.class, Long.class}, new Object[] {owners[1], seed});
+						ai1 = (AI) cLoader.constructObjectFromClass(aiEntry1.c, new Class[] {Owner.class}, new Object[] {owners[0]});
+						ai2 = (AI) cLoader.constructObjectFromClass(aiEntry2.c, new Class[] {Owner.class}, new Object[] {owners[1]});
 						
 						aiHashMap.put(owners[0], ai1);
 						aiHashMap.put(owners[1], ai2);
@@ -167,7 +167,7 @@ class GamePlayThread implements Runnable {
 					}
 					
 					System.out.println("Playing "+aiEntry1.c.getName()+" vs. "+aiEntry2.c.getName());
-					w = Starter.startGame(aiHashMap, ss, owners, true);
+					w = Starter.startGame(aiHashMap, ss, owners, seed, true);
 					
 					while (!t.isInterrupted())
 					{
