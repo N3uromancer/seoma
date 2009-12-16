@@ -53,8 +53,6 @@ public class World
 	int width;
 	int height;
 	
-	long randomSeed;
-	
 	public ShotEngine getShotEngine()
 	{
 		return se;
@@ -71,7 +69,6 @@ public class World
 	{
 		return ais;
 	}
-<<<<<<< .mine
 	/**
 	 * gets the seed to be used for random values
 	 * @return
@@ -81,17 +78,9 @@ public class World
 		return seed;
 	}
 	public World(StartSettings ss, HashMap<Owner, AI> ais, long seed)
-=======
-	public long getRandomSeed()
-	{
-		return randomSeed;
-	}
-	public World(StartSettings ss, HashMap<Owner, AI> ais, long rand)
->>>>>>> .r55
 	{
 		this.seed = seed;
 		this.ais = ais;
-		randomSeed = rand;
 		width = ss.getMapWidth();
 		height = ss.getMapHeight();
 		
