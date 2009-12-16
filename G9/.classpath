@@ -9,6 +9,5 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/seoma3"/>
 	<classpathentry kind="lib" path="/seoma3/lib/gluegen-rt.jar"/>
 	<classpathentry kind="lib" path="/seoma3/lib/jogl.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/UploadHookServer"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

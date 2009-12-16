@@ -57,14 +57,14 @@ public final class Move extends Action
 	}
 	public void drawAction(GL gl)
 	{
-		/*gl.glLineWidth(1);
+		gl.glLineWidth(1);
 		gl.glColor4d(1, 1, 1, .4);
 		double d = 1; //depth
 		double[] s = u.getLocation();
 		gl.glBegin(GL.GL_LINES);
 		gl.glVertex3d(s[0], s[1], d);
 		gl.glVertex3d(tx, ty, d);
-		gl.glEnd();*/
+		gl.glEnd();
 	}
 	public void startAction(){}
 	public String toString()

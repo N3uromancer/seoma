@@ -42,6 +42,14 @@ public abstract class Unit extends RectRegion implements Drawable
 		this.buildTime = buildTime;
 		this.cost = cost;
 	}
+	/**
+	 * gets the maximum life the unit can have
+	 * @return returns the max life a unit can have
+	 */
+	public double getMaxLife()
+	{
+		return maxLife;
+	}
 	public double getCost()
 	{
 		return cost;
@@ -53,9 +61,6 @@ public abstract class Unit extends RectRegion implements Drawable
 	public void setLife(double setter)
 	{
 		life = setter;
-		
-		if (life <= 0)
-			dead = true;
 	}
 	public double getLife()
 	{
@@ -98,6 +103,10 @@ public abstract class Unit extends RectRegion implements Drawable
 	public boolean isDead()
 	{
 		return dead;
+	}
+	public void setDead()
+	{
+		dead = true;
 	}
 	/**
 	 * updates the unit, performs its current action, fires the weapon
@@ -178,7 +187,7 @@ public abstract class Unit extends RectRegion implements Drawable
 		
 		if(a.size() > 0)
 		{
-			a.peek().drawAction(gl);
+			//a.peek().drawAction(gl);
 		}
 		
 		if(selected)

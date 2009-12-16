@@ -300,10 +300,10 @@ public final class EPFV2 extends PathFinder
 	public void drawPathing(GL gl, boolean drawAdjacencies)
 	{
 		//gl.glColor3d(1, 0, 0);
-		/*for(int i = 0; i < n.length; i++)
+		for(int i = 0; i < n.length; i++)
 		{
 			n[i].drawNode(gl, drawAdjacencies);
-		}*/
+		}
 		
 		/*Font font = new Font("SansSerif", Font.PLAIN, 12);
 	    TextRenderer tr = new TextRenderer(font, true, false);
