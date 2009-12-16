@@ -193,15 +193,7 @@ public abstract class AI
 	{
 		if(w.inWorld(x, y) && u.getMovement() > 0)
 		{
-			//System.out.println("unit ordered to move to ("+x+", "+y+")");
-			double[] s = u.getLocation();
-			Location[] l = w.getPathFinder().determinePath(s[0], s[1], x, y);
-			//u.addAction(new Move(u, x, y));
-			/*for(int i = 0; i < l.length; i++)
-			{
-				u.addAction(new Move(u, l[i].x, l[i].y));
-			}*/
-			u.addAction(new MoveList(u, l));
+			u.addAction(new MoveList(u, w, new double[]{x, y}));
 		}
 	}
 	/**

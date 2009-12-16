@@ -1,6 +1,7 @@
 package gameEngine.world.action.actions;
 
 import utilities.Location;
+import gameEngine.world.World;
 import gameEngine.world.action.ActionList;
 import gameEngine.world.unit.Unit;
 
@@ -12,13 +13,26 @@ import gameEngine.world.unit.Unit;
  */
 public final class MoveList extends ActionList
 {
-	public MoveList(Unit u, Location[] l)
+	World w;
+	Unit u;
+	double[] target;
+	
+	public MoveList(Unit u, World w, double[] target)
 	{
 		super("move list");
+		this.w = w;
+		this.u = u;
+		this.target = target;
+	}
+	public void cancelAction(){} //overridden because move actions do not require canceling
+	public void startAction()
+	{
+		double[] s = u.getLocation();
+		Location[] l = w.getPathFinder().determinePath(s[0], s[1], target[0], target[1]);
 		for(int i = 0; i < l.length; i++)
 		{
 			addActionToList(new Move(u, l[i].x, l[i].y));
 		}
+		super.startAction();
 	}
-	public void cancelAction(){} //overridden because move actions do not require canceling
 }

@@ -33,7 +33,7 @@ public class SimpleStarter
 		//StartSettings ss = new StartSettings(500, 500, new Owner[]{new Owner("player 1", c1)}, startingUnits);
 
 		HashMap<Owner, AI> ais = new HashMap<Owner, AI>();
-		ais.put(owners[0], new HumanAI(owners[0]));
+		ais.put(owners[0], new RapestroyAI(owners[0]));
 		ais.put(owners[1], new RapestroyAI(owners[1]));
 		final World w = new World(ss, ais, new Long(100));
 		
