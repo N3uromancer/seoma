@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import gameEngine.StartSettings;
+import gameEngine.world.animation.AnimationEngine;
 import gameEngine.world.owner.Owner;
 import gameEngine.world.resource.ResourceEngine;
 import gameEngine.world.shot.Shot;
@@ -39,6 +40,7 @@ public class World
 	ShotEngine se;
 	UnitEngine ue;
 	ResourceEngine re;
+	AnimationEngine ae = new AnimationEngine();
 	
 	Owner[] o;
 	ArrayList<Polygon> p = new ArrayList<Polygon>();
@@ -46,6 +48,7 @@ public class World
 	//Polygon[] p = new Polygon[10];
 	PathFinder pf;
 	HashMap<Owner, AI> ais;
+	long seed;
 	
 	int width;
 	int height;
@@ -68,12 +71,25 @@ public class World
 	{
 		return ais;
 	}
+<<<<<<< .mine
+	/**
+	 * gets the seed to be used for random values
+	 * @return
+	 */
+	public long getSeed()
+	{
+		return seed;
+	}
+	public World(StartSettings ss, HashMap<Owner, AI> ais, long seed)
+=======
 	public long getRandomSeed()
 	{
 		return randomSeed;
 	}
 	public World(StartSettings ss, HashMap<Owner, AI> ais, long rand)
+>>>>>>> .r55
 	{
+		this.seed = seed;
 		this.ais = ais;
 		randomSeed = rand;
 		width = ss.getMapWidth();
@@ -116,26 +132,6 @@ public class World
 		
 		pf = new EPFV2(width, height, p.toArray(new Polygon[p.size()]));
 	}
-	public AI getLoser()
-	{
-		boolean winner;
-		
-		try {
-			for (Owner own : o)
-			{
-				winner = true;
-				for (ArrayList<Unit> a : ais.get(own).getUnits().values())
-					for (Unit u : a)
-						if (!u.isDead())
-							winner = false;
-			
-				if (winner)
-					return ais.get(own);
-			}
-		} catch (Exception e) {}
-		
-		return null;
-	}
 	public ArrayList<Region> getStartLocations()
 	{
 		return startLocations;
@@ -176,6 +172,11 @@ public class World
 		ue.updateUnitEngine(tdiff, this);
 		se.updateShotEngine(tdiff, ue);
 		re.updateResourceEngine(tdiff, this);
+		ae.updateAnimationEngine(tdiff);
+	}
+	public AnimationEngine getAnimationEngine()
+	{
+		return ae;
 	}
 	/**
 	 * draws the world
@@ -197,6 +198,7 @@ public class World
 		int x = 0;
 		int y = 0;
 		
+		ae.drawAnimiations(gl, dwidth, dheight);
 		HashSet<Region> r = ue.getAllUnits().getIntersections(x, y, dwidth, dheight);
 		Iterator<Region> i = r.iterator();
 		while(i.hasNext())
