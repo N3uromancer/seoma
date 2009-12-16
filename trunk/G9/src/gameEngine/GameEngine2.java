@@ -44,7 +44,7 @@ public class GameEngine2 extends UserInputInterpreter implements Runnable, Displ
 		w = new World(ss);
 		o = owners[0];
 		
-		ais.put(owners[0], new BasicHumanAI(owners[0], w));
+		ais.put(owners[0], new HumanAI(owners[0], w));
 		ais.put(owners[1], new TesterAI(owners[1], w));
 		
 		//new Thread(this).start();

@@ -20,7 +20,7 @@ public class ResourceDeposit
 	double increase;
 	
 	//display variables
-	double r = 0; //the ange the deposit is rotated
+	double r = Math.random()*360; //the ange the deposit is rotated
 	double ra = 10;
 	double radius; //the radius of the deposit
 	int sides; //the number of sides the deposit is drawn with

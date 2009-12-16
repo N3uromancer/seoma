@@ -22,7 +22,7 @@ import gameEngine.world.unit.Unit;
  * @author Jack
  *
  */
-public class BasicHumanAI extends AI
+public class HumanAI extends AI
 {
 	UserCommand[] uc = new UserCommand[10]; //command buffer
 	int ucindex = 0;
@@ -43,7 +43,7 @@ public class BasicHumanAI extends AI
 	
 	boolean builderSelected = false; //true if a unit that can build other units is selected
 	
-	public BasicHumanAI(Owner o)
+	public HumanAI(Owner o)
 	{
 		super(o);
 	}

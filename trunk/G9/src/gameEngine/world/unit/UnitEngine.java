@@ -2,6 +2,7 @@ package gameEngine.world.unit;
 
 import gameEngine.StartSettings;
 import gameEngine.world.World;
+import gameEngine.world.animation.animations.Explosion;
 import gameEngine.world.owner.Owner;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,6 +26,10 @@ public class UnitEngine
 	LinkedList<BuildOrder> bo = new LinkedList<BuildOrder>();
 	
 	World w;
+	
+	long updates = 0;
+	long totalTime = 0;
+	long unitsUpdated = 0;
 	
 	/**
 	 * creates the unit engine
@@ -94,6 +99,7 @@ public class UnitEngine
 	 */
 	public void updateUnitEngine(double tdiff, World w)
 	{
+		long start = System.currentTimeMillis();
 		Iterator<Owner> i = u.keySet().iterator();
 		while(i.hasNext())
 		{
@@ -101,6 +107,7 @@ public class UnitEngine
 			while(ui.hasNext())
 			{
 				Unit unit = ui.next();
+				unitsUpdated++;
 				if(unit.isDead())
 				{
 					//usp.removeRegion(unit);
@@ -109,6 +116,7 @@ public class UnitEngine
 					ui.remove();
 					w.getAIs().get(unit.getOwner()).unitDestroy(unit);
 					//System.out.println("unit died");
+					w.getAnimationEngine().registerAnimation(new Explosion(unit));
 				}
 				else
 				{
@@ -134,6 +142,15 @@ public class UnitEngine
 			{
 				bi.remove();
 			}
+		}
+		
+		totalTime+=System.currentTimeMillis()-start;
+		updates++;
+		if(updates % 1500 == 0 && unitsUpdated != 0)
+		{
+			System.out.println("unit engine update time (ms) = "+totalTime+" [total time] / "+updates+" [updates] = "+(totalTime/updates));
+			System.out.println("unit update time (ms) = "+totalTime+" [total time] / "+unitsUpdated+" [units updated] = "+(totalTime/unitsUpdated));
+			System.out.println("-------------------");
 		}
 	}
 	/**

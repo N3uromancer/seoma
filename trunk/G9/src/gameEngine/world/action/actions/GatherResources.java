@@ -13,6 +13,7 @@ import utilities.MathUtil;
 import gameEngine.world.World;
 import gameEngine.world.action.Action;
 import gameEngine.world.action.ActionList;
+import gameEngine.world.animation.animations.LoadResourcesAnimation;
 import gameEngine.world.owner.Owner;
 import gameEngine.world.resource.ResourceDeposit;
 import gameEngine.world.unit.Unit;
@@ -38,11 +39,18 @@ public class GatherResources extends ActionList
 	{
 		double[] s = gatherer.getLocation();
 		//System.out.println("gatherer starting at "+s[0]+", "+s[1]);
-		double[] t = target.getLocation();
+		
+		//double[] t = target.getLocation();
+		double[] t = {target.getRadius(), 0};
+		t = MathUtil.rotateVector(Math.random()*360, new double[]{target.getRadius()*Math.random(), 0});
+		t[0]+=target.getLocation()[0];
+		t[1]+=target.getLocation()[1];
+		
 		Location[] l = w.getPathFinder().determinePath(s[0], s[1], t[0], t[1]);
 		addActionToList(new MoveList(gatherer, l));
 		
-		addActionToList(new LoadResources((Gatherer)gatherer, target, s));
+		addActionToList(new LoadResources((Gatherer)gatherer, target, 
+				new double[]{t[0]+gatherer.getWidth()/2, t[1]+gatherer.getHeight()/2}, w));
 		addActionToList(new MoveToRefinery(gatherer, ai, w));
 		addActionToList(new DepositResources((Gatherer)gatherer, gatherer.getOwner()));
 		super.startAction();
@@ -137,6 +145,7 @@ class DepositResources extends Action
 	public boolean performAction(double tdiff)
 	{
 		o.setResources(o.getResources()+g.getLoad());
+		g.setLoad(0);
 		return true;
 	}
 	public void startAction(){}
@@ -151,6 +160,7 @@ class LoadResources extends Action
 	Gatherer g;
 	ResourceDeposit rd;
 	double[] l;
+	World w;
 	
 	/**
 	 * creates a new action to gather resources
@@ -158,12 +168,13 @@ class LoadResources extends Action
 	 * @param rd
 	 * @param l the location of the gatherer for drawing purposes
 	 */
-	public LoadResources(Gatherer g, ResourceDeposit rd, double[] l)
+	public LoadResources(Gatherer g, ResourceDeposit rd, double[] l, World w)
 	{
 		super("load resource");
 		this.g = g;
 		this.rd = rd;
 		this.l = l;
+		this.w = w;
 	}
 	public void cancelAction()
 	{
@@ -210,6 +221,6 @@ class LoadResources extends Action
 	}
 	public void startAction()
 	{
-		
+		w.getAnimationEngine().registerAnimation(new LoadResourcesAnimation(l[0], l[1]));
 	}
 }
