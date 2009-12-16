@@ -1,10 +1,9 @@
-package gameEngine.ai.humanAI.buildUI;
+package ai.humanAI.buildUI;
 
 import java.util.HashSet;
-
 import javax.media.opengl.GL;
 
-import utilities.Region;
+import utilities.region.RectRegion;
 
 /**
  * diplays the possible build choices (depending on the highlighted units),
@@ -25,7 +24,6 @@ public class BuildUI
 	 */
 	public void drawBuildUI(GL gl, double x, double y, int width, HashSet<String> buildableUnits)
 	{
-		
-		new Region(x, y, width, buildableUnits.size()*20).fillRegion(gl);
+		new RectRegion(x, y, width, buildableUnits.size()*20).fillRegion(gl, 1);
 	}
 }

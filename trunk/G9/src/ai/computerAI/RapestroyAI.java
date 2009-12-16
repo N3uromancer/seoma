@@ -2,6 +2,7 @@ package ai.computerAI;
 
 import gameEngine.world.World;
 
+import gameEngine.world.animation.animations.Explosion;
 import gameEngine.world.owner.Owner;
 import gameEngine.world.resource.ResourceDeposit;
 import gameEngine.world.unit.Unit;
@@ -34,13 +35,18 @@ public class RapestroyAI extends AI
 	}
 	public void performAIFunctions(World w, ArrayList<UserInput> ui)
 	{
+		if(rand == null)
+		{
+			rand = new Random(w.getSeed());
+		}
+		
 		//System.out.println("resources: " + o.getResources());
-		rand = new Random(w.getRandomSeed());
 		LinkedList<Unit> units = getUnits(w);
 		Iterator<Unit> i = units.iterator();
 		while(i.hasNext())
 		{
 			Unit u = i.next();
+			//w.getAnimationEngine().registerAnimation(new Explosion(u));
 			if(u.getCurrentAction() == null)
 			{
 				if(u instanceof Leader)

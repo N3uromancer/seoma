@@ -19,13 +19,7 @@ public class TesterAI extends AI
 	int factories = 0;
 	int harvesters = 0;
 	
-<<<<<<< .mine
 	public TesterAI(Owner o)
-=======
-	Random rand;
-	
-	public TesterAI(Owner o)
->>>>>>> .r55
 	{
 		super(o);
 	}
@@ -37,7 +31,6 @@ public class TesterAI extends AI
 	{
 		LinkedList<Unit> units = getUnits(w);
 		Iterator<Unit> i = units.iterator();
-		rand = new Random(w.getRandomSeed());
 		while(i.hasNext())
 		{
 			Unit u = i.next();
