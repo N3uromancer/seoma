@@ -22,8 +22,8 @@ public class BuildUI
 	 * @param buildableUnit a hash set representing the units that can be
 	 * built by one or more of the currently selected units
 	 */
-	public void drawBuildUI(GL gl, double x, double y, int width, HashSet<String> buildableUnits)
+	public void drawBuildUI(GL gl, double x, double y, int width)
 	{
-		new RectRegion(x, y, width, buildableUnits.size()*20).fillRegion(gl, 1);
+		new RectRegion(x, y, width, 200).fillRegion(gl, 1);
 	}
 }

@@ -1,6 +1,6 @@
 package ai.humanAI.userCommand;
 
-import ai.AI;
+import ai.humanAI.HumanAI;
 import gameEngine.world.World;
 import gameEngine.world.unit.Unit;
 
@@ -19,5 +19,5 @@ public abstract class UserCommand
 	 * @param override if true then the issued user command is mean
 	 * to replace all other actions the unit is currently doing
 	 */
-	public abstract void updateUnit(Unit u, AI ai, boolean override, World w);
+	public abstract void updateUnit(Unit u, HumanAI ai, boolean override, World w);
 }

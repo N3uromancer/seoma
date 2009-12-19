@@ -46,8 +46,9 @@ public class GatherResources extends ActionList
 		t[0]+=target.getLocation()[0];
 		t[1]+=target.getLocation()[1];
 		
-		Location[] l = w.getPathFinder().determinePath(s[0], s[1], t[0], t[1]);
-		addActionToList(new MoveList(gatherer, l));
+		/*Location[] l = w.getPathFinder().determinePath(s[0], s[1], t[0], t[1]);
+		addActionToList(new MoveList(gatherer, l));*/
+		addActionToList(new MoveList(gatherer, w, t));
 		
 		addActionToList(new LoadResources((Gatherer)gatherer, target, 
 				new double[]{t[0]+gatherer.getWidth()/2, t[1]+gatherer.getHeight()/2}, w));
@@ -102,8 +103,10 @@ class MoveToRefinery extends Action
 		{
 			double[] s = u.getLocation();
 			double[] t = target.getLocation();
-			Location[] l = w.getPathFinder().determinePath(s[0], s[1], t[0], t[1]);
-			mover = new MoveList(u, l);
+			/*Location[] l = w.getPathFinder().determinePath(s[0], s[1], t[0], t[1]);
+			mover = new MoveList(u, l);*/
+			mover = new MoveList(u, w, t);
+			mover.startAction();
 		}
 	}
 	private Unit getClosestRefiner(Class<? extends Unit> c)

@@ -2,6 +2,7 @@ package gameEngine.world;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,6 +21,7 @@ import mapEditor.Map;
 import ai.AI;
 import pathFinder.*;
 import pathFinder.epfv2.EPFV2;
+import pathFinder.epfv3.EPFV3;
 import ui.userIO.userInput.UserInput;
 import utilities.Polygon;
 import utilities.region.RectRegion;
@@ -119,7 +121,8 @@ public class World
 		
 		this.o = ss.getOwners();
 		
-		pf = new EPFV2(width, height, p.toArray(new Polygon[p.size()]));
+		//pf = new EPFV2(width, height, p.toArray(new Polygon[p.size()]));
+		pf = new EPFV3(width, height, p.toArray(new Polygon[p.size()]));
 	}
 	public ArrayList<Region> getStartLocations()
 	{
@@ -188,15 +191,19 @@ public class World
 		int y = 0;
 		
 		ae.drawAnimiations(gl, dwidth, dheight);
-		HashSet<Region> r = ue.getAllUnits().getIntersections(x, y, dwidth, dheight);
-		Iterator<Region> i = r.iterator();
-		while(i.hasNext())
+		try
 		{
-			Unit u = (Unit)i.next();
-			u.draw(gl);
+			HashSet<Region> r = ue.getAllUnits().getIntersections(x, y, dwidth, dheight);
+			Iterator<Region> i = r.iterator();
+			while(i.hasNext())
+			{
+				Unit u = (Unit)i.next();
+				u.draw(gl);
+			}
 		}
-		r = se.getShots().getIntersections(x, y, dwidth, dheight);
-		i = r.iterator();
+		catch(ConcurrentModificationException e){}
+		HashSet<Region> r = se.getShots().getIntersections(x, y, dwidth, dheight);
+		Iterator<Region> i = r.iterator();
 		while(i.hasNext())
 		{
 			Shot s = (Shot)i.next();

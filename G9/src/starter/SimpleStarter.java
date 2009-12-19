@@ -34,7 +34,7 @@ public class SimpleStarter
 
 		HashMap<Owner, AI> ais = new HashMap<Owner, AI>();
 		ais.put(owners[0], new RapestroyAI(owners[0]));
-		ais.put(owners[1], new RapestroyAI(owners[1]));
+		ais.put(owners[1], new YortSepar(owners[1]));
 		final World w = new World(ss, ais, new Long(100));
 		
 		GLCanvas c = new GLCanvas(new GLCapabilities());;
@@ -42,6 +42,7 @@ public class SimpleStarter
 		{
 			public void updateGame(double tdiff, HashMap<Byte, ArrayList<UserInput>> ui)
 			{
+				w.updateWorld(tdiff, ui);
 				w.updateWorld(tdiff, ui);
 			}
 		};
