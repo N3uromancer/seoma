@@ -12,6 +12,7 @@ import gameEngine.world.unit.unitModifiers.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.NoSuchElementException;
 import java.util.Random;
 
 import javax.media.opengl.GL;
@@ -42,8 +43,21 @@ public class YortSepar extends AI
 				buildUnit(Factory.class, u, w);
 				buildUnit(Factory.class, u, w);
 				buildUnit(Factory.class, u, w);
+				//buildUnit(DefenseTurret.class, u, w);
 				buildUnit(Factory.class, u, w);
+				moveUnitRandomlyAroundArea(u, w, getClosestResourceDeposit(u.getLocation(), w).getLocation(), 100);
+				buildUnit(DefenseTurret.class, u, w);
+				moveUnitRandomlyAroundArea(u, w, getClosestResourceDeposit(u.getLocation(), w).getLocation(), 100);
+				buildUnit(DefenseTurret.class, u, w);
 			}
+		}
+	}
+	private void commandEngineer(Unit u, World w)
+	{
+		if(u.getCurrentAction() == null)
+		{
+			moveUnitRandomlyAroundArea(u, w, getClosestResourceDeposit(u.getLocation(), w).getLocation(), 100);
+			buildUnit(DefenseTurret.class, u, w);
 		}
 	}
 	private void commandFactory(Unit u, World w)
@@ -53,6 +67,10 @@ public class YortSepar extends AI
 			if(getUnits().get(Harvester.class) == null || getUnits().get(Harvester.class).size() < 10)
 			{
 				buildUnit(Harvester.class, u, w);
+			}
+			else if(getUnits().get(Engineer.class) == null || getUnits().get(Engineer.class).size() == 0)
+			{
+				buildUnit(Engineer.class, u, w);
 			}
 			else
 			{
@@ -75,31 +93,39 @@ public class YortSepar extends AI
 				{
 					commandLeader(u, w);
 				}
-				if(u instanceof Factory)
+				else if(u instanceof Factory)
 				{
 					commandFactory(u, w);
 				}
-				if(u instanceof Gatherer)
+				else if(u instanceof Gatherer)
 				{
-					gatherResources(u, getClosestResourceDeposit(u.getLocation()[0], u.getLocation()[1], w), w);
+					gatherResources(u, getClosestResourceDeposit(u.getLocation(), w), w);
 				}
-				if(u instanceof Tank)
+				else if(u instanceof Tank)
 				{
-					if (getUnits().get(Tank.class).size() < 7)
-						moveUnitRandomlyAroundArea(u, w, getClosestResourceDeposit(u.getLocation()[0], u.getLocation()[1], w).getLocation(), 20);
+					if (getUnits().get(Tank.class).size() < 18)
+						moveUnitRandomlyAroundArea(u, w, getClosestResourceDeposit(u.getLocation(), w).getLocation(), 70);
 					else
 					{
 						Unit target = null;
 						Iterator<Owner> oi = getEnemyUnits(w).keySet().iterator(); //owner iterator
-						while(oi.hasNext())
+						while(oi.hasNext() && target == null)
 						{
-							target = getEnemyUnits(w).get(oi.next()).getFirst();
+							try
+							{
+								target = getEnemyUnits(w).get(oi.next()).getFirst();
+							}
+							catch(NoSuchElementException e){}
 						}
 						if(target != null)
 						{
 							moveUnitRandomlyAroundArea(u, w, target.getLocation(), 100);
 						}
 					}
+				}
+				else if(u instanceof Engineer)
+				{
+					commandEngineer(u, w);
 				}
 			}
 		}
@@ -114,7 +140,13 @@ public class YortSepar extends AI
 		if(u.getCurrentAction() == null)
 			moveUnit(u, p[0]-bounds+rand.nextDouble()*bounds*2, p[1]-bounds+rand.nextDouble()*bounds*2, w);
 	}
-	public ResourceDeposit getClosestResourceDeposit(double x, double y, World w)
+	/**
+	 * gets the closest resource deposit
+	 * @param p the point that resource deposits are being tested for distance to
+	 * @param w
+	 * @return returns the resource deposit closest to the passed point
+	 */
+	public ResourceDeposit getClosestResourceDeposit(double[] p, World w)
 	{
 		ArrayList<ResourceDeposit> deposits = getResourceDeposits(w);
 		int closest = -1;
@@ -122,7 +154,7 @@ public class YortSepar extends AI
 		for(int i = 0; i < deposits.size(); i++)
 		{
 			ResourceDeposit rd = deposits.get(i);
-			double thisDist = MathUtil.distance(x, y, rd.getLocation()[0], rd.getLocation()[1]);
+			double thisDist = MathUtil.distance(p[0], p[1], rd.getLocation()[0], rd.getLocation()[1]);
 			if(thisDist < dist)
 			{
 				closest = i;

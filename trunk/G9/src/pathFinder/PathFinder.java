@@ -59,6 +59,7 @@ public abstract class PathFinder
 		{
 			System.out.println("paths found = "+pathsFound+", total time (ms) = "+
 					pathingTime+", paths per ms = "+(pathsFound*1.0/pathingTime));
+			System.out.println("----------------");
 		}
 		
 		return l;

@@ -9,12 +9,12 @@ import gameEngine.world.unit.unitModifiers.Builder;
  * @author Jack
  *
  */
-public class Leader extends Unit implements Builder
+public class Engineer extends Unit implements Builder
 {
 
-	public Leader(Owner o, double x, double y)
+	public Engineer(Owner o, double x, double y)
 	{
-		super("leader", o, x, y, 30, 20, 200, 60, null, 0, 0);
+		super("engineer", o, x, y, 20, 17, 35, 80, null, 9, 30);
 	}
 	public boolean canBuild(Class<? extends Unit> c)
 	{

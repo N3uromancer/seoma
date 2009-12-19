@@ -24,8 +24,11 @@ public class SimpleStarter
 	{
 		double[] c1 = {1, 0, 0};
 		double[] c2 = {0, 0, 1};
-		final Owner[] owners = {new Owner((byte)0, "player 1", c1), new Owner((byte)2, "player 2", c2)};
-		//final Owner[] owners = {new Owner((byte)0, "player 1", c1)};
+		double[] c3 = {1, 0, 1};
+		double[] c4 = {1, 1, 0};
+		//final Owner[] owners = {new Owner((byte)0, "player 1", c1), new Owner((byte)1, "player 2", c2)};
+		final Owner[] owners = {new Owner((byte)0, "player 1", c1), new Owner((byte)1, "player 2", c2),
+				new Owner((byte)2, "player 3", c3), new Owner((byte)3, "player 4", c4)};
 		String[] startingUnits = {"leader"};
 		StartSettings ss = new StartSettings(700, 700, owners, startingUnits);
 		
@@ -35,6 +38,8 @@ public class SimpleStarter
 		HashMap<Owner, AI> ais = new HashMap<Owner, AI>();
 		ais.put(owners[0], new RapestroyAI(owners[0]));
 		ais.put(owners[1], new YortSepar(owners[1]));
+		ais.put(owners[2], new RapestroyAI(owners[2]));
+		ais.put(owners[3], new RapestroyAI(owners[3]));
 		final World w = new World(ss, ais, new Long(100));
 		
 		GLCanvas c = new GLCanvas(new GLCapabilities());;
@@ -43,7 +48,8 @@ public class SimpleStarter
 			public void updateGame(double tdiff, HashMap<Byte, ArrayList<UserInput>> ui)
 			{
 				w.updateWorld(tdiff, ui);
-				w.updateWorld(tdiff, ui);
+				//w.updateWorld(tdiff, ui);
+				//w.updateWorld(tdiff, ui);
 			}
 		};
 		DisplayManager dm = new DisplayManager()
