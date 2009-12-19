@@ -1,4 +1,4 @@
-package pathFinder.epfv2;
+package pathFinder.epfv3;
 
 import java.util.ArrayList;
 
@@ -21,20 +21,19 @@ import utilities.region.*;
  * -path finder adds the target location to the end of the path
  * -a recursive method for determining islands was defined
  * -paths only found if starting node on the same island as the ending node
- * -paths only found if starting node on the same island as the ending node
  * -checks to see if starting ending node the same node, if so returns target location
  * 
  * @author Jack
  *
  */
-public final class EPFV2 extends PathFinder
+public final class EPFV3 extends PathFinder
 {
 	private static double minNodeArea = 10; //the smallest a node can be
 	
 	SNode[] n;
 	ArrayList<HashSet<SNode>> islands;
 	
-	public EPFV2(int width, int height, Polygon[] p)
+	public EPFV3(int width, int height, Polygon[] p)
 	{
 		super(width, height, p);
 		
@@ -173,7 +172,7 @@ public final class EPFV2 extends PathFinder
 				}
 				/*
 				 * checks to see if the start and end nodes reside on the same island,
-				 * a pah can only be found if the nodes are on the same island
+				 * a path can only be found if the nodes are on the same island
 				 */
 				boolean pathPossible = false; //false if start and end nodes on separate islands
 				Iterator<HashSet<SNode>> ii = islands.iterator(); //island iterator

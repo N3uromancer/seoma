@@ -2,7 +2,7 @@ package ai.humanAI.userCommand;
 
 import utilities.region.RectRegion;
 import utilities.region.Region;
-import ai.AI;
+import ai.humanAI.HumanAI;
 import gameEngine.world.World;
 import gameEngine.world.unit.Unit;
 
@@ -32,11 +32,12 @@ public class DragSelectCommand extends UserCommand
 		double height = Math.abs(ey-ex);
 		r = new RectRegion(x, y, width, height);
 	}
-	public void updateUnit(Unit u, AI ai, boolean override, World w)
+	public void updateUnit(Unit u, HumanAI ai, boolean override, World w)
 	{
 		if(r.intersects(u))
 		{
 			u.setSelected(true);
+			ai.setSelectedUnits(ai.getSelectedUnits()+1);
 		}
 	}
 }

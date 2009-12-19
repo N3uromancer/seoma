@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import javax.media.opengl.GL;
 import ai.AI;
+import ai.humanAI.buildUI.BuildUI;
 import ai.humanAI.userCommand.*;
 import ui.userIO.userInput.*;
 import utilities.Camera;
@@ -26,6 +27,10 @@ public class HumanAI extends AI
 {
 	UserCommand[] uc = new UserCommand[10]; //command buffer
 	int ucindex = 0;
+	/**
+	 * the number of selected units
+	 */
+	int selected = 0;
 	
 	/**
 	 * if true then the action the unit is currently carrying out is overriden,
@@ -75,6 +80,10 @@ public class HumanAI extends AI
 			gl.glVertex3d(sx, mousey, d);
 			gl.glEnd();
 		}
+		if(selected == 1)
+		{
+			new BuildUI().drawBuildUI(gl, 30, 300, 100);
+		}
 	}
 	/**
 	 * cycles through all passed user input and properly registers it
@@ -83,10 +92,9 @@ public class HumanAI extends AI
 	 */
 	private void registerUserInput(ArrayList<UserInput> ui, World w)
 	{
-		Iterator<UserInput> i = ui.iterator();
-		while(i.hasNext())
+		for(int i = 0; i < ui.size(); i++)
 		{
-			UserInput input = i.next();
+			UserInput input = ui.get(i);
 			if(input instanceof MousePress)
 			{
 				MousePress m = (MousePress)input;
@@ -178,6 +186,22 @@ public class HumanAI extends AI
 			override = true;
 		}
 	}
+	/**
+	 * gets the number of selected units
+	 * @return
+	 */
+	public int getSelectedUnits()
+	{
+		return selected;
+	}
+	/**
+	 * sets the number of selected units
+	 * @param setter
+	 */
+	public void setSelectedUnits(int setter)
+	{
+		selected = setter;
+	}
 	private void interpretMouseClick(double x, double y, boolean rightClick, World w)
 	{
 		
@@ -209,11 +233,9 @@ public class HumanAI extends AI
 		while(i.hasNext() && !unitClicked)
 		{
 			Unit unit = (Unit)i.next();
-			if(unit.getOwner() == o)
-			{
-				unitClicked = true;
-				unit.setSelected(true);
-			}
+			unitClicked = true;
+			unit.setSelected(true);
+			selected++;
 		}
 		return unitClicked;
 	}
