@@ -18,6 +18,6 @@ public class Factory extends Building implements Builder
 	}
 	public boolean canBuild(Class<? extends Unit> c)
 	{
-		return (c == Harvester.class || c == Tank.class);
+		return (c == Harvester.class || c == Tank.class || c == Engineer.class);
 	}
 }
