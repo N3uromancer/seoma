@@ -110,7 +110,7 @@ public abstract class GameEngine implements Runnable, UserInputInterpreter
 	 */
 	public void registerUserInput(UserInput input)
 	{
-		if(!networked)
+		if(!networked && !(input instanceof MouseMove))
 		{
 			addUserInput(owner, input);
 		}
