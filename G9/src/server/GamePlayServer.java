@@ -147,6 +147,8 @@ class GamePlayThread implements Runnable {
 					/* Shamefully copied from SimpleStarter */
 					double[] c1 = {1, 0, 0};
 					double[] c2 = {0, 0, 1};
+					double[] c3 = {1, 0, 1};
+					double[] c4 = {1, 1, 0};
 					final Owner[] owners = {new Owner((byte)0, "player 1", c1), new Owner((byte)2, "player 2", c2)};
 					String[] startingUnits = {"leader"};
 					StartSettings ss = new StartSettings(700, 700, owners, startingUnits);
@@ -188,15 +190,20 @@ class GamePlayThread implements Runnable {
 						Thread.yield();
 					}
 					
-					saveRecord(seed, aiEntry1, aiEntry2);
+					saveRecord(seed, new AIListEntry[] {aiEntry1, aiEntry2}, ss);
 				}
 			}
 		}
 	}
 	
-	private void saveRecord(long seed, AIListEntry ai1, AIListEntry ai2)
+	private void saveRecord(long seed, AIListEntry[] ais, StartSettings ss)
 	{
-		games.add(new Game(seed, ai1.fName, ai2.fName, ai1.wins.contains(ai2.c)));
+		String[] aiF = new String[ais.length];
+		
+		for (int i = 0; i < ais.length; i++)
+			aiF[i] = ais[i].fName;
+		
+		games.add(new Game(seed, aiF, ais[0].wins.contains(ais[1].c) ? 0 : 1, ss));
 		
 		Object[] gs = games.toArray();
 		
@@ -221,22 +228,6 @@ class GamePlayThread implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-}
-
-class Game implements Serializable {
-	private static final long serialVersionUID = -443607570575906060L;
-	long seed;
-	String  aiFile1, aiFile2;
-	boolean aWon;
-	
-	public Game(long seed, String ai1, String ai2, boolean aWon)
-	{
-		System.out.println("Game completed! Winner "+(aWon ? ai1 : ai2)+" ("+seed+")");
-		this.seed = seed;
-		this.aiFile1 = ai1;
-		this.aiFile2 = ai2;
-		this.aWon = aWon;
 	}
 }
 
