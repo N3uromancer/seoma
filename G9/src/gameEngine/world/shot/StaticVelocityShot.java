@@ -24,14 +24,15 @@ public class StaticVelocityShot extends Shot
 		 * a percent of the distance from the starting position of the shot to
 		 * the target's position
 		 */
-		double op = .7;
+		double op = .5;
 		
 		double[] s = target.getLocation();
-		double[] d = {s[0]-x, s[1]-y};
-		sf[0] = d[0]+op*d[0];
-		sf[1] = d[1]+op*d[1];
+		s[0]+=target.getWidth()/2;
+		s[1]+=target.getHeight()/2;
 		
-		sf = s;
+		double[] d = {s[0]-x, s[1]-y};
+		sf[0] = s[0]+op*d[0];
+		sf[1] = s[1]+op*d[1];
 	}
 	/**
 	 * moves the shot towards its final position, sets the shot to

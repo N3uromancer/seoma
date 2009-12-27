@@ -1,9 +1,10 @@
 package gameEngine.world.unit;
 
-import gameEngine.StartSettings;
 import gameEngine.world.World;
 import gameEngine.world.animation.animations.Explosion;
 import gameEngine.world.owner.Owner;
+import gameEngine.world.unit.units.Leader;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,42 +37,22 @@ public class UnitEngine
 	 * @param width the width of the game world
 	 * @param height the height of the game world
 	 */
-	public UnitEngine(StartSettings ss, World w)
+	public UnitEngine(World w)
 	{
-		ausp = new SpatialPartition(0, 0, ss.getMapWidth(), ss.getMapHeight(), 30, 50, 100);
+		ausp = new SpatialPartition(0, 0, w.getMapWidth(), w.getMapHeight(), 30, 50, 100);
 		this.w = w;
 		
 		System.out.print("creating starting units... ");
-		Owner[] o = ss.getOwners();
-		int unitsCreated = 0;
+		Owner[] o = w.getOwners();
 		for(int i = 0; i < o.length; i++)
 		{
 			u.put(o[i], new LinkedList<Unit>());
-			usp.put(o[i], new SpatialPartition(0, 0, ss.getMapWidth(), ss.getMapHeight(), 30, 50, 100));
+			usp.put(o[i], new SpatialPartition(0, 0, w.getMapWidth(), w.getMapHeight(), 30, 50, 100));
 			
-			String[] sunits = ss.getStartingUnits();
-			for(int a = 0; a < sunits.length; a++)
-			{
-				//Unit unit = UnitFactory.createUnit(sunits[a], o[i], Math.random()*ss.getMapWidth(), Math.random()*ss.getMapHeight());
-				double x = w.getStartLocations().get(i).getLocation()[0];
-				double y = w.getStartLocations().get(i).getLocation()[1];
-				Unit unit = UnitFactory.createUnit(sunits[a], o[i], x, y);
-				unit.getOwner();
-				registerUnit(unit);
-				unitsCreated++;
-				/*for(int q = 0; q < 100; q++)
-				{
-					double x = m.getStartLocations().get(i).getLocation()[0];
-					double y = m.getStartLocations().get(i).getLocation()[1];
-					//Unit unit = UnitFactory.createUnit(sunits[a], o[i], Math.random()*ss.getMapWidth(), Math.random()*ss.getMapHeight());
-					Unit unit = UnitFactory.createUnit(sunits[a], o[i], x, y);
-					unit.getOwner();
-					registerUnit(unit);
-					unitsCreated++;
-				}*/
-			}
+			double x = w.getStartLocations().get(i).getLocation()[0];
+			double y = w.getStartLocations().get(i).getLocation()[1];
+			registerUnit(new Leader(o[i], x, y));
 		}
-		System.out.println("units created = "+unitsCreated);
 		System.out.println("done");
 	}
 	public HashMap<Owner, SpatialPartition> getUnits()

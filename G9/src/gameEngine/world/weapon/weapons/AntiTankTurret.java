@@ -10,7 +10,7 @@ public final class AntiTankTurret extends Weapon
 {
 	public AntiTankTurret()
 	{
-		super(150);
+		super(200);
 	}
 	protected Shot getShot(double x, double y, Unit target, Owner o)
 	{

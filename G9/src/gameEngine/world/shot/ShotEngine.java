@@ -3,8 +3,7 @@ package gameEngine.world.shot;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import gameEngine.StartSettings;
+import gameEngine.world.World;
 import gameEngine.world.unit.Unit;
 import gameEngine.world.unit.UnitEngine;
 import utilities.Polygon;
@@ -29,10 +28,10 @@ public final class ShotEngine
 	long unitIntersectionTime = 0;
 	long shots = 0; //the number of shots the for which the intersections have been checked for
 	
-	public ShotEngine(StartSettings ss, Polygon[] p)
+	public ShotEngine(World w, Polygon[] p)
 	{
-		ssp = new SpatialPartition(0, 0, ss.getMapWidth(), ss.getMapHeight(), 20, 60, 100);
-		psp = new SpatialPartition(0, 0, ss.getMapWidth(), ss.getMapHeight(), 10, 20, 100);
+		ssp = new SpatialPartition(0, 0, w.getMapWidth(), w.getMapHeight(), 20, 60, 100);
+		psp = new SpatialPartition(0, 0, w.getMapWidth(), w.getMapHeight(), 10, 20, 100);
 		for(int i = 0; i < p.length; i++)
 		{
 			psp.addRegion(p[i]);
