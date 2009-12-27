@@ -43,8 +43,8 @@ public class SimpleStarter
 			public void updateGame(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui)
 			{
 				w.updateWorld(tdiff, ui);
-				w.updateWorld(tdiff, ui);
-				w.updateWorld(tdiff, ui);
+				//w.updateWorld(tdiff, ui);
+				//w.updateWorld(tdiff, ui);
 			}
 		};
 		DisplayManager dm = new DisplayManager()
