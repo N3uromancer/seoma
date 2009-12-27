@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+
 import gameEngine.world.World;
 import gameEngine.world.action.actions.*;
 import gameEngine.world.owner.Owner;
@@ -13,11 +14,11 @@ import gameEngine.world.unit.BuildOrder;
 import gameEngine.world.unit.Unit;
 import gameEngine.world.unit.unitModifiers.*;
 import gameEngine.world.unit.units.Refinery;
-
 import javax.media.opengl.GL;
+
+import ai.aiModule.AIModule;
 import ui.userIO.userInput.UserInput;
 import utilities.Camera;
-import utilities.Location;
 import utilities.MathUtil;
 
 /**
@@ -35,9 +36,15 @@ public abstract class AI
 	HashMap<Class<? extends Unit>, ArrayList<Unit>> units = 
 		new HashMap<Class<? extends Unit>, ArrayList<Unit>>();
 	
+	ArrayList<AIModule> m = new ArrayList<AIModule>();
+	
 	public AI(Owner o)
 	{
 		this.o = o;
+	}
+	public void registerAIModule(AIModule module)
+	{
+		m.add(module);
 	}
 	/**
 	 * called by the unit engine to notify the ai that a unit has been constructed,
@@ -197,12 +204,31 @@ public abstract class AI
 		}
 	}
 	/**
-	 * the main AI method, called once by the SGEngine every iteration
+	 * calls the method to perform the ai functions and updates all registered
+	 * modules for the ai, called to update the ai
+	 * @param w
+	 * @param ui
+	 * @param tdiff
+	 */
+	public void performAIFunctions(World w, HashMap<Class<? extends UserInput>, ArrayList<UserInput>> ui, double tdiff)
+	{
+		if(m.size() > 0)
+		{
+			Iterator<AIModule> i = m.iterator();
+			while(i.hasNext())
+			{
+				i.next().updateModule(this, w, ui, tdiff);
+			}
+		}
+		performAIFunctions(w, ui);
+	}
+	/**
+	 * the main AI method, performs the ai functions
 	 * of the main thread
 	 * @param w
 	 * @param ui user input performed by this ai's owner
 	 */
-	public abstract void performAIFunctions(World w, ArrayList<UserInput> ui);
+	protected abstract void performAIFunctions(World w, HashMap<Class<? extends UserInput>, ArrayList<UserInput>> ui);
 	/**
 	 * draws a UI for this ai
 	 * @param gl

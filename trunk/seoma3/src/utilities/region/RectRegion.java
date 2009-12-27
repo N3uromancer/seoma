@@ -31,6 +31,13 @@ public class RectRegion implements Region
 		this.width = width;
 		this.height = height;
 	}
+	public RectRegion(Region r)
+	{
+		x = r.getLocation()[0];
+		y = r.getLocation()[1];
+		width = r.getWidth();
+		height = r.getHeight();
+	}
 	public RectRegion(DataInputStream dis)
 	{
 		try

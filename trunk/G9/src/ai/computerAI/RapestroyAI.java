@@ -1,18 +1,15 @@
 package ai.computerAI;
 
 import gameEngine.world.World;
-
-import gameEngine.world.animation.animations.Explosion;
 import gameEngine.world.owner.Owner;
 import gameEngine.world.resource.ResourceDeposit;
 import gameEngine.world.unit.Unit;
 import gameEngine.world.unit.units.*;
 import gameEngine.world.unit.unitModifiers.*;
-
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.NoSuchElementException;
 import java.util.Random;
 
 import javax.media.opengl.GL;
@@ -20,7 +17,6 @@ import utilities.MathUtil;
 import ai.AI;
 import ui.userIO.userInput.UserInput;
 import utilities.Camera;
-import utilities.Location;
 
 public class RapestroyAI extends AI
 {
@@ -34,7 +30,7 @@ public class RapestroyAI extends AI
 	{
 		return null;
 	}
-	public void performAIFunctions(World w, ArrayList<UserInput> ui)
+	protected void performAIFunctions(World w, HashMap<Class<? extends UserInput>, ArrayList<UserInput>> ui)
 	{
 		if(rand == null)
 		{

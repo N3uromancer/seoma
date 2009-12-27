@@ -37,22 +37,29 @@ public class Polygon extends RectRegion
 		double x = 300;
 		double y = 300;
 		final Location[] v = {new Location(x+40, y+40), new Location(x+70, y+170), new Location(x+140, y+40)};
-		final Polygon p = new Polygon(Polygon.determineBoundingRegion(v), v);
+		//final Polygon p = new Polygon(Polygon.determineBoundingRegion(v), v);
+		final Polygon p = new Polygon(v);
 		System.out.println("polygon bounds = "+p);
 		
 		x+=40;
 		y+=40;
 		final Location[] v2 = {new Location(x+40, y+40), new Location(x+70, y+170), new Location(x+140, y+40)};
-		final Polygon p2 = new Polygon(Polygon.determineBoundingRegion(v2), v2);
+		//final Polygon p2 = new Polygon(Polygon.determineBoundingRegion(v2), v2);
+		final Polygon p2 = new Polygon(v2);
 		
 		double width = 40;
 		double height = 70;
 		Location[] vertices = {new Location(x, y), new Location(x, y+height), new Location(x+width, y+height), new Location(x+width, y)};
-		final Polygon p3 = new Polygon(Polygon.determineBoundingRegion(vertices), vertices);
+		//final Polygon p3 = new Polygon(Polygon.determineBoundingRegion(vertices), vertices);
+		final Polygon p3 = new Polygon(vertices);
 		
 		new Sandbox(){
 			public void draw(GL gl, int width, int height)
 			{
+				gl.glMatrixMode(GL.GL_PROJECTION);
+				gl.glLoadIdentity();
+				gl.glOrtho(0, width, 0, height, -1, 1);
+				
 				gl.glColor3d(1, 1, 1);
 				//Location[] v = {new Location(40, 40), new Location(140, 40), new Location(70, 170)};
 				//Polygon p = new Polygon(Polygon.determineBoundingRegion(v), v);
@@ -79,11 +86,12 @@ public class Polygon extends RectRegion
 	 * relative to the center
 	 * @param bounds can be computed using that polygon static method determineBoundingRegion
 	 * @param vertices vertex locations relative to the bounds, vertices must be defined in
-	 * clockwise order or the normals will be incorrectly calculated
+	 * counter clockwise order or the normals will be incorrectly calculated
 	 */
-	public Polygon(RectRegion bounds, Location[] vertices)
+	public Polygon(Location[] vertices)
 	{
-		super(bounds.getLocation()[0], bounds.getLocation()[1], bounds.getWidth(), bounds.getHeight());
+		//super(bounds.getLocation()[0], bounds.getLocation()[1], bounds.getWidth(), bounds.getHeight());
+		super(determineBoundingRegion(vertices));
 		this.vertices = vertices;
 		offSetVertices();
 		
@@ -490,6 +498,7 @@ public class Polygon extends RectRegion
 			double y = dis.readDouble();
 			vertices[i] = new Location(x, y);
 		}
-		return new Polygon(determineBoundingRegion(vertices), vertices);
+		//return new Polygon(determineBoundingRegion(vertices), vertices);
+		return new Polygon(vertices);
 	}
 }

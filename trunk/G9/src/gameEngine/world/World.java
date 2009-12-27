@@ -6,7 +6,6 @@ import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import gameEngine.StartSettings;
 import gameEngine.world.animation.AnimationEngine;
 import gameEngine.world.owner.Owner;
 import gameEngine.world.resource.ResourceEngine;
@@ -20,7 +19,6 @@ import mapEditor.Map;
 
 import ai.AI;
 import pathFinder.*;
-import pathFinder.epfv2.EPFV2;
 import pathFinder.epfv3.EPFV3;
 import ui.userIO.userInput.UserInput;
 import utilities.Polygon;
@@ -52,6 +50,11 @@ public class World
 	HashMap<Owner, AI> ais;
 	long seed;
 	
+	/**
+	 * the ai whose camera is used to display the world
+	 */
+	AI cameraAI;
+	
 	int width;
 	int height;
 	
@@ -79,12 +82,18 @@ public class World
 	{
 		return seed;
 	}
-	public World(StartSettings ss, HashMap<Owner, AI> ais, long seed)
+	/**
+	 * sets the ai whose camera is to be used in displaying the world
+	 * @param ai
+	 */
+	public void setCameraAI(AI ai)
+	{
+		cameraAI = ai;
+	}
+	public World(Owner[] owners, HashMap<Owner, AI> ais, long seed)
 	{
 		this.seed = seed;
 		this.ais = ais;
-		width = ss.getMapWidth();
-		height = ss.getMapHeight();
 		
 		/*for(int i = 0; i < p.length; i++)
 		{
@@ -110,19 +119,21 @@ public class World
 		{
 			e.printStackTrace();
 		}
+		width = m.getWidth();
+		height = m.getHeight();
+		this.o = owners;
 		
 		p = m.getPolygons();
 		startLocations = m.getStartLocations();
 		
-		se = new ShotEngine(ss, p.toArray(new Polygon[p.size()]));
-		ue = new UnitEngine(ss, this);
+		se = new ShotEngine(this, p.toArray(new Polygon[p.size()]));
+		ue = new UnitEngine(this);
 		re = new ResourceEngine(m.getResourceDeposits());
 		
 		
-		this.o = ss.getOwners();
 		
 		//pf = new EPFV2(width, height, p.toArray(new Polygon[p.size()]));
-		pf = new EPFV3(width, height, p.toArray(new Polygon[p.size()]));
+		pf = new EPFV3(m.getWidth(), m.getHeight(), p.toArray(new Polygon[p.size()]));
 	}
 	public ArrayList<Region> getStartLocations()
 	{
@@ -155,11 +166,11 @@ public class World
 	{
 		return new RectRegion(0, 0, width, height).contains(x, y);
 	}
-	public void updateWorld(double tdiff, HashMap<Byte, ArrayList<UserInput>> ui)
+	public void updateWorld(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui)
 	{
 		for(int i = o.length-1; i >= 0; i--)
 		{
-			ais.get(o[i]).performAIFunctions(this, ui.get(o[i].getID()));
+			ais.get(o[i]).performAIFunctions(this, ui.get(o[i].getID()), tdiff);
 		}
 		ue.updateUnitEngine(tdiff, this);
 		se.updateShotEngine(tdiff, ue);
@@ -180,66 +191,88 @@ public class World
 	 */
 	public void drawWorld(Owner owner, int dwidth, int dheight, GL gl)
 	{
-		gl.glMatrixMode(GL.GL_PROJECTION);
-		gl.glLoadIdentity();
-		gl.glOrtho(0, dwidth, 0, dheight, -1, 1);
-		
-		gl.glMatrixMode(GL.GL_MODELVIEW);
-		gl.glLoadIdentity();
-		
-		int x = 0;
-		int y = 0;
-		
-		ae.drawAnimiations(gl, dwidth, dheight);
-		try
+		if(cameraAI != null && cameraAI.getCamera() != null)
 		{
-			HashSet<Region> r = ue.getAllUnits().getIntersections(x, y, dwidth, dheight);
-			Iterator<Region> i = r.iterator();
-			while(i.hasNext())
+			/*gl.glMatrixMode(GL.GL_PROJECTION);
+			gl.glLoadIdentity();
+			gl.glOrtho(0, dwidth, 0, dheight, -1, 1);
+			
+			gl.glMatrixMode(GL.GL_MODELVIEW);
+			gl.glLoadIdentity();*/
+			
+			cameraAI.getCamera().updateGL(gl, dwidth, dheight);
+			cameraAI.getCamera().updateCamera(gl);
+			
+			
+			
+			int x = (int)cameraAI.getCamera().getLocation()[0];
+			int y = (int)cameraAI.getCamera().getLocation()[1];
+			
+			//double[] dim = cameraAI.getCamera().unproject(dwidth, 0);
+			double[] dim = {dwidth*cameraAI.getCamera().getZoom(), dheight*cameraAI.getCamera().getZoom()};
+			//System.out.println(dim[0]+", "+dim[1]);
+			
+			ae.drawAnimiations(gl, dwidth, dheight);
+			try
 			{
-				Unit u = (Unit)i.next();
-				u.draw(gl);
+				HashSet<Region> r = ue.getAllUnits().getIntersections(x, y, dim[0], dim[1]);
+				//HashSet<Region> r = ue.getAllUnits().getIntersections(x, y, dwidth, dheight);
+				Iterator<Region> i = r.iterator();
+				while(i.hasNext())
+				{
+					Unit u = (Unit)i.next();
+					u.draw(gl);
+				}
 			}
-		}
-		catch(ConcurrentModificationException e){}
-		HashSet<Region> r = se.getShots().getIntersections(x, y, dwidth, dheight);
-		Iterator<Region> i = r.iterator();
-		while(i.hasNext())
-		{
-			Shot s = (Shot)i.next();
-			s.drawShot(gl);
-			if(s.isDead())
+			catch(ConcurrentModificationException e){}
+			try
 			{
-				//System.out.println("dead and should not be drawn...");
+				HashSet<Region> r = se.getShots().getIntersections(x, y, dim[0], dim[1]);
+				//HashSet<Region> r = se.getShots().getIntersections(x, y, dwidth, dheight);
+				Iterator<Region> i = r.iterator();
+				while(i.hasNext())
+				{
+					Shot s = (Shot)i.next();
+					s.drawShot(gl);
+					if(s.isDead())
+					{
+						//System.out.println("dead and should not be drawn...");
+					}
+				}
+				//se.getShotPartition().drawPartition(gl, width, height);
 			}
-		}
-		//se.getShotPartition().drawPartition(gl, width, height);
+			catch(ConcurrentModificationException e){}
+			
+			try
+			{
+				re.drawResourceDeposits(gl);
+			}
+			catch(ConcurrentModificationException e){}
 		
-		re.drawResourceDeposits(gl);
-	
-		/*gl.glLineWidth(1);
-		for(int a = 0; a < p.length; a++)
-		{
+			/*gl.glLineWidth(1);
+			for(int a = 0; a < p.length; a++)
+			{
+				gl.glColor4d(0, 1, 0, .6);
+				p[a].drawPolygon(gl, .1);
+			}*/
+			gl.glLineWidth(1);
 			gl.glColor4d(0, 1, 0, .6);
-			p[a].drawPolygon(gl, .1);
-		}*/
-		gl.glLineWidth(1);
-		gl.glColor4d(0, 1, 0, .6);
-		Iterator<Polygon> pi = p.iterator();
-		while(pi.hasNext())
-		{
-			pi.next().drawPolygon(gl, .1);
+			Iterator<Polygon> pi = p.iterator();
+			while(pi.hasNext())
+			{
+				pi.next().drawPolygon(gl, .1);
+			}
+			
+			//gl.glLineWidth(1);
+			gl.glColor4d(1, 1, 1, .3);
+			pf.drawPathing(gl, false);
+			
+			if(ais.get(owner) != null)
+			{
+				ais.get(owner).drawUI(gl);
+			}
+			
+			gl.glClearColor(0, 0, 0, 1);
 		}
-		
-		//gl.glLineWidth(1);
-		gl.glColor4d(1, 1, 1, .3);
-		pf.drawPathing(gl, false);
-		
-		if(ais.get(owner) != null)
-		{
-			ais.get(owner).drawUI(gl);
-		}
-		
-		gl.glClearColor(0, 0, 0, 1);
 	}
 }

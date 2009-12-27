@@ -1,11 +1,13 @@
 package gameEngine.world.resource;
 
 
+import gameEngine.world.World;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import gameEngine.world.World;
 import javax.media.opengl.GL;
+
 
 /**
  * represents a game resource, resources do not affect pathfinding

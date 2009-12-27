@@ -1,14 +1,9 @@
 package mapEditor;
 
-import gameEngine.world.World;
 import gameEngine.world.resource.MediumDeposit;
-
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-
 import javax.media.opengl.GL;
 import javax.media.opengl.GLCanvas;
 import javax.media.opengl.GLCapabilities;
@@ -125,7 +120,7 @@ public class MapEditor implements UserInputInterpreter, DisplayManager, Runnable
 		}
 		//System.out.println("bounds = "+Polygon.determineBoundingRegion(vertices));
 		//System.out.println("--------------------");
-		return new Polygon(Polygon.determineBoundingRegion(vertices), vertices);
+		return new Polygon(vertices);
 	}
 	public static void main(String[] args)
 	{

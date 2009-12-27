@@ -20,7 +20,8 @@ public abstract class GameEngine implements Runnable, UserInputInterpreter
 	 * stores user input when not networked
 	 * key=owner id, value=list of input by that user
 	 */
-	HashMap<Byte, ArrayList<UserInput>> ui = new HashMap<Byte, ArrayList<UserInput>>();
+	HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui = 
+		new HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>>();
 	GLCanvas c;
 	
 	/**
@@ -68,17 +69,19 @@ public abstract class GameEngine implements Runnable, UserInputInterpreter
 			catch(InterruptedException e){}
 			diff = System.currentTimeMillis()-start;
 			start = System.currentTimeMillis();
-			HashMap<Byte, ArrayList<UserInput>> temp = new HashMap<Byte, ArrayList<UserInput>>(ui);
+			//HashMap<Byte, ArrayList<UserInput>> temp = new HashMap<Byte, ArrayList<UserInput>>(ui);
+			HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> temp = 
+				new HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>>(ui);
 			update(diff/1000.0, temp);
-			ui = new HashMap<Byte, ArrayList<UserInput>>();
+			ui = new HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>>();
 		}
 	}
-	private void update(double tdiff, HashMap<Byte, ArrayList<UserInput>> ui)
+	private void update(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui)
 	{
 		updateGame(tdiff, ui);
 		c.repaint();
 	}
-	public abstract void updateGame(double tdiff, HashMap<Byte, ArrayList<UserInput>> ui);
+	public abstract void updateGame(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui);
 	/**
 	 * places user input in the hash map, this is called upon receiving
 	 * input from the sever or (if non-networked) when the user generates
@@ -90,13 +93,25 @@ public abstract class GameEngine implements Runnable, UserInputInterpreter
 	{
 		if(ui.get(owner) != null)
 		{
-			ui.get(owner).add(userInput);
+			if(ui.containsKey(userInput.getClass()))
+			{
+				ui.get(owner).get(userInput.getClass()).add(userInput);
+			}
+			else
+			{
+				ArrayList<UserInput> temp = new ArrayList<UserInput>();
+				temp.add(userInput);
+				ui.get(owner).put(userInput.getClass(), temp);
+			}
+			//ui.get(owner).add(userInput);
 		}
 		else
 		{
 			ArrayList<UserInput> temp = new ArrayList<UserInput>();
 			temp.add(userInput);
-			ui.put(owner, temp);
+			//ui.put(owner, temp);
+			ui.put(owner, new HashMap<Class<? extends UserInput>, ArrayList<UserInput>>());
+			ui.get(owner).put(userInput.getClass(), temp);
 		}
 	}
 	/**
