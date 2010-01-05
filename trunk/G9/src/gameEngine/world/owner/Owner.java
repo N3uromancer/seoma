@@ -36,4 +36,12 @@ public class Owner
 	{
 		return c;
 	}
+	public void setUnitCount(int count)
+	{
+		unitCount = count;
+	}
+	public int getUnitCount()
+	{
+		return unitCount;
+	}
 }
