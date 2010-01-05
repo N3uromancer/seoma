@@ -57,29 +57,32 @@ public abstract class Weapon
 				//targetCache = new LinkedList<Region>(units.getRegions(x, y, range));
 				targetCache = determineTargets(o, x, y, units);
 			}
-			Iterator<Region> i = targetCache.iterator();
 			Unit u = null;
-			boolean unitFound = false;
-			while(i.hasNext() && !unitFound)
+			if(targetCache.size() > 0)
 			{
-				u = (Unit)i.next();
-				if(u.isDead() || MathUtil.distance(x, y, u.getLocation()[0], u.getLocation()[1]) > range)
+				Iterator<Region> i = targetCache.iterator();
+				boolean unitFound = false;
+				while(i.hasNext() && !unitFound)
 				{
-					i.remove();
+					u = (Unit)i.next();
+					if(u.isDead() || MathUtil.distance(x, y, u.getLocation()[0], u.getLocation()[1]) > range)
+					{
+						i.remove();
+						u = null;
+					}
+					else
+					{
+						unitFound = true;
+					}
 				}
-				else
+				if(u == null)
 				{
-					unitFound = true;
-				}
-			}
-			if(u == null)
-			{
-				//all units were removed from the cache
-				//targetCache = new LinkedList<Region>(units.getRegions(x, y, range));
-				targetCache = determineTargets(o, x, y, units);
-				if(targetCache.size() != 0)
-				{
-					u = (Unit)targetCache.getFirst();
+					//all units were removed from the cache
+					targetCache = determineTargets(o, x, y, units);
+					if(targetCache.size() != 0)
+					{
+						u = (Unit)targetCache.getFirst();
+					}
 				}
 			}
 			if(u != null)

@@ -82,6 +82,22 @@ public class Polygon extends RectRegion
 		};
 	}
 	/**
+	 * returns the center of the polygon by averaging all the vertex offsets
+	 * then adding the translational amount of the polygon
+	 * @return returns the center of the polygon
+	 */
+	public double[] getCenter()
+	{
+		double x = 0;
+		double y = 0;
+		for(int i = 0; i < vertices.length; i++)
+		{
+			x+=vertices[i].x;
+			y+=vertices[i].y;
+		}
+		return new double[]{getLocation()[0]+x/vertices.length, getLocation()[1]+y/vertices.length};
+	}
+	/**
 	 * creates a new polygon, the locations of the vertices must be given
 	 * relative to the center
 	 * @param bounds can be computed using that polygon static method determineBoundingRegion

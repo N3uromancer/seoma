@@ -31,6 +31,11 @@ public class UnitEngine
 	long updates = 0;
 	long totalTime = 0;
 	long unitsUpdated = 0;
+	long boTime = 0; //time used to process build orders
+	long utime = 0; //unit update time
+	long ptime = 0; //partition insertion/removal time
+	long pactions = 0; //partition actions, insertion/removal
+	
 	
 	/**
 	 * creates the unit engine
@@ -47,7 +52,7 @@ public class UnitEngine
 		for(int i = 0; i < o.length; i++)
 		{
 			u.put(o[i], new LinkedList<Unit>());
-			usp.put(o[i], new SpatialPartition(0, 0, w.getMapWidth(), w.getMapHeight(), 30, 50, 100));
+			usp.put(o[i], new SpatialPartition(0, 0, w.getMapWidth(), w.getMapHeight(), 30, 200, 100));
 			
 			double x = w.getStartLocations().get(i).getLocation()[0];
 			double y = w.getStartLocations().get(i).getLocation()[1];
@@ -88,9 +93,9 @@ public class UnitEngine
 			while(ui.hasNext())
 			{
 				Unit unit = ui.next();
-				unitsUpdated++;
 				if(unit.isDead())
 				{
+					long pstart = System.currentTimeMillis();
 					//usp.removeRegion(unit);
 					usp.get(unit.getOwner()).removeRegion(unit);
 					ausp.removeRegion(unit);
@@ -98,23 +103,36 @@ public class UnitEngine
 					w.getAIs().get(unit.getOwner()).unitDestroy(unit);
 					//System.out.println("unit died");
 					w.getAnimationEngine().registerAnimation(new Explosion(unit));
+					ptime+=System.currentTimeMillis()-pstart;
+					pactions++;
 				}
 				else
 				{
 					if(unit.getMovement() > 0)
 					{
+						long pstart = System.currentTimeMillis();
 						usp.get(unit.getOwner()).removeRegion(unit);
 						ausp.removeRegion(unit);
+						ptime+=System.currentTimeMillis()-pstart;
+						pactions++;
 					}
+					long ustart = System.currentTimeMillis();
 					unit.update(w, tdiff);
+					utime+=System.currentTimeMillis()-ustart;
+					unitsUpdated++;
 					if(unit.getMovement() > 0)
 					{
+						long pstart = System.currentTimeMillis();
 						usp.get(unit.getOwner()).addRegion(unit);
 						ausp.addRegion(unit);
+						ptime+=System.currentTimeMillis()-pstart;
+						pactions++;
 					}
 				}
 			}
 		}
+		
+		long bstart = System.currentTimeMillis();
 		//updates and removes all build orders
 		Iterator<BuildOrder> bi = bo.iterator(); //build iterator
 		while(bi.hasNext())
@@ -124,13 +142,16 @@ public class UnitEngine
 				bi.remove();
 			}
 		}
+		boTime+=System.currentTimeMillis()-bstart;
 		
 		totalTime+=System.currentTimeMillis()-start;
 		updates++;
 		if(updates % 1500 == 0 && unitsUpdated != 0)
 		{
-			System.out.println("unit engine update time (ms) = "+totalTime+" [total time] / "+updates+" [updates] = "+(totalTime/updates));
-			System.out.println("unit update time (ms) = "+totalTime+" [total time] / "+unitsUpdated+" [units updated] = "+(totalTime/unitsUpdated));
+			System.out.println("unit engine update time (ms) = "+totalTime+" [total time] / "+updates+" [updates] = "+(totalTime*1./updates));
+			System.out.println("time per unit update (ms) = "+utime+" [total time] / "+unitsUpdated+" [units updated] = "+(utime*1./unitsUpdated));
+			System.out.println("partition insertion/removal time per action (ms) = "+ptime+" [total time] / "+pactions+" [insertions/removals] = "+(ptime*1./pactions));
+			System.out.println("build order processing time per update (ms) = "+boTime+" [total time] / "+updates+" [updates] = "+(boTime*1./updates));
 			System.out.println("-------------------");
 		}
 	}

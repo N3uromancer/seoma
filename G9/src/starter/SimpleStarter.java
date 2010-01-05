@@ -30,7 +30,7 @@ public class SimpleStarter
 				new Owner((byte)2, "player 3", c3), new Owner((byte)3, "player 4", c4)};*/
 
 		HashMap<Owner, AI> ais = new HashMap<Owner, AI>();
-		ais.put(owners[0], new YortSepar(owners[0]));
+		ais.put(owners[0], new RapestroyAI(owners[0]));
 		ais.put(owners[1], new RapestroyAI(owners[1]));
 		//ais.put(owners[2], new RapestroyAI(owners[2]));
 		//ais.put(owners[3], new RapestroyAI(owners[3]));
@@ -43,8 +43,18 @@ public class SimpleStarter
 			public void updateGame(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui)
 			{
 				w.updateWorld(tdiff, ui);
-				//w.updateWorld(tdiff, ui);
-				//w.updateWorld(tdiff, ui);
+				/*w.updateWorld(.03, ui);
+				w.updateWorld(.03, ui);
+				w.updateWorld(.03, ui);
+				w.updateWorld(.03, ui);
+				w.updateWorld(.03, ui);
+				w.updateWorld(.03, ui);
+				w.updateWorld(.03, ui);
+				w.updateWorld(.03, ui);
+				w.updateWorld(.03, ui);
+				w.updateWorld(.03, ui);
+				w.updateWorld(.03, ui);
+				w.updateWorld(.03, ui);*/
 			}
 		};
 		DisplayManager dm = new DisplayManager()
