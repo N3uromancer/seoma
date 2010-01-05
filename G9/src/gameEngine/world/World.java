@@ -6,6 +6,8 @@ import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+
 import gameEngine.world.animation.AnimationEngine;
 import gameEngine.world.owner.Owner;
 import gameEngine.world.resource.ResourceEngine;
@@ -223,6 +225,7 @@ public class World
 					Unit u = (Unit)i.next();
 					u.draw(gl);
 				}
+				
 			}
 			catch(ConcurrentModificationException e){}
 			try
@@ -248,6 +251,21 @@ public class World
 				re.drawResourceDeposits(gl);
 			}
 			catch(ConcurrentModificationException e){}
+			
+			try
+			{
+				for (int i = 0; i < o.length; i++)
+				{
+					int uc = 0;
+					Iterator<Unit> unitI = getUnitEngine().getUnitList(o[i]).iterator();
+					while (unitI.hasNext())
+					{
+						if (!unitI.next().isDead())
+							uc++;
+					}
+					o[i].setUnitCount(uc);
+				}
+			} catch(ConcurrentModificationException e){}
 		
 			/*gl.glLineWidth(1);
 			for(int a = 0; a < p.length; a++)
