@@ -9,7 +9,6 @@ public class Owner
 {
 	String name;
 	double resources = 500;
-	int unitCount = 0;
 	double[] c; //owner color
 	byte id;
 	
