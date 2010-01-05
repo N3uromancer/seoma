@@ -170,14 +170,13 @@ class GamePlayThread implements Runnable {
 					
 					while (!t.isInterrupted())
 					{
-						AI loser = w.getLoser();
-						if (loser == ai2)
+						if (w.getUnitEngine().getUnitList(owners[1]).size() == 0)
 						{
 							aiEntry1.wins.add(aiEntry2.c);
 							aiEntry2.losses.add(aiEntry1.c);
 							break;
 						}
-						else if (loser == ai1)
+						else if (w.getUnitEngine().getUnitList(owners[0]).size() == 0)
 						{
 							aiEntry2.wins.add(aiEntry1.c);
 							aiEntry1.losses.add(aiEntry2.c);
