@@ -6,8 +6,6 @@ import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-
 import gameEngine.world.animation.AnimationEngine;
 import gameEngine.world.owner.Owner;
 import gameEngine.world.resource.ResourceEngine;
@@ -59,6 +57,13 @@ public class World
 	
 	int width;
 	int height;
+	
+	long updateTime = 0;
+	long updates = 0;
+	
+	long drawTime = 0;
+	long drawUpdates = 0; //number of times the world has been drawn
+	long gameTime = 0; //amount of time proccessed by the world
 	
 	public ShotEngine getShotEngine()
 	{
@@ -170,14 +175,33 @@ public class World
 	}
 	public void updateWorld(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui)
 	{
+		long start = System.currentTimeMillis();
 		for(int i = o.length-1; i >= 0; i--)
 		{
-			ais.get(o[i]).performAIFunctions(this, ui.get(o[i].getID()), tdiff);
+			try
+			{
+				ais.get(o[i]).performAIFunctions(this, ui.get(o[i].getID()), tdiff);
+			}
+			catch(Exception e)
+			{
+				//e.printStackTrace();
+			}
 		}
 		ue.updateUnitEngine(tdiff, this);
 		se.updateShotEngine(tdiff, ue);
 		re.updateResourceEngine(tdiff, this);
 		ae.updateAnimationEngine(tdiff);
+		
+		updateTime+=System.currentTimeMillis()-start;
+		updates++;
+		gameTime+=tdiff*1000;
+		
+		if(updates != 0 && updates%1500 == 0)
+		{
+			System.out.println("world time per update = "+updateTime+" [total time] / "+updates+" [updates] = "+(updateTime*1./updates));
+			System.out.println("total game time simulated (ms) = "+gameTime);
+			System.out.println("----------------------------------");
+		}
 	}
 	public AnimationEngine getAnimationEngine()
 	{
@@ -193,6 +217,7 @@ public class World
 	 */
 	public void drawWorld(Owner owner, int dwidth, int dheight, GL gl)
 	{
+		long start = System.currentTimeMillis();
 		if(cameraAI != null && cameraAI.getCamera() != null)
 		{
 			/*gl.glMatrixMode(GL.GL_PROJECTION);
@@ -225,7 +250,6 @@ public class World
 					Unit u = (Unit)i.next();
 					u.draw(gl);
 				}
-				
 			}
 			catch(ConcurrentModificationException e){}
 			try
@@ -251,21 +275,6 @@ public class World
 				re.drawResourceDeposits(gl);
 			}
 			catch(ConcurrentModificationException e){}
-			
-			try
-			{
-				for (int i = 0; i < o.length; i++)
-				{
-					int uc = 0;
-					Iterator<Unit> unitI = getUnitEngine().getUnitList(o[i]).iterator();
-					while (unitI.hasNext())
-					{
-						if (!unitI.next().isDead())
-							uc++;
-					}
-					o[i].setUnitCount(uc);
-				}
-			} catch(ConcurrentModificationException e){}
 		
 			/*gl.glLineWidth(1);
 			for(int a = 0; a < p.length; a++)
@@ -283,7 +292,7 @@ public class World
 			
 			//gl.glLineWidth(1);
 			gl.glColor4d(1, 1, 1, .3);
-			pf.drawPathing(gl, false);
+			//pf.drawPathing(gl, false);
 			
 			if(ais.get(owner) != null)
 			{
@@ -291,6 +300,14 @@ public class World
 			}
 			
 			gl.glClearColor(0, 0, 0, 1);
+		}
+		
+		drawTime+=System.currentTimeMillis()-start;
+		drawUpdates++;
+		if(drawUpdates%500 == 0)
+		{
+			System.out.println("average world draw time (ms) = "+drawTime+" [total time] / "+drawUpdates+" [draw updates] = "+(drawTime*1./drawUpdates));
+			System.out.println("----------------");
 		}
 	}
 }

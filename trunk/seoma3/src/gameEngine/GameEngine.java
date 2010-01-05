@@ -72,8 +72,8 @@ public abstract class GameEngine implements Runnable, UserInputInterpreter
 			//HashMap<Byte, ArrayList<UserInput>> temp = new HashMap<Byte, ArrayList<UserInput>>(ui);
 			HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> temp = 
 				new HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>>(ui);
-			update(diff/1000.0, temp);
 			ui = new HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>>();
+			update(diff/1000.0, temp);
 		}
 	}
 	private void update(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui)

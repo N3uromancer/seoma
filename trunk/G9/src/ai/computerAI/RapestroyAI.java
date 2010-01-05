@@ -15,20 +15,23 @@ import java.util.Random;
 import javax.media.opengl.GL;
 import utilities.MathUtil;
 import ai.AI;
+import ai.aiModule.CameraModule;
 import ui.userIO.userInput.UserInput;
 import utilities.Camera;
 
 public class RapestroyAI extends AI
 {
 	Random rand;
+	CameraModule cm = new CameraModule('w', 'd', 's', 'a', 'r', 'f');
 	
 	public RapestroyAI(Owner o)
 	{
 		super(o);
+		registerAIModule(cm);
 	}
 	public Camera getCamera()
 	{
-		return null;
+		return cm.getCamera();
 	}
 	protected void performAIFunctions(World w, HashMap<Class<? extends UserInput>, ArrayList<UserInput>> ui)
 	{
@@ -68,8 +71,12 @@ public class RapestroyAI extends AI
 					}
 					else
 					{
-						moveUnitRandomlyAroundArea(u, w, getUnits().get(Refinery.class).get(0).getLocation(), 100);
-						buildUnit(Factory.class, u, w);
+						try
+						{
+							moveUnitRandomlyAroundArea(u, w, getUnits().get(Refinery.class).get(0).getLocation(), 100);
+							buildUnit(Factory.class, u, w);
+						}
+						catch(IndexOutOfBoundsException e){}
 					}
 					//else moveUnitRandomlyAroundArea(u, w, getUnits().get(Factory.class).get(0).getLocation()[0], getUnits().get(Factory.class).get(0).getLocation()[1], 20);
 				}

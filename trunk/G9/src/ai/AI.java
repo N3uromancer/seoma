@@ -38,6 +38,9 @@ public abstract class AI
 	
 	ArrayList<AIModule> m = new ArrayList<AIModule>();
 	
+	long updateTime = 0;
+	long updates = 0;
+	
 	public AI(Owner o)
 	{
 		this.o = o;
@@ -212,6 +215,7 @@ public abstract class AI
 	 */
 	public void performAIFunctions(World w, HashMap<Class<? extends UserInput>, ArrayList<UserInput>> ui, double tdiff)
 	{
+		long start = System.currentTimeMillis();
 		if(m.size() > 0)
 		{
 			Iterator<AIModule> i = m.iterator();
@@ -221,6 +225,13 @@ public abstract class AI
 			}
 		}
 		performAIFunctions(w, ui);
+		updateTime += System.currentTimeMillis()-start;
+		updates++;
+		if(updates != 0 && updates%1000 == 0)
+		{
+			System.out.println(o.getName()+" ai average update time (ms) = "+updateTime+" [total time] / "+updates+" [updates] = "+(updateTime*1.0/updates));
+			System.out.println("----");
+		}
 	}
 	/**
 	 * the main AI method, performs the ai functions

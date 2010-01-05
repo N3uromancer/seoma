@@ -19,6 +19,10 @@ public class Owner
 		this.name = name;
 		this.c = c;
 	}
+	public String getName()
+	{
+		return name;
+	}
 	public double getResources()
 	{
 		return resources;
@@ -35,13 +39,5 @@ public class Owner
 	public double[] getColor()
 	{
 		return c;
-	}
-	public void setUnitCount(int count)
-	{
-		unitCount = count;
-	}
-	public int getUnitCount()
-	{
-		return unitCount;
 	}
 }
