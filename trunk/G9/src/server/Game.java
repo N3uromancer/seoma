@@ -1,6 +1,5 @@
 package server;
 
-import gameEngine.StartSettings;
 import gameEngine.world.owner.Owner;
 
 import java.io.Serializable;
@@ -10,13 +9,13 @@ public class Game implements Serializable {
 		public long seed;
 		public String[] aiFiles;
 		public int winner;
-		public StartSettings ss;
+		public Owner[] o;
 		
-		public Game(long seed, String[] ais, int winnerIdx, StartSettings ss)
+		public Game(long seed, String[] ais, int winnerIdx, Owner[] o)
 		{
 			this.seed = seed;
 			this.aiFiles = ais;
 			this.winner = winnerIdx;
-			this.ss = ss;
+			this.o = o;
 		}
 }

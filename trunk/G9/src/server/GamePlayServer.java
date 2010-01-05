@@ -1,6 +1,5 @@
 package server;
 
-import gameEngine.StartSettings;
 import gameEngine.world.World;
 import gameEngine.world.owner.Owner;
 
@@ -150,8 +149,6 @@ class GamePlayThread implements Runnable {
 					double[] c3 = {1, 0, 1};
 					double[] c4 = {1, 1, 0};
 					final Owner[] owners = {new Owner((byte)0, "player 1", c1), new Owner((byte)2, "player 2", c2)};
-					String[] startingUnits = {"leader"};
-					StartSettings ss = new StartSettings(700, 700, owners, startingUnits);
 					World w;
 					AI ai1, ai2;
 					long seed = System.currentTimeMillis();
@@ -169,7 +166,7 @@ class GamePlayThread implements Runnable {
 					}
 					
 					System.out.println("Playing "+aiEntry1.c.getName()+" vs. "+aiEntry2.c.getName());
-					w = Starter.startGame(aiHashMap, ss, owners, seed, true);
+					w = Starter.startGame(aiHashMap, owners, seed, true);
 					
 					while (!t.isInterrupted())
 					{
@@ -190,20 +187,20 @@ class GamePlayThread implements Runnable {
 						Thread.yield();
 					}
 					
-					saveRecord(seed, new AIListEntry[] {aiEntry1, aiEntry2}, ss);
+					saveRecord(seed, new AIListEntry[] {aiEntry1, aiEntry2}, owners);
 				}
 			}
 		}
 	}
 	
-	private void saveRecord(long seed, AIListEntry[] ais, StartSettings ss)
+	private void saveRecord(long seed, AIListEntry[] ais, Owner[] o)
 	{
 		String[] aiF = new String[ais.length];
 		
 		for (int i = 0; i < ais.length; i++)
 			aiF[i] = ais[i].fName;
 		
-		games.add(new Game(seed, aiF, ais[0].wins.contains(ais[1].c) ? 0 : 1, ss));
+		games.add(new Game(seed, aiF, ais[0].wins.contains(ais[1].c) ? 0 : 1, o));
 		
 		Object[] gs = games.toArray();
 		

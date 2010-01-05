@@ -1,7 +1,6 @@
 package starter;
 
 import gameEngine.GameEngine;
-import gameEngine.StartSettings;
 import gameEngine.world.World;
 import gameEngine.world.owner.Owner;
 
@@ -22,27 +21,25 @@ import ui.userIO.userInput.UserInput;
 import ai.AI;
 
 public class Starter {
-	public static World startGame(final HashMap<Owner, AI> ais, StartSettings ss, final Owner[] o, long randSeed, final boolean drawGUI)
+	public static World startGame(final HashMap<Owner, AI> ais, final Owner[] owners, long randSeed, final boolean drawGUI)
 	{
-		final World w = new World(ss, ais, randSeed);
+		final World w = new World(owners, ais, randSeed);
 		
 		GLCanvas c = new GLCanvas(new GLCapabilities());
 		final GameEngine ge = new GameEngine(false, c)
 		{
-			public void updateGame(double tdiff, HashMap<Byte, ArrayList<UserInput>> ui)
+			public void updateGame(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui)
 			{
 				w.updateWorld(tdiff, ui);
+				//w.updateWorld(tdiff, ui);
+				//w.updateWorld(tdiff, ui);
 			}
 		};
-		
-		/* The rest is just for GUI stuff */
-		if (!drawGUI) return w;
-		
 		DisplayManager dm = new DisplayManager()
 		{
 			public void display(GL gl, int width, int height)
 			{
-					w.drawWorld(o[0], width, height, gl);
+				w.drawWorld(owners[0], width, height, gl);
 			}
 		};
 		UIFrame f = new UIFrame(ge, c, dm);

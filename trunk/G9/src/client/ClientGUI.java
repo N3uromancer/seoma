@@ -1,6 +1,5 @@
 package client;
 
-import gameEngine.StartSettings;
 import gameEngine.world.owner.Owner;
 import io.SimpleClassLoader;
 
@@ -117,8 +116,7 @@ public class ClientGUI implements ActionListener, Runnable {
 			Class[] c = new Class[g.aiFiles.length];
 			SimpleClassLoader cl = new SimpleClassLoader();
 			HashMap<Owner, AI> hm = new HashMap<Owner, AI>();
-			final Owner[] o = g.ss.getOwners();
-			StartSettings ss = g.ss;
+			final Owner[] o = g.o;
 			for (int i = 0; i < c.length; i++)
 			{
 				File f = downloadFile(g.aiFiles[i]);
@@ -138,7 +136,7 @@ public class ClientGUI implements ActionListener, Runnable {
 				}
 			}
 			f.setVisible(false);
-			Starter.startGame(hm, ss, o, g.seed, true);
+			Starter.startGame(hm, o, g.seed, true);
 		}
 	}
 }
