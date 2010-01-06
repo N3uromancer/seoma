@@ -1,7 +1,7 @@
 package gameEngine.world.unit;
 
 import gameEngine.world.World;
-import gameEngine.world.animation.animations.Explosion;
+import gameEngine.world.animation.animations.UnitExplosion;
 import gameEngine.world.owner.Owner;
 import gameEngine.world.unit.units.Leader;
 
@@ -102,7 +102,7 @@ public class UnitEngine
 					ui.remove();
 					w.getAIs().get(unit.getOwner()).unitDestroy(unit);
 					//System.out.println("unit died");
-					w.getAnimationEngine().registerAnimation(new Explosion(unit));
+					w.getAnimationEngine().registerAnimation(new UnitExplosion(unit));
 					ptime+=System.currentTimeMillis()-pstart;
 					pactions++;
 				}

@@ -17,28 +17,43 @@ public class Explosion implements Animation
 	double time;
 	double maxTime;
 	
+	double x;
+	double y;
+	double maxWidth;
+	double maxHeight;
+
 	/**
 	 * creates a new explosion
-	 * @param u the unit that died and caused the explosion
+	 * @param x
+	 * @param y
+	 * @param maxWidth the max width of the explosion triangles
+	 * @param maxHeight the max height of the explosion triangles
+	 * @param ownerColor the owner's color of the exploding unit
+	 * @param unitTriangles number of triangles of the unit's owner color that are created
+	 * @param explosionTriangles number of orange triangles created
 	 */
-	public Explosion(Unit u)
+	public Explosion(double x, double y, double maxWidth, double maxHeight, double[] ownerColor, int unitTriangles, int explosionTriangles)
 	{
-		int unitTriangles = 2; //number of triangles of the same color as the dying unit
-		c = u.getOwner().getColor();
+		this.x = x;
+		this.y = y;
+		this.maxWidth = maxWidth;
+		this.maxHeight = maxHeight;
+		
+		c = ownerColor;
 		maxTime = .4;
 		
-		ut = createTriangles(u, unitTriangles);
-		et = createTriangles(u, unitTriangles*2);
+		ut = createTriangles(unitTriangles);
+		et = createTriangles(explosionTriangles);
 	}
-	private Triangle[] createTriangles(Unit u, int number)
+	private Triangle[] createTriangles(int number)
 	{
 		Triangle[] t = new Triangle[number];
 		for(int i = 0; i < t.length; i++)
 		{
-			double[] p1 = {u.getLocation()[0]+u.getWidth()/2, u.getLocation()[1]+u.getHeight()/2};
-			double[] v1 = {Math.random()*u.getWidth(), u.getHeight()/2};
-			double[] v2 = {u.getWidth()/2, Math.random()*u.getHeight()};
-			double[] velocity = MathUtil.rotateVector(Math.random()*360, new double[]{Math.random()*u.getWidth()*10, 0});
+			double[] p1 = {x+maxWidth/2, y+maxHeight/2};
+			double[] v1 = {Math.random()*maxWidth, maxHeight/2};
+			double[] v2 = {maxWidth/2, Math.random()*maxHeight};
+			double[] velocity = MathUtil.rotateVector(Math.random()*360, new double[]{Math.random()*maxWidth*10, 0});
 			
 			t[i] = new Triangle();
 			t[i].setVectors(p1, v1, v2, velocity);
@@ -47,13 +62,16 @@ public class Explosion implements Animation
 	}
 	public void drawAnimation(GL gl, int width, int height)
 	{
-		gl.glColor3d(c[0], c[1], c[2]);
-		gl.glBegin(GL.GL_TRIANGLES);
-		for(int i = 0; i <ut.length; i++)
+		if(c != null)
 		{
-			ut[i].drawTriangle(gl);
+			gl.glColor3d(c[0], c[1], c[2]);
+			gl.glBegin(GL.GL_TRIANGLES);
+			for(int i = 0; i <ut.length; i++)
+			{
+				ut[i].drawTriangle(gl);
+			}
+			gl.glEnd();
 		}
-		gl.glEnd();
 		gl.glColor3d(.9, .3, .1);
 		gl.glBegin(GL.GL_TRIANGLES);
 		for(int i = 0; i <et.length; i++)

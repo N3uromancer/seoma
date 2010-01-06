@@ -25,6 +25,8 @@ public abstract class Weapon
 	private double timeSpent = 0; //the time that the gun has been reloading so far
 	boolean fired = false;
 	
+	boolean calcCache = true; //if true then the target cache can be recalculated, alternates
+	
 	public Weapon(double range)
 	{
 		this.range = range;
@@ -52,11 +54,12 @@ public abstract class Weapon
 	{
 		if(!fired)
 		{
-			if(targetCache.size() == 0)
+			if(targetCache.size() == 0 && calcCache)
 			{
 				//targetCache = new LinkedList<Region>(units.getRegions(x, y, range));
 				targetCache = determineTargets(o, x, y, units);
 			}
+			calcCache = !calcCache;
 			Unit u = null;
 			if(targetCache.size() > 0)
 			{
