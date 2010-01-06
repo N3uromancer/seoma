@@ -4,6 +4,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import gameEngine.world.World;
+import gameEngine.world.animation.animations.Explosion;
 import gameEngine.world.unit.Unit;
 import gameEngine.world.unit.UnitEngine;
 import utilities.Polygon;
@@ -28,6 +29,8 @@ public final class ShotEngine
 	long unitIntersectionTime = 0;
 	long shots = 0; //the number of shots the for which the intersections have been checked for
 	
+	World w;
+	
 	public ShotEngine(World w, Polygon[] p)
 	{
 		ssp = new SpatialPartition(0, 0, w.getMapWidth(), w.getMapHeight(), 20, 60, 100);
@@ -36,6 +39,7 @@ public final class ShotEngine
 		{
 			psp.addRegion(p[i]);
 		}
+		this.w = w;
 	}
 	public void updateShotEngine(double tdiff, UnitEngine ue)
 	{
@@ -64,6 +68,9 @@ public final class ShotEngine
 					{
 						temp.setLife(temp.getLife()-shot.getDamage());
 						shot.setDead();
+						
+						double[] s = shot.getLocation();
+						w.getAnimationEngine().registerAnimation(new Explosion(s[0], s[1], 5, 5, temp.getOwner().getColor(), 1, 2));
 					}
 				}
 			}
@@ -82,6 +89,9 @@ public final class ShotEngine
 					if(p.contains(shot.getLocation()[0], shot.getLocation()[1]))
 					{
 						shot.setDead();
+						
+						double[] s = shot.getLocation();
+						w.getAnimationEngine().registerAnimation(new Explosion(s[0], s[1], 4, 4, null, 0, 3));
 					}
 				}
 			}
