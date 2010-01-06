@@ -79,7 +79,7 @@ public abstract class GameEngine implements Runnable, UserInputInterpreter
 	private void update(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui)
 	{
 		updateGame(tdiff, ui);
-		c.repaint();
+		if (c != null) c.repaint();
 	}
 	public abstract void updateGame(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui);
 	/**
