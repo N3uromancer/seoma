@@ -77,11 +77,13 @@ public class GamePlayServer extends Thread implements HookCallbacks {
 		if (f.getName().indexOf(".") == -1)
 		{
 			System.out.println("No file extension");
+			f.delete();
 			return;
 		}
 		if (!f.getName().substring(f.getName().lastIndexOf(".")).equals(".class"))
 		{
 			System.out.println("Unrecognized file extension: "+f.getName().substring(f.getName().lastIndexOf(".")));
+			f.delete();
 			return;
 		}
 		
@@ -125,7 +127,9 @@ class GamePlayThread implements Runnable {
 		try {
 			if (!f.exists())
 				f.createNewFile();
-		} catch (Exception e) {}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 		t = new Thread(this);
 		t.start();
