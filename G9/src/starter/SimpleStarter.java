@@ -1,20 +1,8 @@
 package starter;
 
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.util.ArrayList;
 import java.util.HashMap;
-import javax.media.opengl.GL;
-import javax.media.opengl.GLCanvas;
-import javax.media.opengl.GLCapabilities;
 import ai.AI;
-import ui.UIFrame;
-import ui.display.DisplayManager;
-import ui.userIO.userInput.UserInput;
-import gameEngine.GameEngine;
 import ai.computerAI.*;
-import ai.humanAI.HumanAI;
-import gameEngine.world.World;
 import gameEngine.world.owner.Owner;
 
 public class SimpleStarter
@@ -32,44 +20,7 @@ public class SimpleStarter
 		HashMap<Owner, AI> ais = new HashMap<Owner, AI>();
 		ais.put(owners[0], new RapestroyAI(owners[0]));
 		ais.put(owners[1], new RapestroyAI(owners[1]));
-		//ais.put(owners[2], new RapestroyAI(owners[2]));
-		//ais.put(owners[3], new RapestroyAI(owners[3]));
-		final World w = new World(owners, ais, new Long(100));
-		w.setCameraAI(ais.get(owners[0]));
 		
-		GLCanvas c = new GLCanvas(new GLCapabilities());;
-		final GameEngine ge = new GameEngine(false, c)
-		{
-			public void updateGame(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui)
-			{
-				w.updateWorld(tdiff, ui);
-				/*w.updateWorld(.03, ui);
-				w.updateWorld(.03, ui);
-				w.updateWorld(.03, ui);
-				w.updateWorld(.03, ui);
-				w.updateWorld(.03, ui);
-				w.updateWorld(.03, ui);
-				w.updateWorld(.03, ui);
-				w.updateWorld(.03, ui);
-				w.updateWorld(.03, ui);
-				w.updateWorld(.03, ui);
-				w.updateWorld(.03, ui);
-				w.updateWorld(.03, ui);*/
-			}
-		};
-		DisplayManager dm = new DisplayManager()
-		{
-			public void display(GL gl, int width, int height)
-			{
-				w.drawWorld(owners[0], width, height, gl);
-			}
-		};
-		UIFrame f = new UIFrame(ge, c, dm);
-		f.addWindowListener(new WindowAdapter(){
-			public void windowClosing(WindowEvent e)
-			{
-				System.exit(0);
-			}
-		});
+		Starter.startGameGUI(ais, owners, System.currentTimeMillis());
 	}
 }

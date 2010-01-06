@@ -10,7 +10,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 import javax.swing.JComboBox;
@@ -22,7 +21,6 @@ import starter.Starter;
 import ai.AI;
 
 import com.enterprisedt.net.ftp.FTPClient;
-import com.enterprisedt.net.ftp.FTPException;
 
 public class ClientGUI implements ActionListener, Runnable {
 	JComboBox c;
@@ -37,7 +35,6 @@ public class ClientGUI implements ActionListener, Runnable {
 	
 	public void run()
 	{
-		FTPClient fc = new FTPClient();
 		try {
 			File f = downloadFile(recordsPath);
 			if (f == null)
@@ -98,9 +95,9 @@ public class ClientGUI implements ActionListener, Runnable {
 	{
 		FTPClient fc = new FTPClient();
 		try {
-			fc.setRemoteHost("gutman.dyndns.org");
+			fc.setRemoteHost("cgutman.no-ip.org");
 			fc.connect();
-			fc.login("Anonymous", "GPC");
+			fc.login("Anonymous", "");
 			File f = File.createTempFile("G9", "Records");
 			fc.get(new FileOutputStream(f), recordsPath);
 			fc.quit();
@@ -136,7 +133,7 @@ public class ClientGUI implements ActionListener, Runnable {
 				}
 			}
 			f.setVisible(false);
-			Starter.startGame(hm, o, g.seed, true);
+			Starter.startGameGUI(hm, o, g.seed);
 		}
 	}
 }
