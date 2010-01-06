@@ -8,7 +8,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GLCanvas;
@@ -21,9 +20,10 @@ import ui.userIO.userInput.UserInput;
 import ai.AI;
 
 public class Starter {
-	public static World startGame(final HashMap<Owner, AI> ais, final Owner[] owners, long randSeed, final boolean drawGUI)
+	public static World startGameGUI(final HashMap<Owner, AI> ais, final Owner[] owners, long randSeed)
 	{
 		final World w = new World(owners, ais, randSeed);
+		w.setCameraAI(ais.get(owners[0]));
 		
 		GLCanvas c = new GLCanvas(new GLCapabilities());
 		final GameEngine ge = new GameEngine(false, c)
@@ -49,6 +49,22 @@ public class Starter {
 				System.exit(0);
 			}
 		});
+		
+		return w;
+	}
+	public static World startGameConsole(final HashMap<Owner, AI> ais, final Owner[] owners, long randSeed)
+	{
+		final World w = new World(owners, ais, randSeed);
+		
+		final GameEngine ge = new GameEngine(false, null)
+		{
+			public void updateGame(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui)
+			{
+				w.updateWorld(tdiff, ui);
+				//w.updateWorld(tdiff, ui);
+				//w.updateWorld(tdiff, ui);
+			}
+		};
 		
 		return w;
 	}

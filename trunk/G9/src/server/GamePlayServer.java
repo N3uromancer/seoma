@@ -6,14 +6,10 @@ import gameEngine.world.owner.Owner;
 import io.SimpleClassLoader;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.PrintStream;
-import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -36,7 +32,7 @@ public class GamePlayServer extends Thread implements HookCallbacks {
 	
 	public GamePlayServer() {
 		System.out.print("GamePlayServer: starting...");
-		serv = new HookServ("gutman.dyndns.org", 10, "AI-SERVER", "SERVER-ACCT", this);
+		serv = new HookServ("127.0.0.1", 10, "ai-server", "aisuperserver", this);
 		cLoader = new SimpleClassLoader();
 		ais = new ArrayList<AIListEntry>();
 		g = new ArrayList<Game>();
@@ -146,8 +142,8 @@ class GamePlayThread implements Runnable {
 					/* Shamefully copied from SimpleStarter */
 					double[] c1 = {1, 0, 0};
 					double[] c2 = {0, 0, 1};
-					double[] c3 = {1, 0, 1};
-					double[] c4 = {1, 1, 0};
+					//double[] c3 = {1, 0, 1};
+					//double[] c4 = {1, 1, 0};
 					final Owner[] owners = {new Owner((byte)0, "player 1", c1), new Owner((byte)2, "player 2", c2)};
 					World w;
 					AI ai1, ai2;
@@ -166,7 +162,7 @@ class GamePlayThread implements Runnable {
 					}
 					
 					System.out.println("Playing "+aiEntry1.c.getName()+" vs. "+aiEntry2.c.getName());
-					w = Starter.startGame(aiHashMap, owners, seed, true);
+					w = Starter.startGameConsole(aiHashMap, owners, seed);
 					
 					while (!t.isInterrupted())
 					{
