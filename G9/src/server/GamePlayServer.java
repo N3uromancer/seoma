@@ -168,8 +168,15 @@ class GamePlayThread implements Runnable {
 					System.out.println("Playing "+aiEntry1.c.getName()+" vs. "+aiEntry2.c.getName());
 					w = Starter.startGameConsole(aiHashMap, owners, seed);
 					
+					int minCount = 0;
 					while (!t.isInterrupted())
 					{
+						for (int i = 0; i < w.getOwners().length; i++)
+						{
+							System.out.println("Minute "+minCount+" - Owner "+i+": "+w.getUnitEngine().getUnitList(w.getOwners()[i]).size());
+						}
+						minCount++;
+						
 						if (w.getUnitEngine().getUnitList(owners[1]).size() == 0)
 						{
 							aiEntry1.wins.add(aiEntry2.c);
@@ -183,7 +190,9 @@ class GamePlayThread implements Runnable {
 							break;
 						}
 						
-						Thread.yield();
+						try {
+							Thread.sleep(60000);
+						} catch (InterruptedException e) {}
 					}
 					
 					saveRecord(seed, new AIListEntry[] {aiEntry1, aiEntry2}, owners);
