@@ -106,7 +106,7 @@ public class World
 		{
 			File f = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+
 					System.getProperty("file.separator")+"maps"+System.getProperty("file.separator")+
-					"narrow 1v1.map");
+					"cross.map");
 			FileInputStream fis = new FileInputStream(f);
 			DataInputStream dis = new DataInputStream(fis);
 			m.readMap(dis);
@@ -219,7 +219,8 @@ public class World
 			cameraAI.getCamera().updateGL(gl, dwidth, dheight);
 			cameraAI.getCamera().updateCamera(gl);
 			
-			
+			gl.glColor4d(.4, .4, .4, .6);
+			new RectRegion(0, 0, width, height).drawRegion(gl, -1);
 			
 			int x = (int)cameraAI.getCamera().getLocation()[0];
 			int y = (int)cameraAI.getCamera().getLocation()[1];

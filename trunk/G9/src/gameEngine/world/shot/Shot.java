@@ -22,6 +22,8 @@ public abstract class Shot extends RectRegion
 	Owner o;
 	long ct;
 	
+	double[] olds; //old position
+	
 	/**
 	 * creates a new shot
 	 * @param x the x position of the location of the unit when the shot was created/fired
@@ -34,6 +36,8 @@ public abstract class Shot extends RectRegion
 	public Shot(double x, double y, double width, double height, Unit target, double movement, double damage, Owner o)
 	{
 		super(x, y, width, height);
+		olds = new double[]{x, y};
+		
 		this.movement = movement;
 		this.damage = damage;
 		this.o = o;
@@ -61,6 +65,8 @@ public abstract class Shot extends RectRegion
 		gl.glPushMatrix();
 		gl.glColor3d(1, 1, 0);
 		drawRegion(gl, 1);
+		gl.glColor4d(1, 1, 0, .08);
+		new RectRegion(olds[0], olds[1], width, height).drawRegion(gl, 1);
 		gl.glPopMatrix();
 	}
 	/**
@@ -71,5 +77,10 @@ public abstract class Shot extends RectRegion
 	public boolean isDead()
 	{
 		return dead;
+	}
+	public void setLocation(double x, double y)
+	{
+		olds = getLocation();
+		super.setLocation(x, y);
 	}
 }
