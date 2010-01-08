@@ -29,6 +29,12 @@ public final class CameraModule implements AIModule
 	private HashSet<Character> down = new HashSet<Character>(); //keeps track of characters that are currently down
 	
 	/**
+	 * used to remove characters from the down hash set if their opposite character is pressed
+	 */
+	private HashMap<Character, Character> opposites = new HashMap<Character, Character>();
+	
+	
+	/**
 	 * creates a new camera module where the camera is updated based off the
 	 * passed keys
 	 * @param up
@@ -48,6 +54,11 @@ public final class CameraModule implements AIModule
 		t.put(down, new double[]{0, -m});
 		t.put(left, new double[]{-m, 0});
 		
+		opposites.put(up, down);
+		opposites.put(down, up);
+		opposites.put(right, left);
+		opposites.put(left, right);
+		
 		m = 3; //zoom distance
 		z.put(zoomIn, -m);
 		z.put(zoomOut, m);
@@ -64,6 +75,12 @@ public final class CameraModule implements AIModule
 				{
 					KeyInput ka = (KeyInput)kpi.next();
 					down.add(ka.getCharacter());
+					
+					if(opposites.containsKey(ka.getCharacter()))
+					{
+						down.remove(opposites.get(ka.getCharacter()));
+					}
+					
 					//System.out.println(ka.getCharacter()+" pressed");
 				}
 			}

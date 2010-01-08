@@ -1,17 +1,15 @@
 package gameEngine.world.owner;
 
-import java.io.Serializable;
-
 /**
  * stores the owner dependent stats such as resources and unit count
  * @author Jack
  *
  */
-public class Owner implements Serializable
+public class Owner
 {
-	private static final long serialVersionUID = 8956975294984420697L;
 	String name;
 	double resources = 500;
+	int unitCount = 0;
 	double[] c; //owner color
 	byte id;
 	

@@ -101,23 +101,12 @@ public class World
 	{
 		this.seed = seed;
 		this.ais = ais;
-		
-		/*for(int i = 0; i < p.length; i++)
-		{
-			double x = Math.random()*width;
-			double y = Math.random()*height;
-			//Location[] vertices = {new Location(x, y), new Location(x+Math.random()*70, y), new Location(x, y+Math.random()*80)};
-			Location[] vertices = {new Location(x, y), new Location(x, y+Math.random()*80), 
-					new Location(x+Math.random()*90, y+Math.random()*120), new Location(x+Math.random()*70, y)};
-			//p[i] = new Polygon(new Location(x, y), vertices);
-			p[i] = new Polygon(Polygon.determineBoundingRegion(vertices), vertices);
-		}*/
 		Map m = new Map();
 		try
 		{
 			File f = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+
 					System.getProperty("file.separator")+"maps"+System.getProperty("file.separator")+
-					"1v1v1v1.map");
+					"narrow 1v1.map");
 			FileInputStream fis = new FileInputStream(f);
 			DataInputStream dis = new DataInputStream(fis);
 			m.readMap(dis);

@@ -6,6 +6,7 @@ import java.io.DataInputStream;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -138,7 +139,7 @@ public class Map
 	 */
 	public void writeMap(DataOutputStream dos) throws IOException
 	{
-		int version = 2;
+		int version = 3;
 		dos.writeInt(version);
 		
 		dos.writeInt(name.length());
@@ -185,7 +186,17 @@ public class Map
 		{
 			readMapVersion2(dis);
 		}
+		else if(version == 3)
+		{
+			readMapVersion3(dis);
+		}
 	}
+	/**
+	 * reads the map name, description, width, height, polygons,
+	 * starting locations, resource deposits
+	 * @param dis
+	 * @throws IOException
+	 */
 	private void readMapVersion2(DataInputStream dis) throws IOException
 	{
 		readMapVersion1(dis);
@@ -197,6 +208,54 @@ public class Map
 			resourceDeposits.add(rd);
 		}
 	}
+	/**
+	 * reads the map name, description, width, height, polygons,
+	 * starting locations, resource deposits
+	 * @param dis
+	 * @throws IOException
+	 */
+	private void readMapVersion3(DataInputStream dis) throws IOException
+	{
+		readMapVersion1(dis);
+		int length = dis.readInt();
+		resourceDeposits = new ArrayList<ResourceDeposit>();
+		for(int i = 0; i < length; i++)
+		{
+			String name = "";
+			int nlength = dis.readInt();
+			for(int a = 0; a < nlength; a++)
+			{
+				name+=dis.readChar();
+			}
+			
+			System.out.print("loading "+name+"... ");
+			
+			try
+			{
+				Class<?> rd = getClass().getClassLoader().loadClass(name);
+				double[] l = new double[2]; //location
+				for(int q = 0; q < 2; q++)
+				{
+					l[q] = dis.readDouble();
+				}
+				Constructor<?> c = rd.getConstructor(l.getClass());
+				ResourceDeposit temp = (ResourceDeposit)c.newInstance(l);
+				resourceDeposits.add(temp);
+			}
+			catch(Exception e)
+			{
+				System.out.println("failed");
+				e.printStackTrace();
+			}
+			System.out.println("done!");
+		}
+	}
+	/**
+	 * reads the map name, description, width, height, polygons, and
+	 * starting locations
+	 * @param dis
+	 * @throws IOException
+	 */
 	private void readMapVersion1(DataInputStream dis) throws IOException
 	{
 		int length = dis.readInt();

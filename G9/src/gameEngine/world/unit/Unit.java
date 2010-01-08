@@ -42,6 +42,10 @@ public abstract class Unit extends RectRegion implements Drawable
 		this.buildTime = buildTime;
 		this.cost = cost;
 	}
+	public Weapon getWeapon()
+	{
+		return w;
+	}
 	/**
 	 * gets the maximum life the unit can have
 	 * @return returns the max life a unit can have
