@@ -15,7 +15,7 @@ public abstract class Building extends Unit
 	{
 		double d = 0; //depth
 		double[] c = o.getColor();
-		gl.glColor3d(c[0], c[1], c[2]);
+		gl.glColor4d(c[0], c[1], c[2], 1);
 		gl.glBegin(GL.GL_POLYGON);
 		gl.glVertex3d(x, y, d);
 		gl.glVertex3d(x+width, y, d);

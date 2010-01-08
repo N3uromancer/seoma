@@ -44,14 +44,26 @@ public class YortSepar extends AI
 			{
 				buildUnit(Factory.class, u, w);
 				buildUnit(Refinery.class, u, w);
+			}
+			else
+			{
+				buildUnit(Refinery.class, u, w);
 				buildUnit(Factory.class, u, w);
 				buildUnit(Factory.class, u, w);
 				buildUnit(Factory.class, u, w);
 				//buildUnit(DefenseTurret.class, u, w);
 				buildUnit(Factory.class, u, w);
-				moveUnitRandomlyAroundArea(u, w, getClosestResourceDeposit(u.getLocation(), w).getLocation(), 100);
+				buildUnit(Refinery.class, u, w);
+				buildUnit(Refinery.class, u, w);
 				buildUnit(DefenseTurret.class, u, w);
-				moveUnitRandomlyAroundArea(u, w, getClosestResourceDeposit(u.getLocation(), w).getLocation(), 100);
+				buildUnit(DefenseTurret.class, u, w);
+				buildUnit(DefenseTurret.class, u, w);
+				buildUnit(Refinery.class, u, w);
+				buildUnit(Refinery.class, u, w);
+				buildUnit(DefenseTurret.class, u, w);
+				buildUnit(DefenseTurret.class, u, w);
+				buildUnit(DefenseTurret.class, u, w);
+				buildUnit(DefenseTurret.class, u, w);
 				buildUnit(DefenseTurret.class, u, w);
 			}
 		}
@@ -60,8 +72,19 @@ public class YortSepar extends AI
 	{
 		if(u.getCurrentAction() == null)
 		{
+			if(getUnits().get(Refinery.class).size() == 0)
+			{
+				ResourceDeposit rd = getClosestResourceDeposit(u.getLocation(), w);
+				double[] s = rd.getLocation();
+				moveUnitRandomlyAroundArea(u, w, new double[]{s[0]-rd.getRadius()*2, s[1]-rd.getRadius()*2}, (int)(rd.getRadius()*4));
+				buildUnit(Refinery.class, u, w);
+			}
 			moveUnitRandomlyAroundArea(u, w, getClosestResourceDeposit(u.getLocation(), w).getLocation(), 100);
 			buildUnit(DefenseTurret.class, u, w);
+			moveUnitRandomlyAroundArea(u, w, getClosestResourceDeposit(u.getLocation(), w).getLocation(), 100);
+			buildUnit(DefenseTurret.class, u, w);
+			moveUnitRandomlyAroundArea(u, w, getClosestResourceDeposit(u.getLocation(), w).getLocation(), 100);
+			buildUnit(Factory.class, u, w);
 		}
 	}
 	private void commandFactory(Unit u, World w)
@@ -79,7 +102,11 @@ public class YortSepar extends AI
 			else
 			{
 				buildUnit(Tank.class, u, w);
-				buildUnit(Harvester.class, u, w);
+				buildUnit(Tank.class, u, w);
+				if(getUnits().get(Harvester.class).size() < 50)
+				{
+					buildUnit(Harvester.class, u, w);
+				}
 			}
 				
 		}
@@ -93,13 +120,13 @@ public class YortSepar extends AI
 			Unit u = i.next();
 			if(u.getCurrentAction() == null)
 			{
-				if(u instanceof Leader)
-				{
-					commandLeader(u, w);
-				}
-				else if(u instanceof Factory)
+				if(u instanceof Factory)
 				{
 					commandFactory(u, w);
+				}
+				else if(u instanceof Leader)
+				{
+					commandLeader(u, w);
 				}
 				else if(u instanceof Gatherer)
 				{
@@ -107,7 +134,7 @@ public class YortSepar extends AI
 				}
 				else if(u instanceof Tank)
 				{
-					if (getUnits().get(Tank.class).size() < 18)
+					if (getUnits().get(Tank.class).size() < 200)
 						moveUnitRandomlyAroundArea(u, w, getClosestResourceDeposit(u.getLocation(), w).getLocation(), 70);
 					else
 					{
