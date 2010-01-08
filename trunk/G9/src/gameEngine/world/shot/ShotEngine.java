@@ -109,8 +109,8 @@ public final class ShotEngine
 		
 		if(updates % 1500 == 0 && shots != 0)
 		{
-			System.out.println("current shot count = "+s.size());
 			System.out.println("shot engine update time (ms) = "+totalTime+" [total time] / "+updates+" [updates] = "+(totalTime/updates));
+			System.out.println("current shot count = "+s.size());
 			System.out.println("unit/shot intersection time (ms) = "+unitIntersectionTime+" [total time] / "+shots+" [shots updated] = "+(unitIntersectionTime/shots));
 			System.out.println("polygon/shot intersection time (ms) = "+polygonIntersectionTime+" [total time] / "+shots+" [shots updated] = "+(polygonIntersectionTime/shots));
 			System.out.println("--------------");

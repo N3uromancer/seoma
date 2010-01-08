@@ -4,6 +4,6 @@ public class MediumDeposit extends ResourceDeposit
 {
 	public MediumDeposit(double[] location)
 	{
-		super(location, 1000, 20, 70, 11);
+		super(location, 1500, 15, 70, 11);
 	}
 }

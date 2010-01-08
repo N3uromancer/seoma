@@ -28,8 +28,8 @@ public class UnitEngine
 	
 	World w;
 	
-	long updates = 0;
-	long totalTime = 0;
+	long totalUpdates = 0;
+	long updateTime = 0;
 	long unitsUpdated = 0;
 	long boTime = 0; //time used to process build orders
 	long utime = 0; //unit update time
@@ -85,6 +85,9 @@ public class UnitEngine
 	 */
 	public void updateUnitEngine(double tdiff, World w)
 	{
+		long unitCount = 0;
+		long fightingUnits = 0;
+		
 		long start = System.currentTimeMillis();
 		Iterator<Owner> i = u.keySet().iterator();
 		while(i.hasNext())
@@ -93,6 +96,12 @@ public class UnitEngine
 			while(ui.hasNext())
 			{
 				Unit unit = ui.next();
+				unitCount++;
+				if(unit.getWeapon() != null)
+				{
+					fightingUnits++;
+				}
+				
 				if(unit.isDead())
 				{
 					long pstart = System.currentTimeMillis();
@@ -144,15 +153,24 @@ public class UnitEngine
 		}
 		boTime+=System.currentTimeMillis()-bstart;
 		
-		totalTime+=System.currentTimeMillis()-start;
-		updates++;
-		if(updates % 1500 == 0 && unitsUpdated != 0)
+		updateTime+=System.currentTimeMillis()-start;
+		totalUpdates++;
+		int poff = 1000; //print offset
+		if(totalUpdates % poff == 0 && unitsUpdated != 0)
 		{
-			System.out.println("unit engine update time (ms) = "+totalTime+" [total time] / "+updates+" [updates] = "+(totalTime*1./updates));
-			System.out.println("time per unit update (ms) = "+utime+" [total time] / "+unitsUpdated+" [units updated] = "+(utime*1./unitsUpdated));
-			System.out.println("partition insertion/removal time per action (ms) = "+ptime+" [total time] / "+pactions+" [insertions/removals] = "+(ptime*1./pactions));
-			System.out.println("build order processing time per update (ms) = "+boTime+" [total time] / "+updates+" [updates] = "+(boTime*1./updates));
+			System.out.println("unit engine update time (ms) = "+updateTime+" [time] / "+poff+" [updates] = "+(updateTime*1./poff));
+			System.out.println("total updates = "+totalUpdates);
+			System.out.println("time per unit update (ms) = "+utime+" [time] / "+unitsUpdated+" [units updated] = "+(utime*1./unitsUpdated));
+			System.out.println("partition insertion/removal time per action (ms) = "+ptime+" [time] / "+pactions+" [insertions/removals] = "+(ptime*1./pactions));
+			System.out.println("build order processing time per update (ms) = "+boTime+" [time] / "+poff+" [updates] = "+(boTime*1./poff));
+			System.out.println("total unit count = "+unitCount+", fighting units = "+fightingUnits);
 			System.out.println("-------------------");
+			updateTime = 0;
+			utime = 0;
+			ptime = 0;
+			boTime = 0;
+			pactions = 0;
+			unitsUpdated = 0;
 		}
 	}
 	/**

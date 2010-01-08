@@ -82,14 +82,22 @@ public class ResourceDeposit
 	}
 	public void writeResourceDeposit(DataOutputStream dos) throws IOException
 	{
+		String name = getClass().getName();
+		dos.writeInt(name.length());
+		dos.writeChars(name);
 		for(int i = 0; i < location.length; i++)
+		{
+			dos.writeDouble(location[i]);
+		}
+		
+		/*for(int i = 0; i < location.length; i++)
 		{
 			dos.writeDouble(location[i]);
 		}
 		dos.writeDouble(total);
 		dos.writeDouble(increase);
 		dos.writeDouble(radius);
-		dos.writeInt(sides);
+		dos.writeInt(sides);*/
 	}
 	public void draw(GL gl, double depth)
 	{
@@ -117,7 +125,7 @@ public class ResourceDeposit
 		total+=increase*tdiff;
 		//System.out.println("total = "+total+", increase = "+increase);
 		//System.out.println(max);
-		r+=ra*tdiff;
+		r+=ra*tdiff*total/max;
 		//expansion+=3*tdiff;
 		if(total > max)
 		{
