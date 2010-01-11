@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 import javax.media.opengl.GL;
 
+import utilities.MathUtil;
 import utilities.Polygon;
 import utilities.region.RectRegion;
 import utilities.region.Region;
@@ -113,6 +114,23 @@ public class Map
 		{
 			Region r = i.next();
 			if(r.contains(x, y))
+			{
+				i.remove();
+			}
+		}
+	}
+	/**
+	 * removes a resource deposit if it contains the passed point
+	 * @param x
+	 * @param y
+	 */
+	public void removeResourceDeposit(double x, double y)
+	{
+		Iterator<ResourceDeposit> i = resourceDeposits.iterator();
+		while(i.hasNext())
+		{
+			ResourceDeposit r = i.next();
+			if(MathUtil.distance(x, y, r.getLocation()[0], r.getLocation()[1]) <= r.getRadius())
 			{
 				i.remove();
 			}

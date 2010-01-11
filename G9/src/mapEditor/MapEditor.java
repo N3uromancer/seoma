@@ -174,6 +174,14 @@ public class MapEditor implements UserInputInterpreter, DisplayManager, Runnable
 					//System.out.println("x="+x+", y="+y);
 					m.removePolygon(x, y);
 				}
+				else if(mode == START_LOCATION_MODE)
+				{
+					m.removeStartLocation(x, y);
+				}
+				else if(mode == RESOURCE_MODE)
+				{
+					m.removeResourceDeposit(x, y);
+				}
 			}
 			else
 			{
@@ -185,7 +193,7 @@ public class MapEditor implements UserInputInterpreter, DisplayManager, Runnable
 				else if(mode == RESOURCE_MODE)
 				{
 					m.getResourceDeposits().add(new MediumDeposit(new double[]{x+xt, y+yt}));
-					System.out.println("added resource deposit");
+					//System.out.println("added resource deposit");
 				}
 			}
 		}
