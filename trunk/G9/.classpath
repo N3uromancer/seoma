@@ -7,7 +7,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/seoma3"/>
-	<classpathentry kind="lib" path="/seoma3/lib/gluegen-rt.jar"/>
-	<classpathentry kind="lib" path="/seoma3/lib/jogl.jar"/>
+	<classpathentry kind="lib" path="/seoma3/lib/windows-x86/gluegen-rt.jar"/>
+	<classpathentry kind="lib" path="/seoma3/lib/windows-x86/jogl.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
