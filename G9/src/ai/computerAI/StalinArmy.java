@@ -36,7 +36,7 @@ public class StalinArmy extends AI {
 	int minHarvester = 20;
 	
 	int tanksPerBase = 30;
-	int minSwarmSize = 200;
+	int minSwarmSize = 100;
 	
 	int factoryMultiplier = 2;
 	
@@ -46,8 +46,6 @@ public class StalinArmy extends AI {
 	final static int borderMod = 75;
 	
 	//long swarmTimeout = 120000;
-	
-	int lastTankCount = 0;
 	
 	HashMap<Unit, UnitContext> uHash;
 	
@@ -98,7 +96,6 @@ public class StalinArmy extends AI {
 		while(i.hasNext())
 		{
 			Unit u = i.next();
-			int ret;
 			
 			//This REALLY could be optimized
 			if (uHash.get(u) == null)
@@ -190,37 +187,6 @@ public class StalinArmy extends AI {
 			}
 		}
 		
-		ArrayList<UnitGroup> rmList = new ArrayList<UnitGroup>();
-		for (UnitGroup ug : swarmGroups)
-		{
-			boolean groupDead = true;
-			for (Unit ugu : ug.u)
-			{
-				if (ugu.getLife() > 0)
-					groupDead = false;
-			}
-			if (groupDead)
-			{
-				for (Unit ugu : ug.u)
-				{
-					uHash.remove(ugu);
-				}
-				tanksPerBase++;
-				minSwarmSize *= 1.25;
-				rmList.add(ug);
-				println("GROUP DEAD");
-				println("Tanks per base: "+tanksPerBase);
-				println("Min swarm size: "+minSwarmSize);
-			}
-		}
-		/* Remove the dead groups */
-		for (UnitGroup ug : rmList)
-		{
-			swarmGroups.remove(ug);
-		}
-		
-		int usableTankCount = 0;
-		
 		ArrayList<ResourceDeposit> rds = getResourceDeposits(w);
 		for (ResourceDeposit prd : rds)
 		{
@@ -231,41 +197,24 @@ public class StalinArmy extends AI {
 		while (i.hasNext())
 		{
 			Unit un = i.next();
-			if (un instanceof Tank && uHash.get(un).swarmGroup == null)
-				usableTankCount++;
 			if (un instanceof Factory)
 				uHash.get(un).assocR.inhabited = true;
 		}
-		
-		if (usableTankCount != lastTankCount)
-		{
-			println("Usable tank count: "+usableTankCount);
-			//println("Minimum swarm count: "+minSwarmSize);
-			lastTankCount = usableTankCount;
-		}
-		
+
 		i = units.iterator();
-		int targetCount = usableTankCount - minSwarmSize;
-		
-		if (targetCount > 0)
+		if (getUnitCount(Tank.class) >= minSwarmSize || 
+			getUnitCount(Tank.class) >= w.getUnitEngine().getUnitList(getEnemyOwners(w)[0]).size() * 2)
 		{
-			ArrayList<Unit> sw = new ArrayList<Unit>();
-			UnitGroup swarm = new UnitGroup(sw);
-			while (i.hasNext() && usableTankCount > targetCount)
+			while (i.hasNext())
 			{
 				Unit un = i.next();
-				if (un instanceof Tank && uHash.get(un).swarmGroup == null)
+				if (un instanceof Tank)
 				{
 					double[][] rect = getEnemyRect(getEnemyOwners(w)[0], w);
 					moveUnitRandomlyAroundRect(un, w, rect[0], rect[1][0], rect[1][1]);
-					
-					uHash.get(un).swarmGroup = swarm;
-					swarm.u.add(un);
-					usableTankCount--;
 				}
 			}
-			swarmGroups.add(swarm);
-			println("Swarming with "+swarm.u.size()+" units");
+			minSwarmSize += 50;
 		}
 	}
 		
@@ -320,12 +269,6 @@ public class StalinArmy extends AI {
 		}
 		
 		return i;
-	}
-	private Unit getFirstBase()
-	{
-		ArrayList<Unit> u = getUnits().get(Factory.class);
-		if (u.isEmpty()) return null;
-		return u.get(0);
 	}
 	private ResourceDeposit getClosestUnusedRD(double[] p, World w)
 	{
