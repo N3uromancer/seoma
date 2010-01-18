@@ -18,8 +18,8 @@ public class SimpleStarter
 				new Owner((byte)2, "player 3", c3), new Owner((byte)3, "player 4", c4)};*/
 
 		HashMap<Owner, AI> ais = new HashMap<Owner, AI>();
-		ais.put(owners[0], new RapestroyAI(owners[0]));
-		ais.put(owners[1], new RapestroyAI(owners[1]));
+		ais.put(owners[0], new EjemploAI(owners[0]));
+		ais.put(owners[1], new StalinArmy(owners[1]));
 		
 		Starter.startGameGUI(ais, owners, System.currentTimeMillis());
 	}
