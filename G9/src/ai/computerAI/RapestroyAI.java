@@ -22,7 +22,7 @@ import utilities.Camera;
 public class RapestroyAI extends AI
 {
 	Random rand;
-	CameraModule cm = new CameraModule('w', 'd', 's', 'a', 'r', 'f');
+	CameraModule cm = new CameraModule('w', 'd', 's', 'a', 'r', 'f', 1500.0, 1.0);
 	
 	public RapestroyAI(Owner o)
 	{

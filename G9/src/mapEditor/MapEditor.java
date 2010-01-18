@@ -131,7 +131,7 @@ public class MapEditor implements UserInputInterpreter, DisplayManager, Runnable
 		if(pressed)
 		{
 			mode = modes.get(c);
-			double t = 10;
+			double t = 100;
 			if(mode == MOVE_UP)
 			{
 				yt+=t;
