@@ -106,7 +106,7 @@ public class World
 		{
 			File f = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+
 					System.getProperty("file.separator")+"maps"+System.getProperty("file.separator")+
-					"cross.map");
+					"1v1v1v1.map");
 			FileInputStream fis = new FileInputStream(f);
 			DataInputStream dis = new DataInputStream(fis);
 			m.readMap(dis);
