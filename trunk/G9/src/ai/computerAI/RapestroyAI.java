@@ -19,6 +19,13 @@ import ai.aiModule.CameraModule;
 import ui.userIO.userInput.UserInput;
 import utilities.Camera;
 
+/* !---------------------- THIS AI IS HENCEFORTH-ETH DISCONTINUED. ------------------------!
+ * !--------------------- IT IS STILL HERE AS SOMEWHAT OF AN EXAMPLE ----------------------!
+ * !--------------------- I GUESS IT JUST WASN'T RAPESTROYING ENOUGH ----------------------!
+ * eventually this will be so out of date that we just remove it though.
+ * but its spirit will live on in whatever I decide to name my new AI
+ */
+
 public class RapestroyAI extends AI
 {
 	Random rand;
