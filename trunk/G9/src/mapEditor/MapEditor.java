@@ -172,15 +172,15 @@ public class MapEditor implements UserInputInterpreter, DisplayManager, Runnable
 				if(mode == RECTANGLE_MODE)
 				{
 					//System.out.println("x="+x+", y="+y);
-					m.removePolygon(x, y);
+					m.removePolygon(x+(int)xt, y+(int)yt);
 				}
 				else if(mode == START_LOCATION_MODE)
 				{
-					m.removeStartLocation(x, y);
+					m.removeStartLocation(x+(int)xt, y+(int)yt);
 				}
 				else if(mode == RESOURCE_MODE)
 				{
-					m.removeResourceDeposit(x, y);
+					m.removeResourceDeposit(x+(int)xt, y+(int)yt);
 				}
 			}
 			else
