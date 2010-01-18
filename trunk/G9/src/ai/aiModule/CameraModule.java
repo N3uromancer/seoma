@@ -44,24 +44,24 @@ public final class CameraModule implements AIModule
 	 * @param zoomIn
 	 * @param zoomOut
 	 */
-	public CameraModule(char up, char right, char down, char left, char zoomIn, char zoomOut)
+	public CameraModule(char up, char right, char down, char left, char zoomIn, char zoomOut, double scrollSpeed, double zoomSpeed)
 	{
 		c = new Camera(0, 0);
 		
-		double m = 160; //movement distance
-		t.put(up, new double[]{0, m});
-		t.put(right, new double[]{m, 0});
-		t.put(down, new double[]{0, -m});
-		t.put(left, new double[]{-m, 0});
+		//old movement speed = 160
+		t.put(up, new double[]{0, scrollSpeed});
+		t.put(right, new double[]{scrollSpeed, 0});
+		t.put(down, new double[]{0, -scrollSpeed});
+		t.put(left, new double[]{-scrollSpeed, 0});
 		
 		opposites.put(up, down);
 		opposites.put(down, up);
 		opposites.put(right, left);
 		opposites.put(left, right);
-		
-		m = 3; //zoom distance
-		z.put(zoomIn, -m);
-		z.put(zoomOut, m);
+
+		//old zoom speed = 3
+		z.put(zoomIn, -zoomSpeed);
+		z.put(zoomOut, zoomSpeed);
 	}
 	public void updateModule(AI ai, World w, HashMap<Class<? extends UserInput>, ArrayList<UserInput>> ui, double tdiff)
 	{
