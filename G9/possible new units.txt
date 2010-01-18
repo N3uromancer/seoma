@@ -4,3 +4,4 @@ mobile rocket battery - mid movement, mid rand, fires rockets
 fighter - like a tank but faster and weaker
 tank - a basic unit that can take damage and deal small amounts
 rail line - a kind of high speed transport for units between docking stations
+super harvester - bigger, better harvester
