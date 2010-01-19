@@ -23,6 +23,7 @@ import gameEngine.world.unit.units.Leader;
 import gameEngine.world.unit.units.Refinery;
 import gameEngine.world.unit.units.Tank;
 import ai.AI;
+import ai.aiModule.CameraModule;
 
 public class StalinArmy extends AI {
 	final static boolean dEnabled = false;
@@ -30,22 +31,19 @@ public class StalinArmy extends AI {
 	Owner me;
 	ArrayList<UnitGroup> swarmGroups;
 	HashMap<ResourceDeposit, ResourceContext> rHash;
+	CameraModule cm = new CameraModule('w', 'd', 's', 'a', 'r', 'f', 1000.0, 1.0);
 	//HashMap<Class, Long> resourceLimits;
 	int productionMax = 1;
 	int turretsPerBase = 10;
-	int minHarvester = 20;
+	int minHarvester = 10;
 	
 	int tanksPerBase = 30;
 	int minSwarmSize = 100;
-	
-	int factoryMultiplier = 2;
 	
 	/* Set to 5 to disable rect monitor */
 	int currSet = 5;
 	
 	final static int borderMod = 75;
-	
-	//long swarmTimeout = 120000;
 	
 	HashMap<Unit, UnitContext> uHash;
 	
@@ -55,6 +53,7 @@ public class StalinArmy extends AI {
 		swarmGroups = new ArrayList<UnitGroup>();
 		uHash = new HashMap<Unit, UnitContext>();
 		rHash = new HashMap<ResourceDeposit, ResourceContext>();
+		registerAIModule(cm);
 		//resourceLimits = new HashMap<Class, Long>();
 		//initializeResourceLimits();
 		me = o;
@@ -83,7 +82,7 @@ public class StalinArmy extends AI {
 	}
 
 	public void drawUI(GL gl) {}
-	public Camera getCamera() { return null; }
+	public Camera getCamera() { return cm.getCamera(); }
 	
 	protected void performAIFunctions(World w,
 			HashMap<Class<? extends UserInput>, ArrayList<UserInput>> ui)
@@ -104,6 +103,16 @@ public class StalinArmy extends AI {
 				ResourceDeposit ird = getClosestResourceDepositAbs(u.getLocation(), w);
 				rHash.get(ird).units.add(u);
 				uHash.get(u).assocR = rHash.get(ird);
+				
+				if (u instanceof Engineer || u instanceof Leader)
+				{
+					ird = getClosestRDForEngineer(u.getLocation(), w);
+					if (ird != null)
+					{
+						uHash.get(u).eR = rHash.get(ird);
+						rHash.get(ird).eng = u;
+					}
+				}
 			}
 			
 			if (u.getCurrentAction() != null) continue;
@@ -114,7 +123,10 @@ public class StalinArmy extends AI {
 				if (rd == null)
 					rd = getClosestResourceDepositAbs(u.getLocation(), w);
 				double[][] rect = getEnemyRect(w.getOwners()[0], w);
-				if (getUnitCount(Harvester.class) > 4)
+				if (rect == null && uHash.get(u).special != 0)
+					continue;
+					
+				if (getUnitCount(Harvester.class) > minHarvester)
 				{
 					if (currSet != 5)
 					{
@@ -149,24 +161,37 @@ public class StalinArmy extends AI {
 			if (u instanceof Leader || u instanceof Engineer)
 			{
 				int fc = 0;
-				int rc;
-				if (getUnitCount(Refinery.class) != 0)
+				int rc = 0;
+				int factoryMultiplier;
+				
+				if (getUnitCount(Harvester.class) < minHarvester)
+				{
+					factoryMultiplier = 1;
+					productionMax = 1;
+				}
+				else
+				{
+					factoryMultiplier = 2;
+				}
+				
+				if (getUnitCount(Refinery.class) != 0 && uHash.get(u).eR != null)
 					fc = maintainUnitCount(w, u, Factory.class, productionMax * factoryMultiplier, 50);
+				
+				if (uHash.get(u).eR != null)
+					rc = maintainUnitCount(w, u, Refinery.class, productionMax, 50);
 				
 				if (getUnitCount(Refinery.class) != 0 && getUnitCount(Factory.class) != 0)
 					maintainUnitCount(w, u, DefenseTurret.class, productionMax * turretsPerBase, 50);
 				
-				rc = maintainUnitCount(w, u, Refinery.class, productionMax, 50);
-				
-				ResourceDeposit rd = getClosestUnusedRD(u.getLocation(), w);
-				if (rd != null && (fc == 0 || rc == 0))
-				{
-					moveUnitRandomlyAroundRD(u, w, rd);
+				if (uHash.get(u).eR != null)
+					moveUnitRandomlyAroundRD(u, w, uHash.get(u).eR.r);
+				else {
+					double[][] rect = getAllyRect(w);
+					moveUnitRandomlyAroundRect(u, w, rect[0], rect[1][0], rect[1][1]);
 				}
 				
-				if (fc == -1 && rc == -1 && rd != null)
+				if (fc == -1 && rc == -1)
 				{
-				    uHash.get(u).assocR.inhabited = true;
 					productionMax++;
 
 					println("Increasing factory/refinery quota: "+productionMax);
@@ -174,44 +199,84 @@ public class StalinArmy extends AI {
 			}
 			if (u instanceof Tank)
 			{
-				moveUnitRandomlyAroundArea(u, w, u.getLocation(), 50);
+				double[][] rect = null;
+				
+				if (uHash.get(u).swarming)
+				{
+					rect = getEnemyRect(getEnemyOwners(w)[0], w);
+					if (rect == null)
+						uHash.get(u).swarming = false;
+				}
+				
+				if (rect == null)
+					rect = getAllyRect(w);
+				
+				moveUnitRandomlyAroundRect(u, w, rect[0], rect[1][0], rect[1][1]);
 			}
 			if (u instanceof Factory)
 			{	
-				if (getUnitCount(Harvester.class) >= minHarvester)
-					maintainUnitCount(w, u, Engineer.class, getResourceDeposits(w).size(), 0);
-				maintainUnitCount(w, u, Harvester.class, minHarvester * productionMax, 0);
-				int tc = maintainUnitCount(w, u, Tank.class, tanksPerBase * productionMax, 0);
-				if (tc == -1)
-					tanksPerBase++;
+				if (getUnitCount(Harvester.class) < minHarvester)
+					maintainUnitCount(w, u, Harvester.class, minHarvester, 0);
+				else
+					maintainUnitCount(w, u, Harvester.class, getUnitCount(Harvester.class)+1, 0);
+				maintainUnitCount(w, u, Engineer.class, getResourceDeposits(w).size() - getUnitCount(Leader.class), 0);
+				maintainUnitCount(w, u, Tank.class, getUnitCount(Tank.class)+1, 0);
 			}
 		}
 		
 		ArrayList<ResourceDeposit> rds = getResourceDeposits(w);
 		for (ResourceDeposit prd : rds)
 		{
-			rHash.get(prd).inhabited = false;
+			rHash.get(prd).eng = null;
 		}
+		
+		int usableTankCount = 0;
 		
 		i = units.iterator();
 		while (i.hasNext())
 		{
 			Unit un = i.next();
-			if (un instanceof Factory)
-				uHash.get(un).assocR.inhabited = true;
+			if (uHash.get(un).eR != null)
+			{
+				if (uHash.get(un).eR.eng != null)
+				{
+					println("More than 1 engineer per deposit");
+					while(true);
+				}
+				uHash.get(un).eR.eng = un;
+			}
+			if (un instanceof Tank && !uHash.get(un).swarming)
+				usableTankCount++;
 		}
 
 		i = units.iterator();
-		if (getUnitCount(Tank.class) >= minSwarmSize || 
-			getUnitCount(Tank.class) >= w.getUnitEngine().getUnitList(getEnemyOwners(w)[0]).size() * 2)
+		if ((usableTankCount >= minSwarmSize || 
+			(getEnemyOwners(w)[0] != null && 
+			 usableTankCount >= w.getUnitEngine().getUnitList(getEnemyOwners(w)[0]).size() * 2)) &&
+			 getEnemyRect(getEnemyOwners(w)[0], w) != null)
 		{
+			println("Swarming with "+usableTankCount+" units against "+w.getUnitEngine().getUnitList(getEnemyOwners(w)[0]).size()+" units");
 			while (i.hasNext())
 			{
 				Unit un = i.next();
-				if (un instanceof Tank)
+				if (un instanceof Tank && !uHash.get(un).swarming)
 				{
+					un.clearActions();
+					Unit target;
+					
+					target = getFirstUnit(Leader.class);
+					if (target == null)
+						target = getFirstUnit(Refinery.class);
+					if (target == null)
+						target = getFirstUnit(Factory.class);
+					
 					double[][] rect = getEnemyRect(getEnemyOwners(w)[0], w);
-					moveUnitRandomlyAroundRect(un, w, rect[0], rect[1][0], rect[1][1]);
+					uHash.get(un).swarming = true;
+					usableTankCount--;
+					if (target != null)
+						moveUnitSafely(un, target.getLocation()[0], target.getLocation()[1], w);
+					else
+						moveUnitRandomlyAroundRect(un, w, rect[0], rect[1][0], rect[1][1]);
 				}
 			}
 			minSwarmSize += 50;
@@ -270,7 +335,7 @@ public class StalinArmy extends AI {
 		
 		return i;
 	}
-	private ResourceDeposit getClosestUnusedRD(double[] p, World w)
+	private ResourceDeposit getClosestRDForEngineer(double[] p, World w)
 	{
 		ArrayList<ResourceDeposit> deposits = getResourceDeposits(w);
 		int closest = -1;
@@ -280,24 +345,8 @@ public class StalinArmy extends AI {
 			ResourceDeposit rd = deposits.get(i);
 			if (rHash.get(rd) == null)
 				rHash.put(rd, new ResourceContext(rd));
-			boolean danger = false;
-			for (int j = 0; j < w.getOwners().length; j++)
-			{
-				Owner o = w.getOwners()[j];
-				if (o == me) continue;
-				
-				double[][] rect = getEnemyRect(o, w);
-				double[] loc = rd.getLocation();
-				if (loc[0] >= rect[0][0] && loc[0] <= rect[1][0] &&
-					loc[1] >= rect[0][1] && loc[1] >= rect[1][1])
-				{
-					//println("Dangerous rd: "+loc[0]+", "+loc[1]);
-					danger = true;
-					break;
-				}
-			}
 			double thisDist = MathUtil.distance(p[0], p[1], rd.getLocation()[0], rd.getLocation()[1]);
-			if(thisDist < dist && !rHash.get(rd).inhabited && !danger)
+			if(thisDist < dist && rHash.get(rd).eng == null)
 			{
 				closest = i;
 				dist = thisDist;
@@ -348,9 +397,11 @@ public class StalinArmy extends AI {
 				if (o == me) continue;
 				
 				double[][] rect = getEnemyRect(o, w);
+				if (rect == null)
+					continue;
 				double[] loc = rd.getLocation();
 				if (loc[0] >= rect[0][0] && loc[0] <= rect[1][0] &&
-					loc[1] >= rect[0][1] && loc[1] >= rect[1][1])
+					loc[1] >= rect[0][1] && loc[1] <= rect[1][1])
 				{
 					//println("Dangerous rd: "+loc[0]+", "+loc[1]);
 					danger = true;
@@ -376,7 +427,7 @@ public class StalinArmy extends AI {
 		Owner[] ret = new Owner[w.getOwners().length-1];
 		for (Owner o : w.getOwners())
 		{
-			if (o != me)
+			if (o != me && w.getUnitEngine().getUnitList(o).size() > 0)
 			{
 				ret[i++] = o;
 			}
@@ -410,17 +461,19 @@ public class StalinArmy extends AI {
 		{
 			if (o == me) continue;
 			double[][] rect = getEnemyRect(o, w);
+			if (rect == null)
+				continue;
 			if (x >= rect[0][0] && x <= rect[1][0] &&
 				y >= rect[0][1] && y <= rect[1][1])
 			{
-				if (u.getWeapon() != null)
+				if (uHash.get(u).swarming)
 				{
-					//println("Armed intersection with hostile area allowed");
+					//println("Swarming intersection with hostile area allowed");
 					moveUnit(u, x, y, w);
 				}
 				else
 				{
-					//println("Unarmed intersection with hostile area denied");
+					//println("Non-swarming intersection with hostile area denied");
 				}
 				return;
 			}
@@ -466,8 +519,7 @@ public class StalinArmy extends AI {
 		
 		return line;
 	}
-	//Returns 2 arrays of 2 points which represent the upper-left most point and the lower-right most point
-	public  double[][] getEnemyRect(Owner o, World w)
+	public double[][] getAllyRect(World w)
 	{
 		double[][] ret = new double[2][2];
 		
@@ -476,12 +528,64 @@ public class StalinArmy extends AI {
 		ret[1][0] = 0;
 		ret[1][1] = 0;
 		
+		LinkedList<Unit> units = getUnits(w);
+		for (Unit u : units)
+		{
+			if (u.getLocation()[0] < ret[0][0])
+				ret[0][0] = u.getLocation()[0];
+			
+			if (u.getLocation()[1] < ret[0][1])
+				ret[0][1] = u.getLocation()[1];
+
+			if (u.getLocation()[0] > ret[1][0])
+				ret[1][0] = u.getLocation()[0];
+			
+			if (u.getLocation()[1] > ret[1][1])
+				ret[1][1] = u.getLocation()[1];
+		}
+		
+		ret[0][0] -= borderMod;
+		if (ret[0][0] < 0)
+			ret[0][0] = 0;
+		
+		ret[0][1] -= borderMod;
+		if (ret[0][1] < 0)
+			ret[0][1] = 0;
+		
+		ret[1][0] += borderMod;
+		if (ret[1][0] > w.getMapWidth())
+			ret[1][0] = w.getMapWidth();
+		
+		ret[1][1] += borderMod;
+		if (ret[1][1] > w.getMapHeight())
+			ret[1][1] = w.getMapHeight();
+		
+		//println("("+ret[0][0]+","+ret[0][1]+") ("+ret[1][0]+","+ret[1][1]+")");
+		
+		return ret;
+	}
+	//Returns 2 arrays of 2 points which represent the upper-left most point and the lower-right most point
+	public  double[][] getEnemyRect(Owner o, World w)
+	{
+		double[][] ret = new double[2][2];
+		boolean valid = false;
+		
+		ret[0][0] = Double.MAX_VALUE;
+		ret[0][1] = Double.MAX_VALUE;
+		ret[1][0] = 0;
+		ret[1][1] = 0;
+		
+		if (o == null)
+			return null;
+		
 		LinkedList<Unit> units = getEnemyUnits(w).get(o);
 		for (Unit u : units)
 		{
 			/* We don't care about it if it is unarmed */
 			if (u.getWeapon() == null)
 				continue;
+			
+			valid = true;
 			
 			if (u.getLocation()[0] < ret[0][0])
 				ret[0][0] = u.getLocation()[0];
@@ -495,6 +599,30 @@ public class StalinArmy extends AI {
 			if (u.getLocation()[1] > ret[1][1])
 				ret[1][1] = u.getLocation()[1];
 		}
+		
+		if (!valid)
+		{
+			units = getEnemyUnits(w).get(o);
+			for (Unit u : units)
+			{
+				valid = true;
+				
+				if (u.getLocation()[0] < ret[0][0])
+					ret[0][0] = u.getLocation()[0];
+				
+				if (u.getLocation()[1] < ret[0][1])
+					ret[0][1] = u.getLocation()[1];
+
+				if (u.getLocation()[0] > ret[1][0])
+					ret[1][0] = u.getLocation()[0];
+				
+				if (u.getLocation()[1] > ret[1][1])
+					ret[1][1] = u.getLocation()[1];
+			}
+		}
+		
+		if (!valid)
+			return null;
 		
 		ret[0][0] -= borderMod;
 		if (ret[0][0] < 0)
@@ -532,33 +660,45 @@ public class StalinArmy extends AI {
 
 		return i;
 	}
+	@SuppressWarnings("unchecked")
+	private Unit getFirstUnit(Class c)
+	{
+		//Easy case
+		if (getUnits().get(c) == null ||
+			getUnits().get(c).size() == 0)
+			return null;
+		
+		for (Unit u : getUnits().get(c))
+			return u;
+
+		return null;
+	}
 }
 
 class ResourceContext {
 	public ArrayList<Unit> units;
 	public ResourceDeposit r;
-	public boolean inhabited;
+	public Unit eng;
 	
 	public ResourceContext(ResourceDeposit r)
 	{
 		this.r = r;
 		units = new ArrayList<Unit>();
-		inhabited = false;
 	}
 }
 
 class UnitContext {
 	public Unit u;
 	public UnitGroup swarmGroup;
-	public int nextAction;
+	public ResourceContext eR;
 	public ResourceContext assocR;
+	public boolean swarming;
 	public int special;
 	
 	public UnitContext(Unit u)
 	{
 		this.u = u;
 		this.swarmGroup = null;
-		this.nextAction = 0;
 		this.assocR = null;
 	}
 }
