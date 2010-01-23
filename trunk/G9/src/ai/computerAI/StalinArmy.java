@@ -122,7 +122,7 @@ public class StalinArmy extends AI {
 				ResourceDeposit rd = getClosestResourceDeposit(u.getLocation(), w);
 				if (rd == null)
 					rd = getClosestResourceDepositAbs(u.getLocation(), w);
-				double[][] rect = getEnemyRect(w.getOwners()[0], w);
+				double[][] rect = getEnemyRect(getEnemyOwners(w)[0], w);
 				if (rect == null && uHash.get(u).special != 0)
 					continue;
 					
