@@ -6,12 +6,15 @@ import gameEngine.world.owner.Owner;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GLCanvas;
 import javax.media.opengl.GLCapabilities;
+
+import portability.PortUtils;
 
 import ui.UIFrame;
 import ui.display.DisplayManager;
@@ -24,6 +27,12 @@ public class Starter {
 	{
 		final World w = new World(owners, ais, randSeed);
 		w.setCameraAI(ais.get(owners[0]));
+		
+		/* We only need this for GUI mode */
+		if (PortUtils.runningFromJar())
+			PortUtils.prepareNativeLibraries("lib");
+		else
+			PortUtils.prepareNativeLibraries(".."+File.separator+"seoma3"+File.separator+"lib");
 		
 		GLCanvas c = new GLCanvas(new GLCapabilities());
 		final GameEngine ge = new GameEngine(false, c)
