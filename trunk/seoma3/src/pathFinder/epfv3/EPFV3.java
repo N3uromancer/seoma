@@ -1,4 +1,4 @@
-package pathFinder.epfv2;
+package pathFinder.epfv3;
 
 import java.util.ArrayList;
 
@@ -7,9 +7,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Stack;
 import javax.media.opengl.GL;
-
-import pathFinder.Node;
-import pathFinder.Path;
 import pathFinder.PathFinder;
 import utilities.Location;
 import utilities.MathUtil;
@@ -24,18 +21,19 @@ import utilities.region.*;
  * -path finder adds the target location to the end of the path
  * -a recursive method for determining islands was defined
  * -paths only found if starting node on the same island as the ending node
+ * -checks to see if starting ending node the same node, if so returns target location
  * 
  * @author Jack
  *
  */
-public final class EPFV2 extends PathFinder
+public final class EPFV3 extends PathFinder
 {
 	private static double minNodeArea = 10; //the smallest a node can be
 	
 	SNode[] n;
 	ArrayList<HashSet<SNode>> islands;
 	
-	public EPFV2(int width, int height, Polygon[] p)
+	public EPFV3(int width, int height, Polygon[] p)
 	{
 		super(width, height, p);
 		
@@ -136,7 +134,7 @@ public final class EPFV2 extends PathFinder
 			n[i].setAdjacentNodes(an);
 		}
 	}
-	public Path getPath(double sx, double sy, double tx, double ty)
+	public Location[] getPath(double sx, double sy, double tx, double ty)
 	{
 		Location start = new Location(sx, sy);
 		Location target = new Location(tx, ty);
@@ -168,9 +166,13 @@ public final class EPFV2 extends PathFinder
 			}
 			if(endsFound)
 			{
+				if(sindex == eindex)
+				{
+					return new Location[]{target};
+				}
 				/*
 				 * checks to see if the start and end nodes reside on the same island,
-				 * a pah can only be found if the nodes are on the same island
+				 * a path can only be found if the nodes are on the same island
 				 */
 				boolean pathPossible = false; //false if start and end nodes on separate islands
 				Iterator<HashSet<SNode>> ii = islands.iterator(); //island iterator
@@ -191,25 +193,18 @@ public final class EPFV2 extends PathFinder
 					newPath.add(new SNode(tx, ty, 0, 0)); //the target location
 					//newPath.remove(0);
 					
-					/*Location[] l = new Location[newPath.size()];
+					Location[] l = new Location[newPath.size()];
 					int index = l.length-1;
 					while(index >= 0)
 					{
 						l[index] = newPath.get(index).getCenter();
 						index--;
 					}
-					return l;*/
-					Node[] fpath = new Node[newPath.size()]; //final path
-					for(int i = 0; i < newPath.size(); i++)
-					{
-						fpath[i] = newPath.get(i);
-					}
-					return fpath;
+					return l;
 				}
 			}
 			Location[] l = {start};
-			//return l;
-			return new Node[]{n[sindex]};
+			return l;
 		}
 	}
 	/**
@@ -332,7 +327,9 @@ public final class EPFV2 extends PathFinder
 			/*Location[] vertices = {new Location(x, y), new Location(x+width, y), 
 					new Location(x+width, y+height), new Location(x, y+height)};*/
 			//Polygon nbounds = new Polygon(new Location(x, y), vertices);
-			Polygon nbounds = new Polygon(Polygon.determineBoundingRegion(vertices), vertices);
+			
+			//Polygon nbounds = new Polygon(Polygon.determineBoundingRegion(vertices), vertices);
+			Polygon nbounds = new Polygon(vertices);
 			for(int i = 0; i < p.length && !intersects; i++)
 			{
 				if(p[i] != null)
@@ -366,7 +363,7 @@ public final class EPFV2 extends PathFinder
 		}
 	}
 }
-class SNode extends RectRegion implements Node
+class SNode extends RectRegion
 {
 	private SNode[] an; //adjacent nodes
 	
@@ -381,9 +378,9 @@ class SNode extends RectRegion implements Node
 	{
 		super(x, y, width, height);
 	}
-	public double[] getCenter()
+	public Location getCenter()
 	{
-		return new double[]{x+width/2, y+height/2};
+		return new Location(x+width/2, y+height/2);
 	}
 	public void drawNode(GL gl, boolean drawAdjacencies)
 	{
@@ -398,7 +395,8 @@ class SNode extends RectRegion implements Node
 		
 		Location[] vertices = {new Location(x, y), new Location(x, y+height), 
 				new Location(x+width, y+height), new Location(x+width, y)};
-		Polygon nbounds = new Polygon(Polygon.determineBoundingRegion(vertices), vertices);
+		//Polygon nbounds = new Polygon(Polygon.determineBoundingRegion(vertices), vertices);
+		Polygon nbounds = new Polygon(vertices);
 		nbounds.drawPolygon(gl, 0);
 		
 		if(drawAdjacencies)
@@ -410,17 +408,17 @@ class SNode extends RectRegion implements Node
 			for(int i = 0; i < an.length; i++)
 			{
 				gl.glVertex2d(center.x, center.y);
-				gl.glVertex2d(an[i].getCenter()[0], an[i].getCenter()[1]);
+				gl.glVertex2d(an[i].getCenter().x, an[i].getCenter().y);
 
 				gl.glVertex2d(center.x, center.y+10);
-				gl.glVertex2d(an[i].getCenter()[0], an[i].getCenter()[1]);
+				gl.glVertex2d(an[i].getCenter().x, an[i].getCenter().y);
 			}
 			gl.glEnd();
 		}
 	}
 	public double getHeuristic(Location target)
 	{
-		return MathUtil.distance(getCenter()[0], getCenter()[1], target.x, target.y);
+		return MathUtil.distance(getCenter().x, getCenter().y, target.x, target.y);
 		//return getCenter().distanceTo(target);
 	}
 	public boolean contains(Location l)
