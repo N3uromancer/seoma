@@ -93,7 +93,7 @@ public class PortUtils {
 			}
 		}
 		
-		System.out.println("Copying native libraries: "+rootPath + relativeLibPath + " -> " + destPath);
+		System.out.println("Loading native libraries: "+rootPath + relativeLibPath + " -> " + destPath);
 	}
 	
 	public static boolean runningFromJar()
