@@ -25,7 +25,7 @@ import utilities.Camera;
 public class YortSepar extends AI
 {
 	Random rand = new Random();
-	CameraModule cm = new CameraModule('w', 'd', 's', 'a', 'r', 'f');
+	CameraModule cm = new CameraModule('w', 'd', 's', 'a', 'r', 'f', 1000.0, 1.0);
 	
 	public YortSepar(Owner o)
 	{
