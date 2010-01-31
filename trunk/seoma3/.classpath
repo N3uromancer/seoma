@@ -8,6 +8,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/gluegen-rt.jar"/>
 	<classpathentry kind="lib" path="lib/jogl.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/Geometry"/>
+	<classpathentry kind="lib" path="/G9/geometry.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
