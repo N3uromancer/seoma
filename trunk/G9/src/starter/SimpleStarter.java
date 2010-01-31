@@ -2,11 +2,14 @@ package starter;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.media.opengl.GL;
 import javax.media.opengl.GLCanvas;
 import javax.media.opengl.GLCapabilities;
+
+import portability.PortUtils;
 import ai.AI;
 import ui.UIFrame;
 import ui.display.DisplayManager;
@@ -29,12 +32,15 @@ public class SimpleStarter
 		//final Owner[] owners = {new Owner((byte)0, "player 1", c1), new Owner((byte)1, "player 2", c2),
 		//		new Owner((byte)2, "player 3", c3), new Owner((byte)3, "player 4", c4)};
 
+		if (!PortUtils.runningFromJar())
+			PortUtils.prepareNativeLibraries(".."+File.separator+"seoma3"+File.separator+"lib");
+		
 		HashMap<Owner, AI> ais = new HashMap<Owner, AI>();
 		ais.put(owners[0], new ComputerEasy(owners[0]));
 		ais.put(owners[1], new RapestroyAI(owners[1]));
 		//ais.put(owners[2], new RapestroyAI(owners[2]));
 		//ais.put(owners[3], new YortSepar(owners[3]));
-		final World w = new World(owners, ais, new Long(100));
+		final World w = new World(owners, ais, System.currentTimeMillis());
 		w.setCameraAI(ais.get(owners[0]));
 		
 		GLCanvas c = new GLCanvas(new GLCapabilities());;
@@ -42,11 +48,7 @@ public class SimpleStarter
 		{
 			public void updateGame(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui)
 			{
-				//w.updateWorld(tdiff, ui);
-				w.updateWorld(.03, ui);
-				w.updateWorld(.03, ui);
-				w.updateWorld(.03, ui);
-				w.updateWorld(.03, ui);
+				w.updateWorld(tdiff, ui);
 			}
 		};
 		DisplayManager dm = new DisplayManager()
