@@ -8,9 +8,11 @@ import javax.media.opengl.GL;
 
 import ui.userIO.userInput.KeyPress;
 import ui.userIO.userInput.KeyRelease;
+import ui.userIO.userInput.KeyTyped;
 import ui.userIO.userInput.MouseClick;
 import ui.userIO.userInput.MouseDrag;
 import ui.userIO.userInput.MouseInput;
+import ui.userIO.userInput.MouseMove;
 import ui.userIO.userInput.MousePress;
 import ui.userIO.userInput.MouseRelease;
 import ui.userIO.userInput.UserInput;
@@ -160,6 +162,7 @@ public class SuperHumanAI extends AI {
 				DbgPrint("MP: "+loc(MPSt));
 			}
 			else if (in instanceof MouseRelease) {}
+			else if (in instanceof MouseMove) {}
 			else if (in instanceof MouseDrag)
 			{
 				DbgPrint("MD: "+loc(ml)+" "+loc(MPSt));
@@ -211,9 +214,10 @@ public class SuperHumanAI extends AI {
 				}
 			}
 			else if (in instanceof KeyRelease) {}
+			else if (in instanceof KeyTyped) {}
 			else
 			{
-				DbgPrint("Unknown input!");
+				System.out.println("Unknown input!");
 				while(true);
 			}
 		}
