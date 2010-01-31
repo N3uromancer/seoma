@@ -1,0 +1,3 @@
+username: ai-client password: g9
+
+ftp://cgutman.no-ip.org/

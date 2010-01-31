@@ -1,0 +1,16 @@
+version 2 - game/simulation improvements
+
+-air units
+-naval units
+-transport capability
+-sort all units by class, dont just hold them in an unsorted list
+-pathfinding/unit collisions
+-improve spatial partitioning algorithm
+-add something to "aim" the weapons
+-allow weapons to check if they are going to fire into a wall before firing
+
+version 3 - ui upgrades
+
+-actual starter UI
+-fix/rebuild the haxed together map editor
+-unit data files and a overview editor capable of editing all units at once
