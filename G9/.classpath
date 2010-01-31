@@ -9,6 +9,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/seoma3"/>
 	<classpathentry kind="lib" path="/seoma3/lib/gluegen-rt.jar"/>
 	<classpathentry kind="lib" path="/seoma3/lib/jogl.jar"/>
-	<classpathentry kind="lib" path="geometry.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Geometry"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
