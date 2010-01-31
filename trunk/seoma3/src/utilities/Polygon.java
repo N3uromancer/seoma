@@ -1,5 +1,6 @@
 package utilities;
 
+import geom.Rectangle;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -23,7 +24,7 @@ import utilities.region.RectRegion;
  * @author Jack
  *
  */
-public class Polygon extends RectRegion
+public class Polygon extends Rectangle
 {
 	private Location[] vertices;
 	/**
@@ -137,7 +138,7 @@ public class Polygon extends RectRegion
 			vertices[i] = new Location(vertices[i].x-x, vertices[i].y-y);
 		}
 	}
-	public static RectRegion determineBoundingRegion(Location[] vertices)
+	public static Rectangle determineBoundingRegion(Location[] vertices)
 	{
 		//for determining the bounding rectanle
 		double lowx = 0;
@@ -171,7 +172,7 @@ public class Polygon extends RectRegion
 		double width = highx - lowx;
 		double height = highy - lowy;
 		
-		return new RectRegion(lowx, lowy, width, height);
+		return new Rectangle(lowx, lowy, width, height);
 	}
 	/**
 	 * returns the vertices of this polygon

@@ -2,6 +2,7 @@ package gameEngine;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import javax.media.opengl.GLCanvas;
 
@@ -23,6 +24,8 @@ public abstract class GameEngine implements Runnable, UserInputInterpreter
 	HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui = 
 		new HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>>();
 	GLCanvas c;
+	
+	ReentrantLock lock = new ReentrantLock();;
 	
 	/**
 	 * creates a new game engine
@@ -69,7 +72,7 @@ public abstract class GameEngine implements Runnable, UserInputInterpreter
 			catch(InterruptedException e){}
 			diff = System.currentTimeMillis()-start;
 			start = System.currentTimeMillis();
-			//HashMap<Byte, ArrayList<UserInput>> temp = new HashMap<Byte, ArrayList<UserInput>>(ui);
+			
 			HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> temp = 
 				new HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>>(ui);
 			ui = new HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>>();
@@ -79,7 +82,7 @@ public abstract class GameEngine implements Runnable, UserInputInterpreter
 	private void update(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui)
 	{
 		updateGame(tdiff, ui);
-		if (c != null) c.repaint();
+		c.repaint();
 	}
 	public abstract void updateGame(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui);
 	/**
@@ -89,7 +92,7 @@ public abstract class GameEngine implements Runnable, UserInputInterpreter
 	 * @param owner the byte id of the owning game engine that created the input
 	 * @param userInput
 	 */
-	private void addUserInput(byte owner, UserInput userInput)
+	private synchronized void addUserInput(byte owner, UserInput userInput)
 	{
 		if(ui.get(owner) != null)
 		{
@@ -125,7 +128,7 @@ public abstract class GameEngine implements Runnable, UserInputInterpreter
 	 */
 	public void registerUserInput(UserInput input)
 	{
-		if(!networked && !(input instanceof MouseMove))
+		if(!networked)
 		{
 			addUserInput(owner, input);
 		}

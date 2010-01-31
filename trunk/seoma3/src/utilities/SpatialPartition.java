@@ -341,7 +341,7 @@ public final class SpatialPartition extends RectRegion
 				while(i.hasNext())
 				{
 					Region rtemp = i.next();
-					if(!intersections.contains(rtemp) && rtemp.intersects(region))
+					if(!intersections.contains(rtemp) && rtemp != region && rtemp.intersects(region))
 					{
 						intersections.add(rtemp);
 					}

@@ -1,6 +1,7 @@
 package utilities;
 
 import java.awt.Frame;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
@@ -39,14 +40,6 @@ public abstract class Sandbox implements GLEventListener
 	{
 		glf = new GLFrame(this, width, height);
 	}
-	/**
-	 * returns the frame this display is attached to
-	 * @return returns the frame this display is attached to
-	 */
-	public GLFrame getGLFrame()
-	{
-		return glf;
-	}
 	public void display(GLAutoDrawable d)
 	{
 		GL gl = d.getGL();
@@ -82,6 +75,14 @@ public abstract class Sandbox implements GLEventListener
 		gl.glViewport(0, 0, width, height);
 		this.width = width;
 		this.height = height;
+	}
+	/**
+	 * adds the passed key listener to the displayed canvas
+	 * @param kl
+	 */
+	public void addKeyListenerToCanvas(KeyListener kl)
+	{
+		glf.getGLCanvas().addKeyListener(kl);
 	}
 }
 class GLFrame extends Frame
