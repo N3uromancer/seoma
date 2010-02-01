@@ -88,9 +88,6 @@ public class StalinArmy extends AI {
 	protected void performAIFunctions(World w,
 			HashMap<Class<? extends UserInput>, ArrayList<UserInput>> ui)
 	{
-		if (rand == null)
-			rand = new Random(w.getSeed());
-
 		LinkedList<Unit> units = getUnits(w);
 		Iterator<Unit> i = units.iterator();
 		while(i.hasNext())
@@ -283,32 +280,8 @@ public class StalinArmy extends AI {
 			minSwarmSize += 50;
 		}
 	}
-		
-	private Unit getEnemyUnit(World w)
-	{
-		double lowestHealth = Integer.MAX_VALUE;
-		Unit lowestUnit = null;
-		for (Owner o : w.getOwners())
-		{
-			if (o != me)
-			{
-				LinkedList<Unit> units = getEnemyUnits(w).get(o);
-				for (Unit un : units)
-				{
-					if (!un.isDead() && un.getLife() < lowestHealth)
-					{
-						lowestHealth = un.getLife();
-						lowestUnit = un;
-					}
-				}
-			}
-		}
-		
-		return lowestUnit;
-	}
 	
-	@SuppressWarnings("unchecked")
-	private int maintainUnitCount(World w, Unit u, Class c, int unitCount, int randMov)
+	private int maintainUnitCount(World w, Unit u, Class<? extends Unit> c, int unitCount, int randMov)
 	{
 		boolean ret = true;
 		int i = 0;
@@ -381,7 +354,7 @@ public class StalinArmy extends AI {
 		
 		return deposits.get(closest);
 	}
-	private ResourceDeposit getClosestResourceDeposit(double[] p, World w)
+	private ResourceDeposit getClosestResourceDepositByLevelAndDanger(double[] p, World w, int level, boolean fearless)
 	{
 		ArrayList<ResourceDeposit> deposits = getResourceDeposits(w);
 		int closest = -1;
@@ -410,7 +383,7 @@ public class StalinArmy extends AI {
 				}
 			}
 			double thisDist = MathUtil.distance(p[0], p[1], rd.getLocation()[0], rd.getLocation()[1]);
-			if(thisDist < dist && rd.getTotalResources() > 0 && !danger)
+			if(thisDist < dist && rd.getTotalResources() > level && (!danger || fearless))
 			{
 				closest = i;
 				dist = thisDist;
@@ -421,6 +394,27 @@ public class StalinArmy extends AI {
 			return null;
 		
 		return deposits.get(closest);
+	}
+	private ResourceDeposit getClosestResourceDeposit(double[] p, World w)
+	{
+		int i = 50;
+		ResourceDeposit rd;
+		boolean fearless = false;
+		
+		for(;;)
+		{
+			do
+				rd = getClosestResourceDepositByLevelAndDanger(p, w, i, fearless);
+			while (i > 0 && rd == null);
+			
+			if (rd != null)
+				return rd;
+			
+			fearless = !fearless;
+			
+			if (!fearless)
+				return null;
+		}
 	}
 	public Owner[] getEnemyOwners(World w)
 	{
@@ -482,7 +476,7 @@ public class StalinArmy extends AI {
 		
 		moveUnit(u, x, y, w);
 	}
-	private double[][] getEnemyFrontLine(Owner o, World w, double[] loc)
+	/*private double[][] getEnemyFrontLine(Owner o, World w, double[] loc)
 	{
 		double[][] recta = getEnemyRect(o, w), line = new double[2][2], rectb = new double[4][2];
 		double closesta = Double.MAX_VALUE, closestb = Double.MAX_VALUE;
@@ -519,7 +513,7 @@ public class StalinArmy extends AI {
 		}
 		
 		return line;
-	}
+	}*/
 	public double[][] getAllyRect(World w)
 	{
 		double[][] ret = new double[2][2];
@@ -579,7 +573,7 @@ public class StalinArmy extends AI {
 		if (o == null)
 			return null;
 		
-		LinkedList<Unit> units = getEnemyUnits(w).get(o);
+		LinkedList<Unit> units = w.getUnitEngine().getUnitList(o);
 		for (Unit u : units)
 		{
 			/* We don't care about it if it is unarmed */
@@ -603,7 +597,6 @@ public class StalinArmy extends AI {
 		
 		if (!valid)
 		{
-			units = getEnemyUnits(w).get(o);
 			for (Unit u : units)
 			{
 				valid = true;
@@ -645,8 +638,8 @@ public class StalinArmy extends AI {
 		
 		return ret;
 	}
-	@SuppressWarnings("unchecked")
-	private int getUnitCount(Class c)
+
+	private int getUnitCount(Class<? extends Unit> c)
 	{
 		int i = 0;
 	
@@ -661,8 +654,8 @@ public class StalinArmy extends AI {
 
 		return i;
 	}
-	@SuppressWarnings("unchecked")
-	private Unit getFirstUnit(Class c)
+
+	private Unit getFirstUnit(Class<? extends Unit> c)
 	{
 		//Easy case
 		if (getUnits().get(c) == null ||
@@ -675,10 +668,8 @@ public class StalinArmy extends AI {
 		return null;
 	}
 
-	@Override
 	public void initialize(World w) {
-		// TODO Auto-generated method stub
-		
+		rand = new Random(w.getSeed());
 	}
 }
 
