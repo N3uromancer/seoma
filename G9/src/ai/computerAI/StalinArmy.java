@@ -166,6 +166,9 @@ public class StalinArmy extends AI {
 				{
 					factoryMultiplier = 1;
 					productionMax = 1;
+					maintainUnitCount(w, u, Factory.class, 1, 0);
+					maintainUnitCount(w, u, Refinery.class, 1, 0);
+					continue;
 				}
 				else
 				{
