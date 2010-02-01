@@ -2,12 +2,25 @@ package world;
 
 import geom.Boundable;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+
+import javax.media.opengl.GL;
+
+import mapEditor.Map;
+import pathFinder.PathFinder;
+import pathFinder.epfv4.EPFV4;
+import ui.userIO.userInput.UserInput;
+import utilities.Polygon;
+import utilities.region.RectRegion;
+import utilities.region.Region;
 import world.animation.AnimationEngine;
 import world.owner.Owner;
 import world.resource.ResourceEngine;
@@ -15,17 +28,7 @@ import world.shot.Shot;
 import world.shot.ShotEngine;
 import world.unit.Unit;
 import world.unit.UnitEngine;
-import javax.media.opengl.GL;
-
-import mapEditor.Map;
-
 import ai.AI;
-import pathFinder.*;
-import pathFinder.epfv3.EPFV3;
-import ui.userIO.userInput.UserInput;
-import utilities.Polygon;
-import utilities.region.RectRegion;
-import utilities.region.Region;
 
 /**
  * holds information about the game world, presents a front that routes game information
@@ -108,7 +111,7 @@ public class World
 		{
 			File f = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+
 					System.getProperty("file.separator")+"maps"+System.getProperty("file.separator")+
-					"DragonMountain.map");
+					"SovietRussia.map");
 			FileInputStream fis = new FileInputStream(f);
 			DataInputStream dis = new DataInputStream(fis);
 			System.out.println("loading "+f.getAbsolutePath());
@@ -130,9 +133,7 @@ public class World
 		re = new ResourceEngine(m.getResourceDeposits());
 		
 		
-		
-		//pf = new EPFV2(width, height, p.toArray(new Polygon[p.size()]));
-		pf = new EPFV3(m.getWidth(), m.getHeight(), p.toArray(new Polygon[p.size()]));
+		pf = new EPFV4(m.getWidth(), m.getHeight(), p.toArray(new Polygon[p.size()]));
 		for(Owner o: ais.keySet())
 		{
 			ais.get(o).initialize(this);
@@ -180,7 +181,7 @@ public class World
 			}
 			catch(Exception e)
 			{
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 		}
 		ue.updateUnitEngine(tdiff, this);
