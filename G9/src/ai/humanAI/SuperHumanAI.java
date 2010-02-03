@@ -3,6 +3,7 @@ package ai.humanAI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import javax.media.opengl.GL;
 
@@ -19,6 +20,7 @@ import ui.userIO.userInput.UserInput;
 import utilities.Camera;
 import utilities.MathUtil;
 import world.World;
+import world.action.actions.Move;
 import world.owner.Owner;
 import world.resource.ResourceDeposit;
 import world.unit.Unit;
@@ -46,11 +48,15 @@ public class SuperHumanAI extends AI {
 	/* Debugging enabled/disabled */
 	boolean debug = false;
 	
+	/* Pending builds (no resources) */
+	LinkedList<BuildQueueEntry> buildQueue;
+	
 	public SuperHumanAI(Owner o)
 	{
 		super(o);
 		me = o;
 		cm = new CameraModule('w', 'd', 's', 'a', 'r', 'f', 1000.0, 1.0);
+		buildQueue = new LinkedList<BuildQueueEntry>();
 		registerAIModule(cm);
 	}
 	
@@ -81,6 +87,28 @@ public class SuperHumanAI extends AI {
 		}
 
 		autofunction(w);
+		cleanBuildQueue(w);
+	}
+	
+	/* Process queued builds */
+	private void cleanBuildQueue(World w)
+	{
+		Iterator<BuildQueueEntry> i = buildQueue.iterator();
+		LinkedList<BuildQueueEntry> purgeQueue = new LinkedList<BuildQueueEntry>();
+		
+		while (i.hasNext())
+		{
+			BuildQueueEntry BQE = i.next();
+			if (buildUnit(BQE.unitType, BQE.builder, w))
+			{
+				DbgPrint("Successfully completed queued build");
+				purgeQueue.addLast(BQE);
+			}	
+		}
+		
+		i = purgeQueue.iterator();
+		while (i.hasNext())
+			buildQueue.remove(i.next());
 	}
 	
 	/* Perform automatic functions for certain units */
@@ -127,12 +155,14 @@ public class SuperHumanAI extends AI {
 		return deposits.get(closest);
 	}
 	
-	/* We clear actions before moving because it makes the game seem more
+	/* We clear pending moves before moving because it makes the game seem more
 	 * responsive to the user
 	 */
 	private void moveUnitEx(Unit u, int[] loc, World w)
 	{
-		u.clearActions();
+		if (u.getCurrentAction() instanceof Move)
+			u.clearActions();
+		
 		moveUnit(u, loc[0], loc[1], w);
 	}
 	/* A simple method to convert an integer array into a string */
@@ -239,8 +269,37 @@ public class SuperHumanAI extends AI {
 		
 		for (Unit u : selUnits)
 		{
-			buildUnit(c, u, w);
+			/* This is some wacky code */
+			if (!buildUnit(c, u, w))
+			{
+				/* We have to get a unit because GetCost is not a static method */
+				Unit buildee = getFirstUnitOfType(w, c);
+				if (buildee != null)
+				{
+					/* If we have enough resources, then this unit can't create
+					 * our target unit. Otherwise, we are short on resources so
+					 * queue a build
+					 */
+					if (me.getResources() >= buildee.getCost())
+						continue;
+					else
+						buildQueue.add(new BuildQueueEntry(c, u));
+				}
+				else
+					buildQueue.add(new BuildQueueEntry(c, u));
+			}
 		}
+	}
+	
+	/* Gets the first of a specific unit type if one was constructed */
+	private Unit getFirstUnitOfType(World w, Class<? extends Unit> c)
+	{
+		ArrayList<Unit> i = getUnits().get(c);
+		
+		if (i == null || i.isEmpty())
+			return null;
+		else
+			return i.get(0);
 	}
 	
 	/* Deselects all units */
@@ -357,5 +416,16 @@ public class SuperHumanAI extends AI {
 	public void initialize(World w) {
 		// TODO Auto-generated method stub
 		
+	}
+}
+
+class BuildQueueEntry {
+	public Class<? extends Unit> unitType;
+	public Unit builder;
+	
+	public BuildQueueEntry(Class<? extends Unit> ut, Unit b)
+	{
+		unitType = ut;
+		builder = b;
 	}
 }
