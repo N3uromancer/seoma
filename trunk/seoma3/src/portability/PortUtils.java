@@ -62,38 +62,43 @@ public class PortUtils {
 			System.out.println("Missing lib directory: "+ rootPath + relativeLibPath);
 			System.exit(0);
 		}
+	
 		
-		String destPath = System.getProperty("java.library.path");
-		if (destPath.indexOf(File.pathSeparatorChar) != -1)
-			destPath = destPath.substring(destPath.indexOf(File.pathSeparatorChar)+1);
-		
-		if (destPath.charAt(destPath.length()-1) != File.separatorChar)
-			destPath += File.separatorChar;
-			
-		File[] files = dir.listFiles();
-		for (File lib : files)
+		Scanner s = new Scanner(System.getProperty("java.library.path")).useDelimiter(File.pathSeparatorChar+"");
+		while(s.hasNext())
 		{
-			try {
-				FileInputStream fIn = new FileInputStream(lib);
-				File dest = new File(destPath + lib.getName());
-				if (dest.exists())
-					dest.delete();
-				FileOutputStream fOut = new FileOutputStream(dest);
+			String destPath = s.next();
+			
+			if (destPath.isEmpty())
+				continue;
+		
+			if (destPath.charAt(destPath.length()-1) != File.separatorChar)
+				destPath += File.separatorChar;
+			
+			File[] files = dir.listFiles();
+			for (File lib : files)
+			{
+				try {
+					FileInputStream fIn = new FileInputStream(lib);
+					File dest = new File(destPath + lib.getName());
+					if (dest.exists())
+						dest.delete();
+					FileOutputStream fOut = new FileOutputStream(dest);
 				
-				byte[] buffer = new byte[fIn.available()];
+					byte[] buffer = new byte[fIn.available()];
 				
-				fIn.read(buffer);
+					fIn.read(buffer);
 				
-				fOut.write(buffer);
-			} catch (FileNotFoundException e) {
-				/* This will never happen */
-			} catch (IOException e) {
-				e.printStackTrace();
-				System.exit(0);
+					fOut.write(buffer);
+				} catch (FileNotFoundException e) {
+					/* This will never happen */
+				} catch (IOException e) {
+					/* We don't care */
+				}
 			}
 		}
 		
-		System.out.println("Loading native libraries: "+rootPath + relativeLibPath + " -> " + destPath);
+		System.out.println("Loading native libraries from: "+rootPath + relativeLibPath);
 	}
 	
 	public static boolean runningFromJar()
