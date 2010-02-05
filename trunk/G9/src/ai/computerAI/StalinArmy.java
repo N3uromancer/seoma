@@ -2,6 +2,7 @@ package ai.computerAI;
 
 import java.util.ArrayList;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -37,6 +38,8 @@ public class StalinArmy extends AI {
 	int productionMax = 1;
 	int turretsPerBase = 10;
 	int minHarvester = 10;
+	
+	int it = 0;
 	
 	int tanksPerBase = 30;
 	int minSwarmSize = 100;
@@ -167,6 +170,7 @@ public class StalinArmy extends AI {
 					factoryMultiplier = 1;
 					productionMax = 1;
 					maintainUnitCount(w, u, Factory.class, 1, 0);
+					maintainUnitCount(w, u, DefenseTurret.class, 1, 0);
 					maintainUnitCount(w, u, Refinery.class, 1, 0);
 					continue;
 				}
@@ -241,8 +245,8 @@ public class StalinArmy extends AI {
 			{
 				if (uHash.get(un).eR.eng != null)
 				{
-					println("More than 1 engineer per deposit");
-					while(true);
+					System.out.println("More than 1 engineer per deposit");
+					//while(true);
 				}
 				uHash.get(un).eR.eng = un;
 			}
@@ -419,18 +423,70 @@ public class StalinArmy extends AI {
 				return null;
 		}
 	}
-	public Owner[] getEnemyOwners(World w)
+	private Owner[] getEnemyOwners(World w)
 	{
-		int i = 0;
-		Owner[] ret = new Owner[w.getOwners().length-1];
-		for (Owner o : w.getOwners())
+		for (;;)
 		{
-			if (o != me && w.getUnitEngine().getUnitList(o).size() > 0)
+			int x = 0, i = 0, y = 0;
+			
+			for (Owner o : w.getOwners())
+				if (o != me && w.getUnitEngine().getUnitList(o).size() != 0)
+					x++;
+			
+			if (x == 0)
+				return null;
+			
+			Owner[] ret = new Owner[x];
+			
+			i = 1;
+			while (x > 0)
 			{
-				ret[i++] = o;
+				for (Owner o : w.getOwners())
+				{
+					if (o == me)
+						continue;
+					
+					if (w.getUnitEngine().getUnitList(o).size() == i)
+					{
+						if (y == ret.length)
+						{
+							println("!Correct in size: "+y+" "+ret.length);
+							continue;
+						}
+						
+						ret[y++] = o;
+						x--;
+					}
+				}
+				i++;
 			}
+			
+			for (i = 0; i < ret.length; i++)
+			{
+				for (int j = 0; j < ret.length; j++)
+				{
+					if (j == i)
+						continue;
+					
+					if (ret[j] == ret[i])
+					{
+						println("!Correct in ptr eval");
+						continue;
+					}
+				}
+			}
+			
+			if (++it % 500 == 0)
+			{
+				for (x = 0; x < ret.length; x++)
+				{
+					println("ret["+x+"] = "+ret[x]);
+					println("Owner "+x+": "+w.getUnitEngine().getUnitList(ret[x]).size());
+				}
+			}
+			
+			return ret;
 		}
-		return ret;
 	}
 	private void moveUnitRandomlyAroundRD(Unit u, World w, ResourceDeposit rd)
 	{
