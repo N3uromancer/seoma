@@ -13,7 +13,7 @@ public class AnimationEngine
 	long totalTime = 0;
 	long updates = 0;
 	
-	public void updateAnimationEngine(double tdiff)
+	public synchronized void updateAnimationEngine(double tdiff)
 	{
 		long start = System.currentTimeMillis();
 		Iterator<Animation> i = a.iterator();
@@ -35,11 +35,11 @@ public class AnimationEngine
 			System.out.println("-------------------");
 		}
 	}
-	public void registerAnimation(Animation animation)
+	public synchronized void registerAnimation(Animation animation)
 	{
 		a.add(animation);
 	}
-	public void drawAnimiations(GL gl, int width, int height)
+	public synchronized void drawAnimiations(GL gl, int width, int height)
 	{
 		try
 		{
