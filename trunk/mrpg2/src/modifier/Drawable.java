@@ -9,5 +9,11 @@ import java.awt.Graphics2D;
  */
 public interface Drawable
 {
+	/**
+	 * draws the drawable object
+	 * @param g
+	 * @param width the width of the drawing screen
+	 * @param height the height of the drawing screen
+	 */
 	public void draw(Graphics2D g, int width, int height);
 }

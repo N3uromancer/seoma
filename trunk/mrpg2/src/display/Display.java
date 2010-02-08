@@ -71,24 +71,24 @@ public class Display
 	 */
 	public void loadScreen(Screen screen)
 	{
-		System.out.println("loading screen...");
+		//System.out.println("loading screen...");
 		if(s != null)
 		{
-			System.out.print("removing old components... ");
+			//System.out.print("removing old components... ");
 			for(JComponent c: s.getComponents())
 			{
 				f.remove(c);
 			}
-			System.out.println("done!");
+			//System.out.println("done!");
 		}
 		s = screen;
-		System.out.println("adding new components...");
+		//System.out.println("adding new components...");
 		for(JComponent c: s.getComponents())
 		{
-			System.out.println(c.getClass().getSimpleName()+" added");
+			//System.out.println(c.getClass().getSimpleName()+" added");
 			f.add(c);
 		}
-		System.out.println("done!");
+		//System.out.println("done!");
 	}
 	public void updateDisplay()
 	{
@@ -99,7 +99,8 @@ public class Display
 			AffineTransform at = new AffineTransform();
 			at.translate(c.getLocation().x, c.getLocation().y);
 			g.setTransform(at);
-			c.paint(g);
+			c.paintAll(g);
+			//c.paint(g);
 		}
 		bs.show();
 	}
