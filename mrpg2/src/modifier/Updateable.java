@@ -7,5 +7,5 @@ package modifier;
  */
 public interface Updateable
 {
-	public void update();
+	public void update(double tdiff);
 }

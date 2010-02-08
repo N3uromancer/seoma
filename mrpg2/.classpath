@@ -16,5 +16,6 @@
 	<classpathentry kind="lib" path="lib/sgs-shared-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.4.0.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-jdk14-1.4.0.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Geometry"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
