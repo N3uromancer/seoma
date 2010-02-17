@@ -157,7 +157,15 @@ public class StalinArmy extends AI {
 				}
 				
 				if (rd != null)
-					gatherResources(u, rd, w);
+				{
+					if (!gatherResources(u, rd, w))
+						moveUnitSafely(u, rd.getLocation()[0], rd.getLocation()[1], w);
+				}
+				else
+				{
+					rect = getAllyRect(w);
+					moveUnitRandomlyAroundRect(u, w, rect[0], rect[1][0], rect[1][1]);
+				}
 			}
 			if (u instanceof Leader || u instanceof Engineer)
 			{
