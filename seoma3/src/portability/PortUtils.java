@@ -69,7 +69,7 @@ public class PortUtils {
 		{
 			String destPath = s.next();
 			
-			if (destPath.isEmpty())
+			if (destPath.length() == 0)
 				continue;
 		
 			if (destPath.charAt(destPath.length()-1) != File.separatorChar)
