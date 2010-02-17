@@ -23,6 +23,7 @@ public class ClientStarter
 			client.login(connectProps);
 			System.out.println(" done!");
 			
+			
 			Display d = new Display();
 			d.loadScreen(new HomeScreen());
 			d.updateDisplay();

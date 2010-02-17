@@ -1,16 +1,20 @@
 package world.unit;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 /**
  * a unit that moves randomly
  * @author Jack
  *
  */
-public class MovingUnit extends Unit
+public final class MovingUnit extends Unit
 {
-	int x;
-	int y;
-	int width;
-	int height;
+	private double x;
+	private double y;
+	private double width;
+	private double height;
 	
 	/**
 	 * creates a new unit that moves randomly when updated
@@ -22,7 +26,7 @@ public class MovingUnit extends Unit
 	 * @param width the width of the region the unit is to move within
 	 * @param height the height of the region the unit is to move within
 	 */
-	public MovingUnit(double[] l, int x, int y, int width, int height)
+	public MovingUnit(double[] l, double x, double y, double width, double height)
 	{
 		super(l);
 		this.x = x;
@@ -51,5 +55,21 @@ public class MovingUnit extends Unit
 		{
 			l[1] = y+height;
 		}
+	}
+	public void write(DataOutputStream dos) throws IOException
+	{
+		super.write(dos);
+		dos.writeDouble(x);
+		dos.writeDouble(y);
+		dos.writeDouble(width);
+		dos.writeDouble(height);
+	}
+	public void read(DataInputStream dis) throws IOException
+	{
+		super.read(dis);
+		x = dis.readDouble();
+		y = dis.readDouble();
+		width = dis.readDouble();
+		height = dis.readDouble();
 	}
 }
