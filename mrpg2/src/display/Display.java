@@ -65,6 +65,10 @@ public class Display
 			}
 		});
 	}
+	public JFrame getJFrame()
+	{
+		return f;
+	}
 	/**
 	 * loads a screen to be displayed by every call to the update display
 	 * @param s

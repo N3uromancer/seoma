@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 
 import display.Display;
+import display.screen.networkScreen.NetworkScreen;
 
 /**
  * the starting screen displayed when the game starts
