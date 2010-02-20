@@ -412,14 +412,15 @@ public class StalinArmy extends AI {
 	}
 	private ResourceDeposit getClosestResourceDeposit(double[] p, World w)
 	{
-		int i = 50;
+		int i;
 		ResourceDeposit rd;
 		boolean fearless = false;
 		
 		for(;;)
 		{
+			i = 50;
 			do
-				rd = getClosestResourceDepositByLevelAndDanger(p, w, i, fearless);
+				rd = getClosestResourceDepositByLevelAndDanger(p, w, i--, fearless);
 			while (i > 0 && rd == null);
 			
 			if (rd != null)
