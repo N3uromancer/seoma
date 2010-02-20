@@ -24,22 +24,24 @@ public class SimpleStarter
 {
 	public static void main(String[] args)
 	{
-		double[] c1 = {1, 0, 0};
-		double[] c2 = {0, 0, 1};
-		double[] c3 = {1, 0, 1};
-		double[] c4 = {1, 1, 0};
-		final Owner[] owners = {new Owner((byte)0, "player 1", c1), new Owner((byte)1, "player 2", c2)};
-		//final Owner[] owners = {new Owner((byte)0, "player 1", c1), new Owner((byte)1, "player 2", c2),
-		//		new Owner((byte)2, "player 3", c3), new Owner((byte)3, "player 4", c4)};
+		final Owner[] owners = StarterHelper.getOwners(4);
+		for (int i = 0; i < owners.length; i++)
+		{
+			System.out.print(owners[i].getName() + " - ");
+			System.out.print("{ ");
+			for (int j = 0; j < 3; j++)
+				System.out.print((int)owners[i].getColor()[j] + " ");
+			System.out.println("}");
+		}
 
 		if (!PortUtils.runningFromJar())
 			PortUtils.prepareNativeLibraries(".."+File.separator+"seoma3"+File.separator+"lib");
 		
 		HashMap<Owner, AI> ais = new HashMap<Owner, AI>();
-		ais.put(owners[0], new ComputerEasy(owners[0]));
-		ais.put(owners[1], new RapestroyAI(owners[1]));
-		//ais.put(owners[2], new RapestroyAI(owners[2]));
-		//ais.put(owners[3], new YortSepar(owners[3]));
+		ais.put(owners[0], new StalinArmy(owners[0]));
+		ais.put(owners[1], new YortSepar(owners[1]));
+		ais.put(owners[2], new RapestroyAI(owners[2]));
+		ais.put(owners[3], new EjemploAI(owners[3]));
 		final World w = new World(owners, ais, System.currentTimeMillis());
 		w.setCameraAI(ais.get(owners[0]));
 		
