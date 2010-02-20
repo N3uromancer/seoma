@@ -286,6 +286,7 @@ public class StalinArmy extends AI {
 					double[][] rect = getEnemyRect(getEnemyOwners(w)[0], w);
 					uHash.get(un).swarming = true;
 					usableTankCount--;
+					un.clearActions();
 					if (target != null)
 						moveUnitSafely(un, target.getLocation()[0], target.getLocation()[1], w);
 					else
@@ -443,7 +444,7 @@ public class StalinArmy extends AI {
 					x++;
 			
 			if (x == 0)
-				return null;
+				return new Owner[] {null};
 			
 			Owner[] ret = new Owner[x];
 			
