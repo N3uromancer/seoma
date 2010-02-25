@@ -1,6 +1,11 @@
 package world;
 
 import java.awt.Graphics2D;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
+import network.Operation;
 
 /**
  * represents an object in the world
@@ -12,6 +17,7 @@ public final class GameObject
 	private double[] l;
 	private boolean isGhost;
 	long id;
+	int count = 0; //for determining which packets are outdated
 	
 	/**
 	 * creates a new game object
@@ -52,5 +58,21 @@ public final class GameObject
 	public double[] getLocation()
 	{
 		return l;
+	}
+	public byte[] getState()
+	{
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		try
+		{
+			DataOutputStream dos = new DataOutputStream(baos);
+			dos.writeByte(Operation.objectPosUpdate);
+			dos.writeLong(id);
+			dos.writeInt(count);
+			count++;
+			dos.writeInt((int)l[0]);
+			dos.writeInt((int)l[1]);
+		}
+		catch(IOException e){}
+		return baos.toByteArray();
 	}
 }
