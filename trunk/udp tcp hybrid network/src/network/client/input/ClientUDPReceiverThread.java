@@ -55,7 +55,7 @@ public final class ClientUDPReceiverThread implements Runnable
 					long id = bb.getLong();
 					int t = bb.getInt();
 					
-					if(t > m.get(id))
+					if((m.containsKey(id) && t > m.get(id)) || !m.containsKey(id))
 					{
 						m.put(id, t);
 						new Thread(new ClientOperation(ByteBuffer.wrap(buff), w)).start();
