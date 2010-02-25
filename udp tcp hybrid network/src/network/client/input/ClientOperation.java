@@ -41,6 +41,7 @@ public final class ClientOperation implements Runnable
 			if(operation == Operation.objectPosUpdate)
 			{
 				long id = buff.getLong();
+				buff.getInt(); //the count int to determine if the data is relvent
 				int x = buff.getInt();
 				int y = buff.getInt();
 				
