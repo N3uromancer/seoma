@@ -105,7 +105,7 @@ public final class ClientUDPWriterThread implements Runnable
 						//System.out.println("HERE "+ms.getLocalAddress());
 						DatagramPacket packet = new DatagramPacket(buff, buff.length, group, ms.getLocalPort());
 						ms.send(packet);
-						System.out.println("data sent");
+						//System.out.println("data sent");
 					}
 					/*
 					 * to protect against waiting if disconnecting is set to true

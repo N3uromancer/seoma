@@ -172,22 +172,12 @@ public class World implements KeyListener
 			
 			objSem.release();
 
-			double[] l = obj.get(avatarID).getLocation();
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			DataOutputStream dos = new DataOutputStream(baos);
 			for(int i = 0; i < 1; i++)
 			{
-				dos.writeByte(Operation.objectPosUpdate);
-				dos.writeLong(avatarID);
-				dos.writeInt((int)l[0]);
-				dos.writeInt((int)l[1]);
-				
-				//tcp.add(baos.toByteArray(), obj.get(avatarID));
-				udp.add(baos.toByteArray(), obj.get(avatarID));
+				udp.add(obj.get(avatarID).getState(), obj.get(avatarID));
 			}
 		}
 		catch(InterruptedException a){}
-		catch(IOException a){}
 	}
 	public void keyPressed(KeyEvent e)
 	{
