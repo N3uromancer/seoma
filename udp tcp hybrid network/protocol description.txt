@@ -1,0 +1,62 @@
+protocol description
+
+IDs:
+-used to track game objects in the world across clients
+-each object has its own unique id, ids are assigned by the client that created them
+-each client is given by the server an id range that it is to use during the course of the game to
+assign to objects it creates
+-ids should not run out, a long is used so that clients have a very large set of values to choose
+from, in addition values can be recylced for further extension of the range provided by the server
+if necesary
+-clients are passed an id range to use by the server so that no clients creates objects with conflicting ids
+
+initial client connection:
+-client connects to server, receives data of the status of the world and other connected clients
+-clients do not need to receive data concerning game objects on other client worlds upon their
+initial connection because they will receive that information from the heartbeat updates in a
+couple seconds tops
+-receives 2 long values detailing the range of ids the client has access to during gameplay
+
+normal client connection:
+-refers to the connection after the client first connects and before it terminates said connection
+-receives reguarlar heartbeat updates from the server about the actions of other clients
+-if the client receives information about objects that have not been registered with the world, then
+it creates a ghost copy and registers them
+-main loop of the client updates the game and queues messages to be sent to the server
+-a listener thread for the client waits and reads data sent from the server then updates the game
+state accordingly
+
+client writer thread:
+-writes client data to the server
+-operates with a linked blocking queue of byte buffers, buffers added to the queue by the main
+update loop of the client and written whenever possible
+
+reducing write congestion for clients:
+-there is only one byte array of data for each game object
+-if data has not been written to the output stream when new data is queued for the same object it replaces
+the old data, this is possible because the new data will contain more up to date information, there is no
+need to send old data if it has not been sent
+-if an objects data was updated by newer data before it was sent, the priority of that objects data is
+increased, because its data was replaced it has been a long time before it was last published to the server
+
+client receiver thread:
+-the thread that receives data from the server
+-when it reads data from the socket input stream, it stores the raw data in a buffer, this allows
+the receiving thread to continually read input from the stream without pausing to aquire locks
+from the required semaphores to act upon that data
+-buffers read from the stream are passed to new client operation threads which wait until they can
+aquire a lock and modify the game world
+
+server:
+-has a receiver thread that simply reads from the connected client input stream and notifies
+the server to write the received byte buffers to other connected clients
+
+ghost objects:
+-objects that are simply a copy of the real object in another client's world
+-ghost objects cannot spawn more objects in the game world
+
+disconnecting:
+-client sends a disconnect message to the server
+-server closes receiver and writer threads related to that client after writing a message to the client
+giving it permission to safely disconnect
+-client disconnects, terminates receiver and writer threads and exits 
