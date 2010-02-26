@@ -44,6 +44,10 @@ public class StalinArmy extends AI {
 	int tanksPerBase = 30;
 	int minSwarmSize = 100;
 	
+	final static int factorycost = 100;
+	final static int refinerycost = 50;
+	final static int turretcost = 70;
+	
 	/* Set to 5 to disable rect monitor */
 	int currSet = 5;
 	
@@ -178,7 +182,9 @@ public class StalinArmy extends AI {
 					factoryMultiplier = 1;
 					productionMax = 1;
 					maintainUnitCount(w, u, Factory.class, 1, 0);
-					maintainUnitCount(w, u, DefenseTurret.class, 1, 0);
+					double[] loc = uHash.get(u).assocR.r.getLocation();
+					moveUnitSafely(u, loc[0], loc[1], w);
+					//maintainUnitCount(w, u, DefenseTurret.class, 1, 0);
 					maintainUnitCount(w, u, Refinery.class, 1, 0);
 					continue;
 				}
@@ -193,8 +199,8 @@ public class StalinArmy extends AI {
 				if (uHash.get(u).eR != null)
 					rc = maintainUnitCount(w, u, Refinery.class, productionMax, 50);
 				
-				if (getUnitCount(Refinery.class) != 0 && getUnitCount(Factory.class) != 0)
-					maintainUnitCount(w, u, DefenseTurret.class, productionMax * turretsPerBase, 50);
+				//if (getUnitCount(Refinery.class) != 0 && getUnitCount(Factory.class) != 0)
+				//	maintainUnitCount(w, u, DefenseTurret.class, productionMax * turretsPerBase, 50);
 				
 				if (uHash.get(u).eR != null)
 					moveUnitRandomlyAroundRD(u, w, uHash.get(u).eR.r);
@@ -317,9 +323,21 @@ public class StalinArmy extends AI {
 		{
 			if (randMov != 0)
 				moveUnitRandomlyAroundArea(u, w, u.getLocation(), randMov);
+			
+			if (c == Factory.class && me.getResources() < factorycost + turretcost)
+				break;
+			else if (c == Refinery.class && me.getResources() < refinerycost + turretcost)
+				break;
+			
 			ret = buildUnit(c, u, w);
 			if (ret)
+			{
+				if (c == Factory.class || c == Refinery.class)
+					ret = buildUnit(DefenseTurret.class, u, w);
+				
 				i++;
+			}
+			
 			//println("Building "+c+": " + (ret ? "Success" : "Failed"));
 		}
 		
