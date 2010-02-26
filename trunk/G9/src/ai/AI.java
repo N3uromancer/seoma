@@ -155,19 +155,6 @@ public abstract class AI
 			catch(Exception e){}
 			if(b.canBuild(u) && builder.getOwner().getResources() >= temp.getCost())
 			{
-				//checks to make sure the building is not constructed in the resource deposit
-				ArrayList<ResourceDeposit> rd = getResourceDeposits(w);
-				for(int i = 0; i < rd.size(); i++)
-				{
-					double dist = MathUtil.distance(rd.get(i).getLocation()[0], rd.get(i).getLocation()[1], 
-							builder.getLocation()[0], builder.getLocation()[1]);
-					if(dist < rd.get(i).getRadius())
-					{
-						return false;
-					}
-				}
-				
-				
 				//System.out.println("can build "+u.getSimpleName());
 				builder.getOwner().setResources(builder.getOwner().getResources()-temp.getCost());
 				BuildOrder bo = new BuildOrder(temp.getBuildTime(), u, builder);
