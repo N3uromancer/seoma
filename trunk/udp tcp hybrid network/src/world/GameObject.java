@@ -65,12 +65,15 @@ public final class GameObject
 		try
 		{
 			DataOutputStream dos = new DataOutputStream(baos);
-			dos.writeByte(Operation.objectPosUpdate);
-			dos.writeLong(id);
-			dos.writeInt(count);
-			count++;
-			dos.writeInt((int)l[0]);
-			dos.writeInt((int)l[1]);
+			for(int i = 0; i < 20; i++)
+			{
+				dos.writeByte(Operation.objectPosUpdate);
+				dos.writeLong(id);
+				dos.writeInt(count);
+				count++;
+				dos.writeInt((int)l[0]);
+				dos.writeInt((int)l[1]);
+			}
 		}
 		catch(IOException e){}
 		return baos.toByteArray();
