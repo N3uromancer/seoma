@@ -25,6 +25,10 @@ public class SimpleStarter
 	public static void main(String[] args)
 	{
 		final Owner[] owners = StarterHelper.getOwners(4);
+		String mapPath = System.getProperty("user.dir")+System.getProperty("file.separator")+
+		System.getProperty("file.separator")+"maps"+System.getProperty("file.separator")+
+		"SovietRussia.map";
+		
 		for (int i = 0; i < owners.length; i++)
 		{
 			System.out.print(owners[i].getName() + " - ");
@@ -40,9 +44,9 @@ public class SimpleStarter
 		HashMap<Owner, AI> ais = new HashMap<Owner, AI>();
 		ais.put(owners[0], new StalinArmy(owners[0]));
 		ais.put(owners[1], new YortSepar(owners[1]));
-		ais.put(owners[2], new RapestroyAI(owners[2]));
-		ais.put(owners[3], new EjemploAI(owners[3]));
-		final World w = new World(owners, ais, System.currentTimeMillis());
+		ais.put(owners[2], new YortSepar(owners[2]));
+		ais.put(owners[3], new YortSepar(owners[3]));
+		final World w = new World(owners, ais, System.currentTimeMillis(), mapPath);
 		w.setCameraAI(ais.get(owners[0]));
 		
 		GLCanvas c = new GLCanvas(new GLCapabilities());;
@@ -50,7 +54,8 @@ public class SimpleStarter
 		{
 			public void updateGame(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui)
 			{
-				w.updateWorld(tdiff, ui);
+				for (int i = 0; i < 3; i++)
+					w.updateWorld(.03, ui);
 			}
 		};
 		DisplayManager dm = new DisplayManager()
