@@ -4,13 +4,14 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GLCanvas;
 import javax.media.opengl.GLCapabilities;
+
+import portability.PortUtils;
 
 import ui.UIFrame;
 import ui.display.DisplayManager;
@@ -25,22 +26,27 @@ import ai.AI;
 public class TerminalStarter {
 	private static void usage()
 	{
-		System.out.println("TerminalStarter -ai <ai> -map <map>");
+		System.out.println("Usage: TerminalStarter -ai -map [-dbg -?]");
 		System.exit(-1);
 	}
 	
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args)
-	{
-		if (args.length < 0)
-			usage();
-		
+	{	
 		boolean debug = false;
 		SimpleClassLoader cl = new SimpleClassLoader();
 		ArrayList<Class<? extends AI>> aicList = new ArrayList<Class<? extends AI>>();
-		String mapPath = "";
+		String mapPath = null;
 		final Owner[] owners;
 		HashMap<Owner, AI> aiHash = new HashMap<Owner, AI>();
+		
+		if (args.length == 0)
+			usage();
+		
+		if (!PortUtils.runningFromJar())
+			PortUtils.prepareNativeLibraries(".."+File.separator+"seoma3"+File.separator+"lib");
+		else
+			PortUtils.prepareNativeLibraries("lib");
 		
 		for (int i = 0; i < args.length; i++)
 		{
@@ -81,7 +87,19 @@ public class TerminalStarter {
 			}
 		}
 		
-		if (aicList.size())
+		if (aicList.size() == 0)
+		{
+			System.out.println("No AIs specified");
+			usage();
+			System.exit(-1);
+		}
+		
+		if (mapPath == null)
+		{
+			System.out.println("No map specified");
+			usage();
+			System.exit(-1);
+		}
 		
 		owners = StarterHelper.getOwners(aicList.size());
 		
@@ -102,10 +120,10 @@ public class TerminalStarter {
 			aiHash.put(owners[i], ai);
 		}
 		
-		final World w = new World(owners, aiHash, System.currentTimeMillis());
+		final World w = new World(owners, aiHash, System.currentTimeMillis(), mapPath);
 		w.setCameraAI(aiHash.get(owners[0]));
 		
-		GLCanvas c = new GLCanvas(new GLCapabilities());;
+		GLCanvas c = new GLCanvas(new GLCapabilities());
 		final GameEngine ge = new GameEngine(false, c)
 		{
 			public void updateGame(double tdiff, HashMap<Byte, HashMap<Class<? extends UserInput>, ArrayList<UserInput>>> ui)

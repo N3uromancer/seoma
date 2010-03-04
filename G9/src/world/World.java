@@ -102,16 +102,14 @@ public class World
 	{
 		cameraAI = ai;
 	}
-	public World(Owner[] owners, HashMap<Owner, AI> ais, long seed)
+	public World(Owner[] owners, HashMap<Owner, AI> ais, long seed, String mapPath)
 	{
 		this.seed = seed;
 		this.ais = ais;
 		Map m = new Map();
 		try
 		{
-			File f = new File(System.getProperty("user.dir")+System.getProperty("file.separator")+
-					System.getProperty("file.separator")+"maps"+System.getProperty("file.separator")+
-					"SovietRussia.map");
+			File f = new File(mapPath);
 			FileInputStream fis = new FileInputStream(f);
 			DataInputStream dis = new DataInputStream(fis);
 			System.out.println("loading "+f.getAbsolutePath());
