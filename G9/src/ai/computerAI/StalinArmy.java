@@ -237,7 +237,7 @@ public class StalinArmy extends AI {
 				if (getUnitCount(Harvester.class) < minHarvester)
 					maintainUnitCount(w, u, Harvester.class, minHarvester, 0);
 				else
-					maintainUnitCount(w, u, Harvester.class, getUnitCount(Harvester.class)+1, 0);
+					maintainUnitCount(w, u, Harvester.class, getResourceDeposits(w).size() * minHarvester, 0);
 				maintainUnitCount(w, u, Engineer.class, getResourceDeposits(w).size() - getUnitCount(Leader.class), 0);
 				maintainUnitCount(w, u, Tank.class, getUnitCount(Tank.class)+1, 0);
 			}
