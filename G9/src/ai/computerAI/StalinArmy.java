@@ -55,6 +55,8 @@ public class StalinArmy extends AI {
 	
 	HashMap<Unit, UnitContext> uHash;
 	
+	boolean starting = true;
+	
 	public StalinArmy(Owner o) {
 		super(o);
 		println("Initialized");
@@ -104,11 +106,10 @@ public class StalinArmy extends AI {
 			//This REALLY could be optimized
 			if (uHash.get(u) == null)
 			{
-				uHash.put(u, new UnitContext(u));
 				ResourceDeposit ird = getClosestResourceDepositAbs(u.getLocation(), w);
-				rHash.get(ird).units.add(u);
+				uHash.put(u, new UnitContext(u));
 				uHash.get(u).assocR = rHash.get(ird);
-				
+				rHash.get(ird).units.add(u);
 				if (u instanceof Engineer || u instanceof Leader)
 				{
 					ird = getClosestRDForEngineer(u.getLocation(), w);
@@ -119,6 +120,7 @@ public class StalinArmy extends AI {
 					}
 				}
 			}
+				
 			
 			if (u.getCurrentAction() != null) continue;
 			
@@ -173,13 +175,9 @@ public class StalinArmy extends AI {
 			}
 			if (u instanceof Leader || u instanceof Engineer)
 			{
-				int fc = 0;
-				int rc = 0;
-				int factoryMultiplier;
 				
-				if (getUnitCount(Harvester.class) < minHarvester)
+				/*if (getUnitCount(Harvester.class) < minHarvester)
 				{
-					factoryMultiplier = 1;
 					productionMax = 1;
 					maintainUnitCount(w, u, Factory.class, 1, 0);
 					double[] loc = uHash.get(u).assocR.r.getLocation();
@@ -187,33 +185,57 @@ public class StalinArmy extends AI {
 					//maintainUnitCount(w, u, DefenseTurret.class, 1, 0);
 					maintainUnitCount(w, u, Refinery.class, 1, 0);
 					continue;
+				}*/
+				
+				//if (getUnitCount(Refinery.class) != 0 && uHash.get(u).eR != null)
+				//	fc = maintainUnitCount(w, u, Factory.class, productionMax, 50);
+				
+				if (uHash.get(u).eR != null)
+				{
+					boolean missingR = true, missingF = true;
+					
+					for (int ii = 0; ii < uHash.get(u).eR.units.size(); ii++)
+					{
+						Unit eru = uHash.get(u).eR.units.get(ii);
+						
+						if (eru instanceof Factory)
+							missingF = false;
+						else if (eru instanceof Refinery)
+							missingR = false;
+						
+						if (!missingR && !missingF)
+							break;
+					}
+					
+					System.out.println("Found R: "+!missingR+" Found F: "+!missingF+" for RD: "+uHash.get(u).eR+" eng: "+u);
+					
+					if (missingR && getUnitCount(Factory.class) > 0)
+					{
+						double[] loc = uHash.get(u).eR.r.getLocation();
+						moveUnitSafely(u, loc[0], loc[1], w);
+						
+						if (u.getLocation()[0] == loc[0] && u.getLocation()[1] == loc[1])
+							maintainUnitCount(w, u, Refinery.class, getUnitCount(Refinery.class)+1, 0);
+					}
+					if (missingF)
+					{
+						double[] loc = uHash.get(u).eR.r.getLocation();
+						moveUnitSafely(u, loc[0], loc[1], w);
+						
+						if (u.getLocation()[0] == loc[0] && u.getLocation()[1] == loc[1])
+							maintainUnitCount(w, u, Factory.class, getUnitCount(Factory.class)+1, 0);
+					}
+					if (!missingF && !missingR)
+					{
+						if (maintainUnitCount(w, u, Factory.class, getUnitCount(Factory.class)+1, 0) == 0)
+							moveUnitRandomlyAroundRD(u, w, uHash.get(u).eR.r);
+					}
 				}
 				else
 				{
-					factoryMultiplier = 2;
-				}
-				
-				if (getUnitCount(Refinery.class) != 0 && uHash.get(u).eR != null)
-					fc = maintainUnitCount(w, u, Factory.class, productionMax * factoryMultiplier, 50);
-				
-				if (uHash.get(u).eR != null)
-					rc = maintainUnitCount(w, u, Refinery.class, productionMax, 50);
-				
-				//if (getUnitCount(Refinery.class) != 0 && getUnitCount(Factory.class) != 0)
-				//	maintainUnitCount(w, u, DefenseTurret.class, productionMax * turretsPerBase, 50);
-				
-				if (uHash.get(u).eR != null)
-					moveUnitRandomlyAroundRD(u, w, uHash.get(u).eR.r);
-				else {
 					double[][] rect = getAllyRect(w);
-					moveUnitRandomlyAroundRect(u, w, rect[0], rect[1][0], rect[1][1]);
-				}
-				
-				if (fc == -1 && rc == -1)
-				{
-					productionMax++;
-
-					println("Increasing factory/refinery quota: "+productionMax);
+					if (maintainUnitCount(w, u, DefenseTurret.class, getUnitCount(DefenseTurret.class)+1, 0) == 0)
+						moveUnitRandomlyAroundRect(u, w, rect[0], rect[1][0], rect[1][1]);
 				}
 			}
 			if (u instanceof Tank)
@@ -234,12 +256,10 @@ public class StalinArmy extends AI {
 			}
 			if (u instanceof Factory)
 			{	
-				if (getUnitCount(Harvester.class) < minHarvester)
-					maintainUnitCount(w, u, Harvester.class, minHarvester, 0);
-				else
-					maintainUnitCount(w, u, Harvester.class, getResourceDeposits(w).size() * minHarvester, 0);
-				maintainUnitCount(w, u, Engineer.class, getResourceDeposits(w).size() - getUnitCount(Leader.class), 0);
+				maintainUnitCount(w, u, Harvester.class, minHarvester, 0);
 				maintainUnitCount(w, u, Tank.class, getUnitCount(Tank.class)+1, 0);
+				maintainUnitCount(w, u, Engineer.class, getResourceDeposits(w).size() - getUnitCount(Leader.class), 0);
+				maintainUnitCount(w, u, Harvester.class, getResourceDeposits(w).size() * minHarvester, 0);
 			}
 		}
 		
@@ -247,6 +267,7 @@ public class StalinArmy extends AI {
 		for (ResourceDeposit prd : rds)
 		{
 			rHash.get(prd).eng = null;
+			rHash.get(prd).units.clear();
 		}
 		
 		int usableTankCount = 0;
@@ -266,6 +287,9 @@ public class StalinArmy extends AI {
 			}
 			if (un instanceof Tank && !uHash.get(un).swarming)
 				usableTankCount++;
+			ResourceDeposit ird = getClosestResourceDepositAbs(un.getLocation(), w);
+			uHash.get(un).assocR = rHash.get(ird);
+			uHash.get(un).assocR.units.add(un);
 		}
 
 		i = units.iterator();
@@ -321,9 +345,6 @@ public class StalinArmy extends AI {
 		
 		for (int x = getUnitCount(c); x < unitCount && ret; x++)
 		{
-			if (randMov != 0)
-				moveUnitRandomlyAroundArea(u, w, u.getLocation(), randMov);
-			
 			if (c == Factory.class && me.getResources() < factorycost + turretcost)
 				break;
 			else if (c == Refinery.class && me.getResources() < refinerycost + turretcost)
