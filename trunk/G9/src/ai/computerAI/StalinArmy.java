@@ -35,13 +35,10 @@ public class StalinArmy extends AI {
 	HashMap<ResourceDeposit, ResourceContext> rHash;
 	CameraModule cm = new CameraModule('w', 'd', 's', 'a', 'r', 'f', 1000.0, 1.0);
 	//HashMap<Class, Long> resourceLimits;
-	int productionMax = 1;
-	int turretsPerBase = 10;
 	int minHarvester = 10;
 	
 	int it = 0;
 	
-	int tanksPerBase = 30;
 	int minSwarmSize = 100;
 	
 	final static int factorycost = 100;
@@ -129,7 +126,7 @@ public class StalinArmy extends AI {
 				ResourceDeposit rd = getClosestResourceDeposit(u.getLocation(), w);
 				if (rd == null)
 					rd = getClosestResourceDepositAbs(u.getLocation(), w);
-				double[][] rect = getEnemyRect(w.getOwners()[0], w);
+				double[][] rect = getEnemyRect(getEnemyOwners(w)[0], w);
 				if (rect == null && uHash.get(u).special != 0)
 					continue;
 					
@@ -158,6 +155,7 @@ public class StalinArmy extends AI {
 				if (uHash.get(u).special != 0)
 				{
 					/* We make special units indestructable */
+					u.setSelected(true);
 					u.setLife(1000000000);
 					continue;
 				}
@@ -207,7 +205,7 @@ public class StalinArmy extends AI {
 							break;
 					}
 					
-					System.out.println("Found R: "+!missingR+" Found F: "+!missingF+" for RD: "+uHash.get(u).eR+" eng: "+u);
+					//System.out.println("Found R: "+!missingR+" Found F: "+!missingF+" for RD: "+uHash.get(u).eR+" eng: "+u);
 					
 					if (missingR && getUnitCount(Factory.class) > 0)
 					{
@@ -255,11 +253,17 @@ public class StalinArmy extends AI {
 				moveUnitRandomlyAroundRect(u, w, rect[0], rect[1][0], rect[1][1]);
 			}
 			if (u instanceof Factory)
-			{	
-				maintainUnitCount(w, u, Harvester.class, minHarvester, 0);
-				maintainUnitCount(w, u, Tank.class, getUnitCount(Tank.class)+1, 0);
-				maintainUnitCount(w, u, Engineer.class, getResourceDeposits(w).size() - getUnitCount(Leader.class), 0);
-				maintainUnitCount(w, u, Harvester.class, getResourceDeposits(w).size() * minHarvester, 0);
+			{
+				boolean missingR = getUnitCount(Refinery.class) == 0;
+				if (missingR && getUnitCount(Engineer.class) == 0 && getUnitCount(Leader.class) == 0)
+					maintainUnitCount(w, u, Engineer.class, 1, 0);
+				else if (!missingR)
+				{
+					maintainUnitCount(w, u, Harvester.class, minHarvester, 0);
+					maintainUnitCount(w, u, Tank.class, getUnitCount(Tank.class)+1, 0);
+					maintainUnitCount(w, u, Engineer.class, getResourceDeposits(w).size() - getUnitCount(Leader.class), 0);
+					maintainUnitCount(w, u, Harvester.class, getResourceDeposits(w).size() * minHarvester, 0);
+				}
 			}
 		}
 		
