@@ -48,7 +48,7 @@ public class StalinArmy extends AI {
 	/* Set to 5 to disable rect monitor */
 	int currSet = 5;
 	
-	final static int borderMod = 75;
+	final static int borderMod = 0;
 	
 	HashMap<Unit, UnitContext> uHash;
 	
@@ -242,9 +242,25 @@ public class StalinArmy extends AI {
 				
 				if (uHash.get(u).swarming)
 				{
+					Unit target;
+					
+					target = getFirstEnemyUnit(w, Leader.class);
+					if (target == null)
+						target = getFirstEnemyUnit(w, Refinery.class);
+					if (target == null)
+						target = getFirstEnemyUnit(w, Factory.class);
+					
 					rect = getEnemyRect(getEnemyOwners(w)[0], w);
 					if (rect == null)
+					{
 						uHash.get(u).swarming = false;
+						u.setSelected(false);
+					}
+					else if (target != null)
+					{
+						moveUnitSafely(u, target.getLocation()[0], target.getLocation()[1], w);
+						continue;
+					}
 				}
 				
 				if (rect == null)
@@ -296,29 +312,32 @@ public class StalinArmy extends AI {
 			uHash.get(un).assocR.units.add(un);
 		}
 
+		if (it % 100 == 0)
+			System.out.println(usableTankCount + " "+ w.getUnitEngine().getUnitList(getEnemyOwners(w)[0]).size() * 2 + " "+minSwarmSize);
+		
 		i = units.iterator();
 		if ((usableTankCount >= minSwarmSize || 
 			(getEnemyOwners(w)[0] != null && 
 			 usableTankCount >= w.getUnitEngine().getUnitList(getEnemyOwners(w)[0]).size() * 2)) &&
 			 getEnemyRect(getEnemyOwners(w)[0], w) != null)
 		{
-			println("Swarming with "+usableTankCount+" units against "+w.getUnitEngine().getUnitList(getEnemyOwners(w)[0]).size()+" units");
+			System.out.println("Swarming with "+usableTankCount+" units against "+w.getUnitEngine().getUnitList(getEnemyOwners(w)[0]).size()+" units");
 			while (i.hasNext())
 			{
 				Unit un = i.next();
 				if (un instanceof Tank && !uHash.get(un).swarming)
 				{
-					un.clearActions();
 					Unit target;
 					
-					target = getFirstUnit(Leader.class);
+					target = getFirstEnemyUnit(w, Leader.class);
 					if (target == null)
-						target = getFirstUnit(Refinery.class);
+						target = getFirstEnemyUnit(w, Refinery.class);
 					if (target == null)
-						target = getFirstUnit(Factory.class);
+						target = getFirstEnemyUnit(w, Factory.class);
 					
 					double[][] rect = getEnemyRect(getEnemyOwners(w)[0], w);
 					uHash.get(un).swarming = true;
+					un.setSelected(true);
 					usableTankCount--;
 					un.clearActions();
 					if (target != null)
@@ -767,14 +786,14 @@ public class StalinArmy extends AI {
 		return i;
 	}
 
-	private Unit getFirstUnit(Class<? extends Unit> c)
+	private Unit getFirstEnemyUnit(World w, Class<? extends Unit> c)
 	{
 		//Easy case
-		if (getUnits().get(c) == null ||
-			getUnits().get(c).size() == 0)
+		if (getEnemyUnits(w).get(c) == null ||
+			getEnemyUnits(w).get(c).size() == 0)
 			return null;
 		
-		for (Unit u : getUnits().get(c))
+		for (Unit u : getEnemyUnits(w).get(c))
 			return u;
 
 		return null;
