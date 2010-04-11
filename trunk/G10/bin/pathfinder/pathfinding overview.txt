@@ -1,0 +1,12 @@
+pathfinding overview:
+
+constructing potential fields for movement of pathable objects:
+
+-the world maintains a partition holding all path obstacle primitives
+-path obstacle primimtives are either line segments or circles
+-other pathable objects count as path obstacles if their priority is higher than that of the pathable
+object moving through the world
+-when a region is probed for its potential, a set of relevent path obstacles are first found
+-the relevant set is used to determine a potential for the given point based off the distance
+from that point to the various objects in the set
+-objects are moved through the world always towards points of lower potential than the starting point

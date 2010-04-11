@@ -1,0 +1,4 @@
+improvements:
+
+-binary space partition tree for closest neighbors in pathfinding
+-potential fields in addition to or in place of straight line test to connect nodes
