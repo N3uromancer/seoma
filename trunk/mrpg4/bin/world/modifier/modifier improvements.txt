@@ -1,0 +1,3 @@
+modifier improvements:
+
+-have a controllable modifer that defines how a controller should interface on a given game object

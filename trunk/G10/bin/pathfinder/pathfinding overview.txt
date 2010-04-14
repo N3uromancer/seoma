@@ -9,4 +9,4 @@ object moving through the world
 -when a region is probed for its potential, a set of relevent path obstacles are first found
 -the relevant set is used to determine a potential for the given point based off the distance
 from that point to the various objects in the set
--objects are moved through the world always towards points of lower potential than the starting point
+-objects are moved through the world always towards points of lower potential than their initial points

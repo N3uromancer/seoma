@@ -31,7 +31,7 @@ public class World
 	//maps objects to partitions that contain them
 	HashMap<Object, HashSet<Class<?>>> objPartMap = new HashMap<Object, HashSet<Class<?>>>();
 	
-	Pathfinder p;
+	Pathfinder pf;
 	
 	int width = 2000; //world width
 	int height = 2000; //world height
@@ -57,7 +57,7 @@ public class World
 			c[i] = new CircleTerrain(new double[]{x, y}, minR+r);
 			registerObject(c[i]);
 		}
-		p = new Pathfinder(c, new double[]{7, 15}, width, height, new RandomNodeGenerator(), new DirectLocalPlanner());
+		pf = new Pathfinder(c, new double[]{7, 15}, width, height, new RandomNodeGenerator(), new DirectLocalPlanner());
 	}
 	/**
 	 * gets a reference to the pathfinder used by this world
@@ -65,7 +65,7 @@ public class World
 	 */
 	public Pathfinder getPathfinder()
 	{
-		return p;
+		return pf;
 	}
 	/**
 	 * sets up the world partitions
@@ -138,7 +138,6 @@ public class World
 	}
 	public void drawWorld(Graphics2D g, Camera c, int width, int height)
 	{
-		
 		g.setColor(Color.green);
 		g.fillRect(0, 0, width, height);
 		g.setTransform(c.getTransform());
@@ -154,10 +153,7 @@ public class World
 		{
 			((Drawable)b).draw(g);
 		}
-		/*for(Circle circle: circles)
-		{
-			circle.draw(g);
-		}*/
+		pf.drawPathGraph(g);
 		drawTime+=System.currentTimeMillis()-start;
 		draws++;
 		//System.out.println(draws*1000./drawTime+"\t = draws/sec, "+draws+" [draws] / "+drawTime/1000.+" [time]");

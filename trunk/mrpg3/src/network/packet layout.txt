@@ -1,0 +1,10 @@
+packet layout:
+
+header:
+1 short - the packet update count, for determining which packet is out of date
+1 byte - the environment id, which environment in the world the packet refers to
+1 byte - length, number of game object states the packet contains
+
+body:
+1 int - game object id
+x bytes - the state information for the game object

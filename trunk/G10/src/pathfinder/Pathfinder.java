@@ -11,8 +11,11 @@ import java.util.Stack;
 
 import pathfinder.graph.Graph;
 import pathfinder.graph.Node;
+import pathfinder.group.Group;
+import pathfinder.group.PathableGrouper;
 import pathfinder.localPlanner.LocalPlanner;
 import pathfinder.nodeGenerator.NodeGenerator;
+import utilities.MathUtil;
 import world.modifier.PathObstacle;
 import world.modifier.Pathable;
 
@@ -38,6 +41,7 @@ public final class Pathfinder
 			NodeGenerator ng, LocalPlanner lp)
 	{
 		ng.generateNodes(g, obstacles, radii, width, height, 500);
+		lp.connectNodes(g.getNodes(), g, obstacles);
 	}
 	/**
 	 * finds a path for a given set of pathable game objects to the passed target location
@@ -47,12 +51,49 @@ public final class Pathfinder
 	 */
 	public HashMap<Integer, Node> findPath(HashSet<Pathable> p, double[] target)
 	{
-		double minDist = Double.MAX_VALUE;
-		for(Node n: g.getNodes())
+		Group[] groups = PathableGrouper.groupPathables(p, 60, 6);
+		Node end = null;
+		for(Group group: groups)
 		{
-			//if(MathUtil.distance(n.l[0], n.l[1], p.getLocation()[0], p.getLocation()[1]))
+			double startMinDist = Double.MAX_VALUE;
+			double endMinDist = Double.MAX_VALUE;
+			Node start = null;
+			boolean findEnd = false;
+			if(end == null)
+			{
+				findEnd = true;
+			}
+			for(Node n: g.getNodes())
+			{
+				double[] center = group.getCenter();
+				double distance = MathUtil.distance(n.l[0], n.l[1], center[0], center[1]);
+				if(distance < startMinDist)
+				{
+					startMinDist = distance;
+					start = n;
+				}
+				if(findEnd)
+				{
+					distance = MathUtil.distance(n.l[0], n.l[1], target[0], target[1]);
+					if(distance < endMinDist)
+					{
+						endMinDist = distance;
+						end = n;
+					}
+				}
+			}
+			if(start != null && end != null)
+			{
+				Stack<Node> stackPath = findPath(start, end, g, group.getMaxRadius());
+				HashMap<Integer, Node> path = new HashMap<Integer, Node>();
+				int index = 0;
+				while(stackPath.size() > 0)
+				{
+					path.put(index, stackPath.pop());
+					index++;
+				}
+			}
 		}
-		
 		return null;
 	}
 	/**
@@ -69,18 +110,18 @@ public final class Pathfinder
 		Stack<Node> path = new Stack<Node>();
 		path.push(start);
 		HashSet<Node> fails = new HashSet<Node>();
-		getPath(path, fails, end, g);
+		buildPath(path, fails, end, g);
 		return path;
 	}
 	/**
-	 * recursively builds the path
+	 * iteratively builds the path
 	 * @param path the path
 	 * @param checked a set represnting the already tested nodes not to be checked
 	 * @param target the target of the path
 	 * @param end the end node where the target resides
 	 * @param g
 	 */
-	private static void getPath(Stack<Node> path, HashSet<Node> checked, final Node end, Graph g)
+	private static void buildPath(Stack<Node> path, HashSet<Node> checked, final Node end, Graph g)
 	{
 		while(path.size() > 0 && path.peek() != end)
 		{
@@ -146,10 +187,10 @@ public final class Pathfinder
 		{
 			g.setColor(Color.black);
 			
-			//new Circle(n.l, n.radius).draw(g);
 			int x = (int)(n.l[0]-n.radius);
 			int y = (int)(n.l[1]-n.radius);
 			g.fillOval(x, y, (int)n.radius*2, (int)n.radius*2);
+			//System.out.println(n.radius+"\n-----------");
 			
 			for(Node temp: this.g.getEdges().get(n))
 			{

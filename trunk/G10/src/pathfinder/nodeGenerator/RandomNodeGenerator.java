@@ -35,6 +35,7 @@ public class RandomNodeGenerator implements NodeGenerator
 				if(!intersects)
 				{
 					g.addNode(new Node(p.getLocation(), radii[i]));
+					//System.out.println(radii[i]);
 				}
 				else
 				{

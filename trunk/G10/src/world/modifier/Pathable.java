@@ -22,4 +22,7 @@ public interface Pathable extends Moveable
 	 * the pathable object is currently moving towards
 	 */
 	public int getPathNodeIndex();
+	public void setPathNodeIndex(int index);
+	public void setPriority(double priority);
+	public double getPriority();
 }

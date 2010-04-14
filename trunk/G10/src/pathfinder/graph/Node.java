@@ -14,5 +14,6 @@ public final class Node
 	public Node(double[] l, double radius)
 	{
 		this.l = l;
+		this.radius = radius;
 	}
 }

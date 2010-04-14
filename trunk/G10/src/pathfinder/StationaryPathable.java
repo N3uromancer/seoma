@@ -8,6 +8,8 @@ import world.modifier.Pathable;
 /**
  * defines a stationary pathable object solely for the purposes of implementing
  * various components of the pathfinder
+ * 
+ * the priority features
  * @author Secondary
  *
  */
@@ -15,6 +17,7 @@ public final class StationaryPathable implements Pathable
 {
 	private double[] l;
 	private double radius;
+	private double priority;
 	
 	public StationaryPathable(double[] l, double radius)
 	{
@@ -55,4 +58,13 @@ public final class StationaryPathable implements Pathable
 		return l;
 	}
 	public void setLocation(double[] l){}
+	public double getPriority()
+	{
+		return priority;
+	}
+	public void setPriority(double priority)
+	{
+		this.priority = priority;
+	}
+	public void setPathNodeIndex(int index){}
 }

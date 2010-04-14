@@ -1,0 +1,25 @@
+script overview:
+
+======================================================================
+
+-script files: declare variables and types
+
+======================================================================
+
+-types: used to define how the script can be used by the program
+
+-types declared in scripts reference actual classes in the program that are
+extensions of the Type class
+-each type can have so many required variables and script files denoting themselves
+as of tha type are required to declare the type's variables
+-types are used to declare methods for the script files because the type knows
+what variables are declared for each script
+
+=======================================================================
+
+advantages of a simple scripting language
+
+-recording variables that have changed is very easy, allowing the program to determine delta
+values that need to be sent to other networked programs
+-allows game objects to be declared quickly
+-allows for easy and intuitive editing of game objects, by full editor or text edit programs

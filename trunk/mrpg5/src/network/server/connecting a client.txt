@@ -1,0 +1,7 @@
+connecting a client:
+
+1. receive client connect packet
+2. create avatar for client in game world
+3. start sending packets to client, each packet has game state update data and avatar id and data
+4. client receives update packets, builds its proxy world, and sends update packets back to the server
+5. server begins receiving client packets, removes avatar id from state update packets sent to client

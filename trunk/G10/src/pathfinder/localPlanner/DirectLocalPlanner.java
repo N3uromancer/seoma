@@ -3,10 +3,12 @@ package pathfinder.localPlanner;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 import pathfinder.StationaryPathable;
 import pathfinder.graph.Graph;
 import pathfinder.graph.Node;
+import utilities.MathUtil;
 import world.modifier.PathObstacle;
 import world.modifier.Pathable;
 
@@ -58,7 +60,7 @@ public class DirectLocalPlanner implements LocalPlanner
 		}
 		return true;
 	}
-	public void connectNodes(Node[] nodes, Graph g, PathObstacle[] obstacles)
+	public void connectNodes(Set<Node> nodes, Graph g, PathObstacle[] obstacles)
 	{
 		HashMap<Node, PriorityQueue<Double>> neighborDistances = new HashMap<Node, PriorityQueue<Double>>();
 		HashMap<Node, HashMap<Double, Node>> neighbors = new HashMap<Node, HashMap<Double, Node>>();
@@ -97,8 +99,130 @@ public class DirectLocalPlanner implements LocalPlanner
 			}
 		}
 	}
-	public void movePathableObj(Pathable p, HashSet<PathObstacle> obstacles)
+	public void movePathableObj(Pathable p, HashSet<PathObstacle> obstacles, double tdiff)
 	{
-		
+		double movement = p.getMaxSpeed()*tdiff;
+		//System.out.println("movement = "+movement);
+		if(p.getPath() != null && p.getPathNodeIndex() < p.getPath().size())
+		{
+			//System.out.println("pindex="+pindex);
+			Node target = p.getPath().get(p.getPathNodeIndex());
+			double initialPotential = getPotential(p, obstacles, target, 80);
+			//System.out.println("initial potential = "+initialPotential);
+			
+			double[] v = {target.l[0]-p.getLocation()[0], target.l[1]-p.getLocation()[1]};
+			double mag = Math.sqrt(v[0]*v[0]+v[1]*v[1]);
+			v[0]/=mag;
+			v[1]/=mag;
+			double[] newL = {p.getLocation()[0]+v[0]*movement, p.getLocation()[1]+v[1]*movement};
+			
+			Pathable temp = new StationaryPathable(newL, p.getRadius());
+			temp.setPriority(p.getPriority());
+			double potential = getPotential(temp, obstacles, target, 80); //current potential
+			if(potential < initialPotential)
+			{
+				//System.out.println("moved straight line");
+				//best movement spot is straight to the node
+				p.setLocation(newL);
+			}
+			else
+			{
+				//System.out.println("attempting random configurations");
+				/*
+				 * the unit can potentially move more than once as long as the total movement
+				 * is less than the movement amount of the unit
+				 */
+				int attempts = 20;
+				double totalMovement = 0; //total amount moved
+				for(int i = 0; i < attempts && totalMovement < movement; i++)
+				{
+					//double m = movement;
+					double m = Math.random()*movement;
+					if(m+totalMovement > movement)
+					{
+						m = movement-totalMovement;
+					}
+					
+					v = MathUtil.rotateVector(Math.random()*360, v);
+					
+					newL = new double[]{p.getLocation()[0]+v[0]*m, p.getLocation()[1]+v[1]*m};
+					temp = new StationaryPathable(newL, p.getRadius());
+					temp.setPriority(p.getPriority());
+					potential = getPotential(temp, obstacles, target, 80); //current potential
+					//System.out.println("potential="+p);
+					if(potential < initialPotential)
+					{
+						//System.out.println("found lower potential config!");
+						totalMovement+=m;
+						p.setLocation(newL);
+					}
+				}
+			}
+			if(potential == 0)
+			{
+				p.setPathNodeIndex(p.getPathNodeIndex()+1);
+			}
+		}
+		else
+		{
+			p.setPath(null);
+		}
+	}
+	/**
+	 * gets the potential for a given configuration, if the configuration is intersecting
+	 * either a unit or obstacle its potential is the maximum value of a double
+	 * 
+	 * potential is zero if the passed circle to be evaluated is within the minimum distance
+	 * to the target path point node
+	 * 
+	 * @param p the pathable object 
+	 * @param obstacles the pathing obstacles to be considered when determining potential for a point
+	 * @param target
+	 * @param minDist the minimum distance from the pathable object to the target node before a potential
+	 * of 0 is returned
+	 * @return
+	 */
+	private double getPotential(Pathable p, HashSet<PathObstacle> obstacles, Node target, double minDist)
+	{
+		double potential = 0;
+		for(PathObstacle obstacle: obstacles)
+		{
+			if(obstacle != p)
+			{
+				double distance = obstacle.getDistance(p);
+				if(obstacle.intersects(p, 0))
+				{
+					return Double.MAX_VALUE;
+				}
+				if(obstacle.getClass().isInstance(Pathable.class))
+				{
+					//another pathable object
+					Pathable unit = (Pathable)obstacle;
+					if(unit.getPriority() > p.getPriority()) //lower priority units yield to higher priority units
+					{
+						if(unit.isMoving())
+						{
+							potential+=6000/distance;
+						}
+						else
+						{
+							potential+=1000/distance;
+						}
+					}
+				}
+				else
+				{
+					//a normal path obstacle --> background terrain, etc
+					potential+=1000./distance;
+				}
+			}
+		}
+		double distance = MathUtil.distance(target.l[0], target.l[1], p.getLocation()[0], p.getLocation()[1])-target.radius-p.getRadius();
+		if(distance < minDist)
+		{
+			return 0;
+		}
+		potential+=distance*distance;
+		return potential;
 	}
 }
