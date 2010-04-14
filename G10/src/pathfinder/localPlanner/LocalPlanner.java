@@ -27,8 +27,21 @@ public interface LocalPlanner
 	/**
 	 * moves the passed pathable object through the world
 	 * @param p the pathable object to be moved
-	 * @param obstacles the path obstacles in the world
+	 * @param obstacles the path obstacles to be considered
 	 * @param tdiff
 	 */
 	public void movePathableObj(Pathable p, HashSet<PathObstacle> obstacles, double tdiff);
+	/**
+	 * tests to see if a connection exists between the two passed points, a connection
+	 * exists if a pathable object of the passed radius can move between the two points
+	 * using only the local
+	 * planner
+	 * @param start
+	 * @param end
+	 * @param radius the radius of the object to be pathed from the start point to the end point
+	 * @param obstacles the path obstacles to be considered when testing the connection
+	 * @return returns true if there exists a connection between the two points and only
+	 * the local planner is needed to traverse the space in between
+	 */
+	public boolean connectionExists(double[] start, double[] end, double radius, HashSet<PathObstacle> obstacles);
 }
