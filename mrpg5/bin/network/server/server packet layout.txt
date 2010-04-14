@@ -1,0 +1,13 @@
+server packet layout:
+
+header:
+1 short - the packet update count, for determining which packet is out of date
+1 byte - the environment id, which region in the world the packet refers to
+1 byte - length, number of game objects the packet contains
+
+body:
+1 short - game object id
+x bytes - the delta information for the game object
+
+end:
+x shorts - listing of units that died, specific to each client, units removed from the list upon client confirmation

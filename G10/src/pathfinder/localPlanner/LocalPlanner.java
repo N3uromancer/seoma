@@ -1,6 +1,7 @@
 package pathfinder.localPlanner;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import pathfinder.graph.Graph;
 import pathfinder.graph.Node;
@@ -22,11 +23,12 @@ public interface LocalPlanner
 	 * @param obstacles the base obstacles of the environement to be considered when
 	 * connecting the passed pathing nodes
 	 */
-	public void connectNodes(Node[] n, Graph g, PathObstacle[] obstacles);
+	public void connectNodes(Set<Node> n, Graph g, PathObstacle[] obstacles);
 	/**
 	 * moves the passed pathable object through the world
 	 * @param p the pathable object to be moved
 	 * @param obstacles the path obstacles in the world
+	 * @param tdiff
 	 */
-	public void movePathableObj(Pathable p, HashSet<PathObstacle> obstacles);
+	public void movePathableObj(Pathable p, HashSet<PathObstacle> obstacles, double tdiff);
 }

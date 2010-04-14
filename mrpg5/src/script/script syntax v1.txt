@@ -1,0 +1,21 @@
+script syntax:
+
+-lines starting with any of the following ignore characters are skipped when parsing:
+		-, =, <, >
+-lines that are blank are also skipped
+-first line must be "version x", where x is a decimal specifying the version
+-variables are declared by writing first the type of variable it is, then the name
+of the variable, and then the value of the variable
+-variable types:
+		boolean, short, double
+-each script may have a maximum of 256 variables
+-each new line denotes a new expression, thus no semicolons or other expression delineators
+are needed
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> example script file starting here
+version (double)
+--- a skipped line, denoted by the '-' at the beginning
+boolean aRandomValue = false
+int anotherInteger = 37
+short s = 9001
+double dubius = 4.763
