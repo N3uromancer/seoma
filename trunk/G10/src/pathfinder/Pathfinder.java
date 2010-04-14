@@ -44,12 +44,12 @@ public final class Pathfinder
 		lp.connectNodes(g.getNodes(), g, obstacles);
 	}
 	/**
-	 * finds a path for a given set of pathable game objects to the passed target location
+	 * finds a path for a given set of pathable game objects to the passed target location,
+	 * automatically sets the path for all passed pathable objects
 	 * @param p
 	 * @param target
-	 * @return
 	 */
-	public HashMap<Integer, Node> findPath(HashSet<Pathable> p, double[] target)
+	public void findPath(HashSet<Pathable> p, double[] target)
 	{
 		Group[] groups = PathableGrouper.groupPathables(p, 60, 6);
 		Node end = null;
@@ -92,9 +92,9 @@ public final class Pathfinder
 					path.put(index, stackPath.pop());
 					index++;
 				}
+				group.setPath(path);
 			}
 		}
-		return null;
 	}
 	/**
 	 * actually finds a path through the graph from the passed start node to
