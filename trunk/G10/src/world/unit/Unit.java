@@ -1,24 +1,26 @@
 package world.unit;
 
-import geom.Circle;
-
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.HashMap;
 
 import pathfinder.graph.Node;
-
 import world.World;
 import world.modifier.Destructable;
-import world.modifier.Drawable;
 import world.modifier.Pathable;
+import world.terrain.CircleTerrain;
+import world.unit.action.Action;
 
-public class Unit extends Circle implements Drawable, Destructable, Pathable
+public class Unit extends CircleTerrain implements Destructable, Pathable
 {
 	double maxLife;
 	double life;
 	double maxSpeed;
 	
 	boolean isDead = false;
+	
+	Action a;
+	boolean actionInitiated = false;
 	
 	//pathing variables
 	HashMap<Integer, Node> path;
@@ -33,7 +35,7 @@ public class Unit extends Circle implements Drawable, Destructable, Pathable
 	 */
 	public Unit(double[] l)
 	{
-		this(l, 7, 100, 170);
+		this(l, 7, 100, 140);
 	}
 	public Unit(double[] l, double radius, double maxLife, double maxSpeed)
 	{
@@ -42,8 +44,13 @@ public class Unit extends Circle implements Drawable, Destructable, Pathable
 		life = maxLife;
 		this.maxSpeed = maxSpeed;
 	}
+	public void setAction(Action a)
+	{
+		this.a = a;
+	}
 	public void draw(Graphics2D g)
 	{
+		g.setColor(Color.blue);
 		int x = (int)(l[0]-radius);
 		int y = (int)(l[1]-radius);
 		g.fillOval(x, y, (int)radius*2, (int)radius*2);
@@ -72,11 +79,26 @@ public class Unit extends Circle implements Drawable, Destructable, Pathable
 	{
 		isDead = true;
 	}
-	public void update(double tdiff)
+	public void update(World w, double tdiff)
 	{
 		if(life < 0)
 		{
 			setDead();
+		}
+		if(a != null)
+		{
+			//System.out.println("performing action...");
+			if(!actionInitiated)
+			{
+				a.initiateAction(w);
+				actionInitiated = true;
+			}
+			boolean complete = a.performAction(w, tdiff);
+			if(complete)
+			{
+				a = null;
+				System.out.println("action removed");
+			}
 		}
 	}
 	public HashMap<Integer, Node> getPath()

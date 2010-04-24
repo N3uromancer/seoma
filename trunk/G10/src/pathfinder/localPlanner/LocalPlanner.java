@@ -23,14 +23,15 @@ public interface LocalPlanner
 	 * @param obstacles the base obstacles of the environement to be considered when
 	 * connecting the passed pathing nodes
 	 */
-	public void connectNodes(Set<Node> n, Graph g, PathObstacle[] obstacles);
+	public void connectNodes(Set<Node> n, Graph g, HashSet<PathObstacle> obstacles);
 	/**
 	 * moves the passed pathable object through the world
 	 * @param p the pathable object to be moved
+	 * @param target the target location the pathable object is to be moved towards
 	 * @param obstacles the path obstacles to be considered
 	 * @param tdiff
 	 */
-	public void movePathableObj(Pathable p, HashSet<PathObstacle> obstacles, double tdiff);
+	public void movePathableObj(Pathable p, double[] target, HashSet<PathObstacle> obstacles, double tdiff);
 	/**
 	 * tests to see if a connection exists between the two passed points, a connection
 	 * exists if a pathable object of the passed radius can move between the two points

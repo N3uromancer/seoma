@@ -33,8 +33,8 @@ public class World
 	
 	Pathfinder pf;
 	
-	int width = 2000; //world width
-	int height = 2000; //world height
+	int width = 1000; //world width
+	int height = 1000; //world height
 	
 	long drawTime = 0;
 	long draws = 0;
@@ -46,18 +46,19 @@ public class World
 	{
 		createWorld();
 		
+		HashSet<PathObstacle> obstacles = new HashSet<PathObstacle>();
 		double minR = 30;
 		double maxR = 80;
-		CircleTerrain[] c = new CircleTerrain[40];
-		for(int i = 0; i < c.length; i++)
+		for(int i = 0; i < 20; i++)
 		{
 			double x = Math.random()*width;
 			double y = Math.random()*height;
 			double r = Math.random()*(maxR-minR);
-			c[i] = new CircleTerrain(new double[]{x, y}, minR+r);
-			registerObject(c[i]);
+			PathObstacle temp = new CircleTerrain(new double[]{x, y}, minR+r);
+			registerObject(temp);
+			obstacles.add(temp);
 		}
-		pf = new Pathfinder(c, new double[]{7, 15}, width, height, new RandomNodeGenerator(), new DirectLocalPlanner());
+		pf = new Pathfinder(obstacles, new double[]{7}, width, height, new RandomNodeGenerator(), new DirectLocalPlanner());
 	}
 	/**
 	 * gets a reference to the pathfinder used by this world
@@ -80,6 +81,10 @@ public class World
 		{
 			listSem.put(c, new Semaphore(1, true));
 		}
+	}
+	public PartitionManager getPartition(Class<?> c)
+	{
+		return partitions.get(c);
 	}
 	/**
 	 * registers an object with the world based off the interfaces defining
@@ -170,7 +175,7 @@ public class World
 			listSem.get(Updateable.class).acquire();
 			for(Object o: lists.get(Updateable.class))
 			{
-				((Updateable)o).update(tdiff);
+				((Updateable)o).update(this, tdiff);
 				if(o instanceof Temporary)
 				{
 					if(((Temporary)o).isDead())
