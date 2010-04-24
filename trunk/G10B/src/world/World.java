@@ -49,7 +49,7 @@ public class World
 		HashSet<PathObstacle> obstacles = new HashSet<PathObstacle>();
 		double minR = 30;
 		double maxR = 80;
-		for(int i = 0; i < 2; i++)
+		for(int i = 0; i < 0; i++)
 		{
 			double x = Math.random()*width;
 			double y = Math.random()*height;
@@ -159,6 +159,7 @@ public class World
 			((Drawable)b).draw(g);
 		}
 		pf.drawPathGraph(g);
+		
 		drawTime+=System.currentTimeMillis()-start;
 		draws++;
 		//System.out.println(draws*1000./drawTime+"\t = draws/sec, "+draws+" [draws] / "+drawTime/1000.+" [time]");
@@ -175,6 +176,12 @@ public class World
 			listSem.get(Updateable.class).acquire();
 			for(Object o: lists.get(Updateable.class))
 			{
+				Boundable b = null;
+				if(o instanceof PathObstacle)
+				{
+					b = (Boundable)o;
+					partitions.get(PathObstacle.class).remove(b);
+				}
 				((Updateable)o).update(this, tdiff);
 				if(o instanceof Temporary)
 				{
@@ -182,6 +189,10 @@ public class World
 					{
 						deadObj.add(o);
 					}
+				}
+				if(b != null)
+				{
+					partitions.get(PathObstacle.class).add(b);
 				}
 			}
 			listSem.get(Updateable.class).release();

@@ -12,13 +12,22 @@ public class Starter
 	{
 		World w = new World();
 		
-		double[] s = {0, 0};
+		double[] s1 = {0, 0};
+		double[] s2 = {800, 800};
 		double width = 200;
 		double height = 200;
-		for(int i = 0; i < 30; i ++)
+		int units = 100;
+		for(int i = 0; i < units; i ++)
 		{
-			Unit u = new Unit(new double[]{s[0]+width*Math.random(), s[1]+height*Math.random()});
+			Unit u = new Unit(new double[]{s1[0]+width*Math.random(), s1[1]+height*Math.random()});
 			MoveAction move = new MoveAction(u, new double[]{900, 900});
+			u.setAction(move);
+			w.registerObject(u);
+		}
+		for(int i = 0; i < units; i ++)
+		{
+			Unit u = new Unit(new double[]{s2[0]+width*Math.random(), s2[1]+height*Math.random()});
+			MoveAction move = new MoveAction(u, new double[]{100, 100});
 			u.setAction(move);
 			w.registerObject(u);
 		}
@@ -52,9 +61,13 @@ public class Starter
 				}
 				catch(InterruptedException e){}
 			}
-			if(updates % 80 == 0)
+			if(updates % 100 == 0)
 			{
 				System.out.println(updates*1000./totalUpdateTime+"\t updates/sec");
+				
+				//to maintain a rolling average
+				updates = 0;
+				totalUpdateTime = 0;
 				
 				/*for(int i = 0; i < 30; i++)
 				{

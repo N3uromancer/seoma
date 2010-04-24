@@ -104,7 +104,7 @@ public class LocalPlannerV1 implements LocalPlanner
 			if(obstacle instanceof Pathable)
 			{
 				double[] ol = obstacle.getLocation(); //obstacle location
-				f = new double[]{(l[0]-ol[0])/distance, (l[1]-ol[1])/distance};
+				f = new double[]{(l[0]-ol[0])*2/distance, (l[1]-ol[1])*2/distance};
 				p.addForce(f);
 			}
 			else
@@ -131,71 +131,6 @@ public class LocalPlannerV1 implements LocalPlanner
 		}
 		p.setVelocity(v);
 		p.updateLocation(tdiff);
-	}
-	public void movePathableObj2(Pathable p, double[] target, HashSet<PathObstacle> obstacles, double tdiff)
-	{
-		double minDist = 30;
-		//System.out.println("local planner method called...");
-		double movement = p.getMaxSpeed()*tdiff;
-		//System.out.println("movement = "+movement);
-		//System.out.println("moving unit");
-		//System.out.println("pindex="+pindex);
-		double initialPotential = getPotential(p, p, obstacles, target, minDist);
-		//System.out.println("initial potential = "+initialPotential);
-		
-		double[] v = {target[0]-p.getLocation()[0], target[1]-p.getLocation()[1]};
-		double mag = Math.sqrt(v[0]*v[0]+v[1]*v[1]);
-		v[0]/=mag;
-		v[1]/=mag;
-		double[] newL = {p.getLocation()[0]+v[0]*movement, p.getLocation()[1]+v[1]*movement};
-		
-		Pathable temp = new StationaryPathable(newL, p.getRadius());
-		temp.setPriority(p.getPriority());
-		double potential = getPotential(temp, p, obstacles, target, minDist); //current potential
-		if(potential < initialPotential)
-		{
-			//System.out.println("moved straight line");
-			//best movement spot is straight to the node
-			p.setLocation(newL);
-		}
-		else
-		{
-			//System.out.println("attempting random configurations");
-			/*
-			 * the unit can potentially move more than once as long as the total movement
-			 * is less than the movement amount of the unit
-			 */
-			int attempts = 20;
-			double totalMovement = 0; //total amount moved
-			for(int i = 0; i < attempts && totalMovement < movement; i++)
-			{
-				//double m = movement;
-				double m = Math.random()*movement;
-				if(m+totalMovement > movement)
-				{
-					m = movement-totalMovement;
-				}
-				
-				v = MathUtil.rotateVector(Math.random()*360, v);
-				
-				newL = new double[]{p.getLocation()[0]+v[0]*m, p.getLocation()[1]+v[1]*m};
-				temp = new StationaryPathable(newL, p.getRadius());
-				temp.setPriority(p.getPriority());
-				potential = getPotential(temp, p, obstacles, target, minDist); //current potential
-				//System.out.println("potential="+p);
-				if(potential < initialPotential)
-				{
-					//System.out.println("found lower potential config!");
-					totalMovement+=m;
-					p.setLocation(newL);
-				}
-			}
-		}
-		if(potential == 0 && p.getPath() != null)
-		{
-			//p.setPathNodeIndex(p.getPathNodeIndex()+1);
-			p.getPath().incrementPathNodeIndex();
-		}
 	}
 	/**
 	 * gets the potential for a given configuration, if the configuration is intersecting

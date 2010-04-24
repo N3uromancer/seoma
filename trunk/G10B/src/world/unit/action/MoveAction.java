@@ -32,8 +32,8 @@ public final class MoveAction implements Action
 		LocalPlanner lp = pf.getLocalPlanner();
 		double[] l = p.getLocation();
 		
-		double searchWidth = 50;
-		double searchHeight = 50;
+		double searchWidth = 30;
+		double searchHeight = 30;
 		
 		HashSet<Boundable> b = w.getPartition(PathObstacle.class).intersects(l[0]-searchWidth/2, l[1]-searchHeight/2, searchWidth, searchHeight);
 		HashSet<PathObstacle> obstacles = new HashSet<PathObstacle>();
@@ -42,7 +42,7 @@ public final class MoveAction implements Action
 			obstacles.add((PathObstacle)boundable);
 		}
 		//System.out.println("obstacles = "+obstacles.size());
-		System.out.println(w.getPartition(PathObstacle.class).size());
+		//System.out.println(w.getPartition(PathObstacle.class).size());
 		lp.movePathableObj(p, target, obstacles, tdiff);
 		//System.out.println("move complete = "+(p.getPath()==null));
 		//return p.getPath()==null;
