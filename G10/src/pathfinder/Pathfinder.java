@@ -28,6 +28,7 @@ import world.modifier.Pathable;
 public final class Pathfinder
 {
 	private Graph g = new Graph();
+	private LocalPlanner lp;
 	
 	/**
 	 * creates the pathfinder and generates an intitial graph
@@ -37,11 +38,20 @@ public final class Pathfinder
 	 * @param height
 	 * @param ng the node generator to be used to create the base subset of nodes
 	 */
-	public Pathfinder(PathObstacle[] obstacles, double[] radii, double width, double height,
+	public Pathfinder(HashSet<PathObstacle> obstacles, double[] radii, double width, double height,
 			NodeGenerator ng, LocalPlanner lp)
 	{
+		this.lp = lp;
 		ng.generateNodes(g, obstacles, radii, width, height, 500);
 		lp.connectNodes(g.getNodes(), g, obstacles);
+	}
+	/**
+	 * gets a reference to the local planner to be used with the pathfinder
+	 * @return returns the local planner
+	 */
+	public LocalPlanner getLocalPlanner()
+	{
+		return lp;
 	}
 	/**
 	 * finds a path for a given set of pathable game objects to the passed target location,

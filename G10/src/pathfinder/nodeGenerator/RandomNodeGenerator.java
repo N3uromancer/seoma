@@ -1,5 +1,7 @@
 package pathfinder.nodeGenerator;
 
+import java.util.HashSet;
+
 import pathfinder.StationaryPathable;
 import pathfinder.graph.Graph;
 import pathfinder.graph.Node;
@@ -13,7 +15,7 @@ import world.modifier.Pathable;
  */
 public class RandomNodeGenerator implements NodeGenerator
 {
-	public void generateNodes(Graph g, PathObstacle[] obstacles,
+	public void generateNodes(Graph g, HashSet<PathObstacle> obstacles,
 			double[] radii, double width, double height, int nodes)
 	{
 		System.out.print("generating pathing nodes... ");
@@ -28,9 +30,13 @@ public class RandomNodeGenerator implements NodeGenerator
 				
 				
 				boolean intersects = false;
-				for(int q = 0; q < obstacles.length && !intersects; q++)
+				for(PathObstacle obstacle: obstacles)
 				{
-					intersects = obstacles[q].intersects(p, 0);
+					intersects = obstacle.intersects(p, 0);
+					if(intersects)
+					{
+						break;
+					}
 				}
 				if(!intersects)
 				{

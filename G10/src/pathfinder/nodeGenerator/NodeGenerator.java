@@ -1,5 +1,7 @@
 package pathfinder.nodeGenerator;
 
+import java.util.HashSet;
+
 import pathfinder.graph.Graph;
 import world.modifier.PathObstacle;
 
@@ -19,5 +21,5 @@ public interface NodeGenerator
 	 * @param height
 	 * @param nodes
 	 */
-	public void generateNodes(Graph g, PathObstacle[] obstacles, double[] radii, double width, double height, int nodes);
+	public void generateNodes(Graph g, HashSet<PathObstacle> obstacles, double[] radii, double width, double height, int nodes);
 }
