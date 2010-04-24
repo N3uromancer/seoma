@@ -1,0 +1,8 @@
+pathfinder improvements:
+
+-potential fields for the local planner, not simply a direct line test
+-bsp tree for determining closest nodes
+-bsp tree for determing closest pathable objects when grouping
+-path cutting/trimming to reduce extraneous nodes
+-grouping algorithm take into account distances to other objects in the group, will
+make groups more clusered/centralize, less spread out

@@ -1,0 +1,3 @@
+improvements:
+
+-binary space partition tree for closest neighbors in pathfinding
