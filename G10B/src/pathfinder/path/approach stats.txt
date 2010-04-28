@@ -1,0 +1,9 @@
+approach stats:
+
+larger groups moving to the same location need a larger radius around nodes to approach
+
+group	|	approach
+size	|	size
+----------------------
+90			140
+30			90
