@@ -74,8 +74,16 @@ public final class MathUtil
 		//double[] n = {v1[1]*v2[2]-v2[1]*v1[2], v2[0]*v1[2]-v1[0]*v2[2], v1[0]*v2[1]-v2[0]*v1[1]};
 		double[] n = {-v1[1], v1[0]};
 		double length = Math.sqrt(Math.pow(n[0], 2)+Math.pow(n[1], 2));
-		n[0]/=length;
-		n[1]/=length;
+		if(length != 0)
+		{
+			n[0]/=length;
+			n[1]/=length;
+		}
+		else
+		{
+			n[0]=0;
+			n[1]=0;
+		}
 		return n;
 	}
 }

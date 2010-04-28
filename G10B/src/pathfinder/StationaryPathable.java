@@ -1,15 +1,13 @@
 package pathfinder;
 
-import java.util.HashMap;
-
-import pathfinder.graph.Node;
+import pathfinder.path.Path;
 import world.modifier.Pathable;
 
 /**
  * defines a stationary pathable object solely for the purposes of implementing
  * various components of the pathfinder
  * 
- * the priority features
+ * only location and priority components of the pathable interface are correctly implemented
  * @author Secondary
  *
  */
@@ -24,19 +22,14 @@ public final class StationaryPathable implements Pathable
 		this.l = l;
 		this.radius = radius;
 	}
-	public HashMap<Integer, Node> getPath()
+	public Path getPath()
 	{
 		return null;
-	}
-	public int getPathNodeIndex()
-	{
-		return 0;
 	}
 	public double getRadius()
 	{
 		return radius;
 	}
-	public void setPath(HashMap<Integer, Node> path){}
 	public double getMaxSpeed()
 	{
 		return 0;
@@ -66,5 +59,13 @@ public final class StationaryPathable implements Pathable
 	{
 		this.priority = priority;
 	}
-	public void setPathNodeIndex(int index){}
+	public void addForce(double[] f){}
+	public void clearForces(){}
+	public double[] getTotalForce()
+	{
+		return null;
+	}
+	public void setPath(Path path){}
+	public void updateLocation(double tdiff){}
+	public void setVelocity(double[] v){}
 }

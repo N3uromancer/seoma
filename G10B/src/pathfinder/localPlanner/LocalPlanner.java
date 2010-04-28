@@ -5,6 +5,7 @@ import java.util.Set;
 
 import pathfinder.graph.Graph;
 import pathfinder.graph.Node;
+import pathfinder.path.ApproachType;
 import world.modifier.PathObstacle;
 import world.modifier.Pathable;
 
@@ -28,10 +29,12 @@ public interface LocalPlanner
 	 * moves the passed pathable object through the world
 	 * @param p the pathable object to be moved
 	 * @param target the target location the pathable object is to be moved towards
+	 * @param approach the approach type to be used when moving the pathable object
+	 * towards the target destination
 	 * @param obstacles the path obstacles to be considered
 	 * @param tdiff
 	 */
-	public void movePathableObj(Pathable p, double[] target, HashSet<PathObstacle> obstacles, double tdiff);
+	public void movePathableObj(Pathable p, double[] target, ApproachType approach, HashSet<PathObstacle> obstacles, double tdiff);
 	/**
 	 * tests to see if a connection exists between the two passed points, a connection
 	 * exists if a pathable object of the passed radius can move between the two points

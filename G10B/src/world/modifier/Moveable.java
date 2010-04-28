@@ -23,4 +23,9 @@ public interface Moveable extends Locateable
 	 * @param v
 	 */
 	public void setVelocity(double[] v);
+	/**
+	 * returns the maximum speed the moveable object is capable of
+	 * @return returns the max speed
+	 */
+	public double getMaxSpeed();
 }

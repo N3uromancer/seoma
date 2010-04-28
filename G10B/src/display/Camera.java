@@ -4,12 +4,14 @@ import geom.Rectangle;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.Semaphore;
 
-public final class Camera implements KeyListener
+public final class Camera implements KeyListener, MouseListener
 {
 	private double[] l; //camera location, where it is centered
 	private HashSet<Character> down = new HashSet<Character>();
@@ -106,4 +108,12 @@ public final class Camera implements KeyListener
 	{
 		return new Rectangle(l[0]-dwidth/2, -l[1]-dheight/2, dwidth*2, dheight*2);
 	}
+	public void mouseClicked(MouseEvent arg0){}
+	public void mouseEntered(MouseEvent arg0){}
+	public void mouseExited(MouseEvent arg0){}
+	public void mousePressed(MouseEvent e)
+	{
+		
+	}
+	public void mouseReleased(MouseEvent arg0){}
 }
