@@ -44,7 +44,7 @@ public final class Pathfinder
 			NodeGenerator ng, LocalPlanner lp)
 	{
 		this.lp = lp;
-		ng.generateNodes(g, obstacles, radii, width, height, 200);
+		ng.generateNodes(g, obstacles, radii, width, height, 400); //200
 		lp.connectNodes(g.getNodes(), g, obstacles);
 	}
 	/**
@@ -63,10 +63,10 @@ public final class Pathfinder
 	 */
 	public void findPath(HashSet<Pathable> p, double[] target)
 	{
-		System.out.println("finding path...");
-		System.out.println("grouping pathables...");
+		//System.out.println("finding path...");
+		//System.out.println("grouping pathables...");
 		Group[] groups = PathableGrouper.groupPathables(p, 60, 6);
-		System.out.println(groups.length+" groups created");
+		//System.out.println(groups.length+" groups created");
 		Node end = null;
 		for(Group group: groups)
 		{

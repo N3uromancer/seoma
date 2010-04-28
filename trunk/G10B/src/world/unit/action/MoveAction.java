@@ -77,7 +77,7 @@ public final class MoveAction implements Action
 	}
 	public void cancelAction()
 	{
-		System.out.println("move action canceled");
+		//System.out.println("move action canceled");
 	}
 	public void initiateAction(World w)
 	{
@@ -87,10 +87,15 @@ public final class MoveAction implements Action
 		temp.add(p);
 		pf.findPath(temp, target);
 		
-		System.out.println("path found = "+(p.getPath()!=null));
+		//System.out.println("path found = "+(p.getPath()!=null));
 		if(p.getPath()!=null)
 		{
-			System.out.println(p.getPath());
+			//System.out.println(p.getPath());
+		}
+		else
+		{
+			//System.out.println("null path, canceling move action");
+			cancelAction();
 		}
 	}
 }
