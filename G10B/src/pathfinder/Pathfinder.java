@@ -15,6 +15,7 @@ import pathfinder.group.Group;
 import pathfinder.group.PathableGrouper;
 import pathfinder.localPlanner.LocalPlanner;
 import pathfinder.nodeGenerator.NodeGenerator;
+import pathfinder.path.Path;
 import utilities.MathUtil;
 import world.modifier.PathObstacle;
 import world.modifier.Pathable;
@@ -43,7 +44,7 @@ public final class Pathfinder
 			NodeGenerator ng, LocalPlanner lp)
 	{
 		this.lp = lp;
-		ng.generateNodes(g, obstacles, radii, width, height, 0);
+		ng.generateNodes(g, obstacles, radii, width, height, 200);
 		lp.connectNodes(g.getNodes(), g, obstacles);
 	}
 	/**
@@ -62,7 +63,10 @@ public final class Pathfinder
 	 */
 	public void findPath(HashSet<Pathable> p, double[] target)
 	{
+		System.out.println("finding path...");
+		System.out.println("grouping pathables...");
 		Group[] groups = PathableGrouper.groupPathables(p, 60, 6);
+		System.out.println(groups.length+" groups created");
 		Node end = null;
 		for(Group group: groups)
 		{
@@ -97,13 +101,13 @@ public final class Pathfinder
 			{
 				Stack<Node> stackPath = findPath(start, end, g, group.getMaxRadius());
 				HashMap<Integer, Node> path = new HashMap<Integer, Node>();
-				int index = 0;
+				int index = stackPath.size()-1;
 				while(stackPath.size() > 0)
 				{
 					path.put(index, stackPath.pop());
-					index++;
+					index--;
 				}
-				group.setPath(path);
+				group.setPath(new Path(path));
 			}
 		}
 	}

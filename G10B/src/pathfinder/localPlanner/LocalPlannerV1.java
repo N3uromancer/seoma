@@ -163,7 +163,7 @@ public class LocalPlannerV1 implements LocalPlanner
 		//v[1]=f[1]-v[1];
 		if(approach == ApproachType.Arrval)
 		{
-			double approachDistance = 90; //radius around target before slowing down
+			double approachDistance = 100; //radius around target before slowing down
 			double targetDistance = MathUtil.distance(l[0], l[1], target[0], target[1]);
 			if(targetDistance < approachDistance)
 			{
@@ -172,15 +172,17 @@ public class LocalPlannerV1 implements LocalPlanner
 				v[1]*=.96;
 				
 				double newSpeed = MathUtil.magnitude(v);
-				if(targetDistance < approachDistance / 6 || newSpeed < p.getMaxSpeed()*.1)
+				if(targetDistance < approachDistance / 9 || newSpeed < p.getMaxSpeed()*.08)
 				{
 					v[0] = 0;
 					v[1] = 0;
 				}
 				else
 				{
-					v[0]*=Math.pow(targetDistance/approachDistance, .5);
-					v[1]*=Math.pow(targetDistance/approachDistance, .5);
+					v[0]*=.87;
+					v[1]*=.87;
+					//v[0]*=Math.pow(targetDistance/approachDistance, .5);
+					//v[1]*=Math.pow(targetDistance/approachDistance, .5);
 					
 					//clips the new speed to the previous velocity at max
 					/*double oldSpeed = MathUtil.magnitude(p.getVelocity());

@@ -41,7 +41,9 @@ public class Unit extends Vehicle implements Destructable
 		int x = (int)(l[0]-radius);
 		int y = (int)(l[1]-radius);
 		g.fillOval(x, y, (int)radius*2, (int)radius*2);
-		drawStats(g, .5);
+		g.setColor(Color.black);
+		g.drawOval(x, y, (int)radius*2, (int)radius*2);
+		//drawStats(g, .5);
 	}
 	public void destroy(World w)
 	{

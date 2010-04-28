@@ -1,9 +1,8 @@
 package pathfinder.group;
 
-import java.util.HashMap;
 import java.util.HashSet;
 
-import pathfinder.graph.Node;
+import pathfinder.path.Path;
 import world.modifier.Pathable;
 
 /**
@@ -51,7 +50,7 @@ public class Group
 	 * sets the path of all elements in the group to the passed path
 	 * @param path
 	 */
-	public void setPath(HashMap<Integer, Node> path)
+	public void setPath(Path path)
 	{
 		for(Pathable pathable: p)
 		{

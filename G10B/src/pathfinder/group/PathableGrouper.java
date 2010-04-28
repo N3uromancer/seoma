@@ -32,9 +32,24 @@ public class PathableGrouper
 		//stores the largest radius of any pathable in each group
 		HashMap<HashSet<Pathable>, Double> radii = new HashMap<HashSet<Pathable>, Double>();
 		
+		boolean first = true;
 		for(Pathable p: pathables)
 		{
-			if(!sorted.contains(p))
+			if(first)
+			{
+				/*HashSet<Pathable> newGroup = new HashSet<Pathable>();
+				newGroup.add(p);
+				groupMap.put(p, newGroup);
+				groups.add(newGroup);
+				sorted.add(p);
+				
+				locations.put(newGroup, p.getLocation());
+				radii.put(newGroup, p.getRadius());*/
+				
+				createNewGroup(p, groupMap, groups, locations, radii, sorted);
+				first = false;
+			}
+			else if(!sorted.contains(p))
 			{
 				for(Pathable temp: pathables)
 				{
@@ -68,14 +83,15 @@ public class PathableGrouper
 							if(!sorted.contains(p))
 							{
 								//p is not in a group, creates a group
-								HashSet<Pathable> newGroup = new HashSet<Pathable>();
+								/*HashSet<Pathable> newGroup = new HashSet<Pathable>();
 								newGroup.add(p);
 								groupMap.put(p, newGroup);
 								groups.add(newGroup);
 								sorted.add(p);
 								
 								locations.put(newGroup, p.getLocation());
-								radii.put(newGroup, p.getRadius());
+								radii.put(newGroup, p.getRadius());*/
+								createNewGroup(p, groupMap, groups, locations, radii, sorted);
 							}
 							if(groupMap.get(p).size() < maxGroupSize)
 							{
@@ -97,6 +113,26 @@ public class PathableGrouper
 			index++;
 		}
 		return g;
+	}
+	/**
+	 * creeates a new group
+	 * @param p the first pathable to be added to the new group
+	 * @param groupMap
+	 * @param groups
+	 * @param locations
+	 * @param radii
+	 * @param sorted
+	 */
+	private static void createNewGroup(Pathable p, HashMap<Pathable, HashSet<Pathable>> groupMap, ArrayList<HashSet<Pathable>> groups, HashMap<HashSet<Pathable>, double[]> locations, HashMap<HashSet<Pathable>, Double> radii, HashSet<Pathable> sorted)
+	{
+		HashSet<Pathable> newGroup = new HashSet<Pathable>();
+		newGroup.add(p);
+		groupMap.put(p, newGroup);
+		groups.add(newGroup);
+		sorted.add(p);
+		
+		locations.put(newGroup, p.getLocation());
+		radii.put(newGroup, p.getRadius());
 	}
 	/**
 	 * merges the two passed groups, the smaller group's elements are added to the larger group

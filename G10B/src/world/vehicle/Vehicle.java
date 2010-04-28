@@ -80,7 +80,6 @@ public class Vehicle extends CircleTerrain implements Pathable
 	{
 		this.f[0]+=f[0];
 		this.f[1]+=f[1];
-		clipForce();
 	}
 	private void clipForce()
 	{
@@ -98,6 +97,7 @@ public class Vehicle extends CircleTerrain implements Pathable
 	}
 	public double[] getTotalForce()
 	{
+		clipForce();
 		return f;
 	}
 	public void updateLocation(double tdiff)
