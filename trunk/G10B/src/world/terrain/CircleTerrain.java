@@ -1,6 +1,7 @@
 package world.terrain;
 
 import geom.Circle;
+import geom.LineSegment;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -42,5 +43,9 @@ public class CircleTerrain extends Circle implements Drawable, PathObstacle
 		}
 		
 		return MathUtil.distance(l[0], l[1], pl[0], pl[1])-radius-p.getRadius() < 0;
+	}
+	public boolean intersects(LineSegment ls)
+	{
+		return ls.distance(l) < radius;
 	}
 }

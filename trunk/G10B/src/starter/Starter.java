@@ -14,9 +14,12 @@ public class Starter
 		
 		double[] s1 = {0, 0};
 		double[] s2 = {800, 800};
+		double[] s3 = {800, 0};
+		double[] s4 = {0, 800};
+		
 		double width = 200;
 		double height = 200;
-		int units = 100;
+		int units = 30;
 		for(int i = 0; i < units; i ++)
 		{
 			Unit u = new Unit(new double[]{s1[0]+width*Math.random(), s1[1]+height*Math.random()});
@@ -28,6 +31,20 @@ public class Starter
 		{
 			Unit u = new Unit(new double[]{s2[0]+width*Math.random(), s2[1]+height*Math.random()});
 			MoveAction move = new MoveAction(u, new double[]{100, 100});
+			u.setAction(move);
+			w.registerObject(u);
+		}
+		for(int i = 0; i < 0; i ++)
+		{
+			Unit u = new Unit(new double[]{s3[0]+width*Math.random(), s3[1]+height*Math.random()});
+			MoveAction move = new MoveAction(u, new double[]{100, 900});
+			u.setAction(move);
+			w.registerObject(u);
+		}
+		for(int i = 0; i < 0; i ++)
+		{
+			Unit u = new Unit(new double[]{s4[0]+width*Math.random(), s4[1]+height*Math.random()});
+			MoveAction move = new MoveAction(u, new double[]{900, 100});
 			u.setAction(move);
 			w.registerObject(u);
 		}

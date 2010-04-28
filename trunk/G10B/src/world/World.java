@@ -17,6 +17,7 @@ import world.modifier.PathObstacle;
 import world.modifier.Temporary;
 import world.modifier.Updateable;
 import world.terrain.CircleTerrain;
+import world.unit.Unit;
 import display.Camera;
 
 
@@ -58,6 +59,11 @@ public class World
 			registerObject(temp);
 			obstacles.add(temp);
 		}
+		
+		/*PathObstacle temp = new CircleTerrain(new double[]{500, 500}, 70);
+		registerObject(temp);
+		obstacles.add(temp);*/
+		
 		pf = new Pathfinder(obstacles, new double[]{7}, width, height, new RandomNodeGenerator(), new LocalPlannerV1());
 	}
 	/**
@@ -177,7 +183,7 @@ public class World
 			for(Object o: lists.get(Updateable.class))
 			{
 				Boundable b = null;
-				if(o instanceof PathObstacle)
+				if(o instanceof Unit)
 				{
 					b = (Boundable)o;
 					partitions.get(PathObstacle.class).remove(b);

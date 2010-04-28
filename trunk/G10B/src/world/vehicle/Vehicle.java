@@ -1,9 +1,11 @@
 package world.vehicle;
 
+import geom.LineSegment;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import pathfinder.Path;
+import pathfinder.path.Path;
 import utilities.MathUtil;
 import world.modifier.Pathable;
 import world.terrain.CircleTerrain;
@@ -53,7 +55,11 @@ public class Vehicle extends CircleTerrain implements Pathable
 	}
 	public double[] getVelocity()
 	{
-		return v;
+		return new double[]{v[0], v[1]};
+	}
+	public double getMaxSpeed()
+	{
+		return maxSpeed;
 	}
 	public void setVelocity(double[] v)
 	{
@@ -74,12 +80,9 @@ public class Vehicle extends CircleTerrain implements Pathable
 	{
 		this.f[0]+=f[0];
 		this.f[1]+=f[1];
+		clipForce();
 	}
-	public void clearForces()
-	{
-		f = new double[]{0, 0};
-	}
-	public double[] getTotalForce()
+	private void clipForce()
 	{
 		double force = MathUtil.magnitude(f);
 		if(force > maxForce)
@@ -88,6 +91,13 @@ public class Vehicle extends CircleTerrain implements Pathable
 			f[0]*=p;
 			f[1]*=p;
 		}
+	}
+	public void clearForces()
+	{
+		f = new double[]{0, 0};
+	}
+	public double[] getTotalForce()
+	{
 		return f;
 	}
 	public void updateLocation(double tdiff)
@@ -108,5 +118,39 @@ public class Vehicle extends CircleTerrain implements Pathable
 		g.drawLine((int)l[0], (int)l[1], (int)(l[0]+f[0]*scale), (int)(l[1]+f[1]*scale));
 		g.setColor(Color.red);
 		g.drawLine((int)l[0], (int)l[1], (int)(l[0]+v[0]*scale), (int)(l[1]+v[1]*scale));
+		
+		g.setColor(Color.black);
+		double[] n = MathUtil.normal(l[0], l[1], l[0]+v[0], l[1]+v[1]);
+		double[] p1 = {l[0]+radius*n[0], l[1]+radius*n[1]};
+		double[] p2 = {p1[0]+v[0]*scale, p1[1]+v[1]*scale};
+		g.drawLine((int)p1[0], (int)p1[1], (int)p2[0], (int)p2[1]);
+		p1 = new double[]{l[0]-radius*n[0], l[1]-radius*n[1]};
+		double[] p3 = new double[]{p1[0]+v[0]*scale, p1[1]+v[1]*scale};
+		g.drawLine((int)p1[0], (int)p1[1], (int)p3[0], (int)p3[1]);
+		g.drawLine((int)p2[0], (int)p2[1], (int)p3[0], (int)p3[1]);
+	}
+	/**
+	 * generates several probes for a pathable object based on its radius, location, and current velocity
+	 * @param p
+	 * @param ftime the scale for the probes, how far in the future (in seconds) the velocity
+	 * is to be extrapolated
+	 * @return returns an array of line segments representing the probes
+	 */
+	public static LineSegment[] generateProbes(Pathable p, double ftime)
+	{
+		double[] l = p.getLocation();
+		double[] v = p.getVelocity();
+		double radius = p.getRadius();
+		
+		LineSegment[] probes = new LineSegment[3];
+		double[] n = MathUtil.normal(l[0], l[1], l[0]+v[0], l[1]+v[1]);
+		double[] p1 = {l[0]+radius*n[0], l[1]+radius*n[1]};
+		double[] p2 = {p1[0]+v[0]*ftime, p1[1]+v[1]*ftime};
+		probes[0] = new LineSegment(p1, p2);
+		p1 = new double[]{l[0]-radius*n[0], l[1]-radius*n[1]};
+		double[] p3 = new double[]{p1[0]+v[0]*ftime, p1[1]+v[1]*ftime};
+		probes[1] = new LineSegment(p1, p3);
+		probes[2] = new LineSegment(p2, p3);
+		return probes;
 	}
 }

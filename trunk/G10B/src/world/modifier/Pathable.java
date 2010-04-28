@@ -1,6 +1,6 @@
 package world.modifier;
 
-import pathfinder.Path;
+import pathfinder.path.Path;
 
 
 /**

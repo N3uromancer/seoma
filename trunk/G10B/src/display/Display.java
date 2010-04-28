@@ -36,6 +36,7 @@ public class Display
 		bs = frame.getBufferStrategy();
 		
 		frame.addKeyListener(c);
+		frame.addMouseListener(c);
 	}
 	public DisplayMode getDisplayMode()
 	{

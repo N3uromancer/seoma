@@ -23,7 +23,7 @@ public class Unit extends Vehicle implements Destructable
 	 */
 	public Unit(double[] l)
 	{
-		this(l, 7, 100, 130, 75);
+		this(l, 7, 100, 150, 10);
 	}
 	public Unit(double[] l, double radius, double maxLife, double maxSpeed, double maxForce)
 	{
@@ -41,7 +41,7 @@ public class Unit extends Vehicle implements Destructable
 		int x = (int)(l[0]-radius);
 		int y = (int)(l[1]-radius);
 		g.fillOval(x, y, (int)radius*2, (int)radius*2);
-		//drawStats(g, .4);
+		drawStats(g, .5);
 	}
 	public void destroy(World w)
 	{

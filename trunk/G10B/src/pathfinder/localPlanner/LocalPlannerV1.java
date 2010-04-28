@@ -1,5 +1,7 @@
 package pathfinder.localPlanner;
 
+import geom.LineSegment;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.PriorityQueue;
@@ -8,9 +10,11 @@ import java.util.Set;
 import pathfinder.StationaryPathable;
 import pathfinder.graph.Graph;
 import pathfinder.graph.Node;
+import pathfinder.path.ApproachType;
 import utilities.MathUtil;
 import world.modifier.PathObstacle;
 import world.modifier.Pathable;
+import world.vehicle.Vehicle;
 
 /**
  * determines local paths between pathing nodes and locations
@@ -87,9 +91,12 @@ public class LocalPlannerV1 implements LocalPlanner
 			}
 		}
 	}
-	public void movePathableObj(Pathable p, double[] target, HashSet<PathObstacle> obstacles, double tdiff)
+	public void movePathableObj(Pathable p, double[] target, ApproachType approach, HashSet<PathObstacle> obstacles, double tdiff)
 	{
 		double[] l = p.getLocation();
+		double[] v = p.getVelocity();
+		//p.clearForces();
+		
 		//double[] f = {(target[0]-l[0])*.1, (target[1]-l[1])*.1};
 		double[] f = {target[0]-l[0], target[1]-l[1]};
 		double fmag = MathUtil.magnitude(f);
@@ -97,100 +104,97 @@ public class LocalPlannerV1 implements LocalPlanner
 		f[1]*=15/fmag;
 		p.addForce(f);
 		
+		//for static obstacle collisions, constructs probes
+		double ftime = .5; //time in the furture, how far it looks ahead for the collision
+		LineSegment[] probes = Vehicle.generateProbes(p, ftime);
+		
 		//System.out.println("considered obstacles = "+obstacles.size());
 		for(PathObstacle obstacle: obstacles)
 		{
 			double distance = obstacle.getDistance(p);
 			if(obstacle instanceof Pathable)
 			{
+				if(distance == 0)
+				{
+					distance = 1;
+				}
 				double[] ol = obstacle.getLocation(); //obstacle location
-				f = new double[]{(l[0]-ol[0])*2/distance, (l[1]-ol[1])*2/distance};
+				f = MathUtil.normal(l[0], l[1], ol[0], ol[1]);
+				f[0]*=90/distance; //300
+				f[1]*=90/distance;
+				//f = new double[]{(l[0]-ol[0])*2/distance, (l[1]-ol[1])*2/distance};
 				p.addForce(f);
 			}
 			else
 			{
-				//use probes for static obstacles
-				/*double[] ol = obstacle.getLocation(); //obstacle location
-				double fx = Math.pow((l[0]-ol[0]), 1)/distance;
-				double fy = Math.pow((l[1]-ol[1]), 1)/distance;
-				f = new double[]{fx, fy};
-				p.addForce(f);*/
+				/*if(obstacle.intersects(futureP, 0))
+				{
+					f = MathUtil.normal(l[0], l[1], newL[0], newL[1]);
+					distance = obstacle.getDistance(futureP);
+					f[0] += 400/distance;
+					f[1] += 400/distance;
+					p.addForce(f);
+				}*/
+				
+				boolean intersects = false;
+				for(int i = 0; i < probes.length && !intersects; i++)
+				{
+					intersects = obstacle.intersects(probes[i]);
+				}
+				if(intersects)
+				{
+					//System.out.println("intersects in future");
+					//double[] ol = obstacle.getLocation();
+					//f = MathUtil.normal(l[0], l[1], ol[0], ol[1]);
+					f = MathUtil.normal(0, 0, v[0], v[1]);
+					f[0]*=300/distance/distance;
+					f[1]*=300/distance/distance;
+					//p.clearForces();
+					p.addForce(f);
+					//System.out.println(f[0]+", "+f[1]);
+				}
 			}
 		}
 		
-		double[] v = p.getVelocity();
 		f = p.getTotalForce();
 		v[0]+=f[0];
 		v[1]+=f[1];
-		double approachDistance = 150; //radius around target before slowing down
-		double targetDistance = MathUtil.distance(l[0], l[1], target[0], target[1]);
-		if(targetDistance < approachDistance)
+		//v[0]=f[0]-v[0];
+		//v[1]=f[1]-v[1];
+		if(approach == ApproachType.Arrval)
 		{
-			v[0]*=Math.pow(targetDistance/approachDistance, .5);
-			v[1]*=Math.pow(targetDistance/approachDistance, .5);
-		}
-		p.setVelocity(v);
-		p.updateLocation(tdiff);
-	}
-	/**
-	 * gets the potential for a given configuration, if the configuration is intersecting
-	 * either a unit or obstacle its potential is the maximum value of a double
-	 * 
-	 * potential is zero if the passed circle to be evaluated is within the minimum distance
-	 * to the target path point node
-	 * 
-	 * @param p the pathable object 
-	 * @param mover the pathable object currently being moved
-	 * @param obstacles the pathing obstacles to be considered when determining potential for a point
-	 * @param target
-	 * @param minDist the minimum distance from the pathable object to the target node before a potential
-	 * of 0 is returned
-	 * @return
-	 */
-	private double getPotential(Pathable p, Pathable mover, HashSet<PathObstacle> obstacles, double[] target, double minDist)
-	{
-		//long start = System.currentTimeMillis();
-		double potential = 0;
-		for(PathObstacle obstacle: obstacles)
-		{
-			if(obstacle != mover)
+			double approachDistance = 90; //radius around target before slowing down
+			double targetDistance = MathUtil.distance(l[0], l[1], target[0], target[1]);
+			if(targetDistance < approachDistance)
 			{
-				if(obstacle.intersects(p, 0))
+				//unit is inside approach zone
+				v[0]*=.96;
+				v[1]*=.96;
+				
+				double newSpeed = MathUtil.magnitude(v);
+				if(targetDistance < approachDistance / 6 || newSpeed < p.getMaxSpeed()*.1)
 				{
-					//System.out.println("intersects "+obstacle.getClass().getSimpleName());
-					return Double.MAX_VALUE;
-				}
-				double distance = obstacle.getDistance(p);
-				if(obstacle.getClass().isInstance(Pathable.class))
-				{
-					//another pathable object
-					Pathable unit = (Pathable)obstacle;
-					if(unit.getPriority() > p.getPriority()) //lower priority units yield to higher priority units
-					{
-						if(unit.isMoving())
-						{
-							potential+=600/distance;
-						}
-						else
-						{
-							potential+=100/distance;
-						}
-					}
+					v[0] = 0;
+					v[1] = 0;
 				}
 				else
 				{
-					//a normal path obstacle --> background terrain, etc
-					potential+=1000./distance;
+					v[0]*=Math.pow(targetDistance/approachDistance, .5);
+					v[1]*=Math.pow(targetDistance/approachDistance, .5);
+					
+					//clips the new speed to the previous velocity at max
+					/*double oldSpeed = MathUtil.magnitude(p.getVelocity());
+					if(newSpeed > oldSpeed)
+					{
+						double scalar = oldSpeed / newSpeed;
+						v[0]*=scalar;
+						v[1]*=scalar;
+					}*/
 				}
 			}
 		}
-		double distance = MathUtil.distance(target[0], target[1], p.getLocation()[0], p.getLocation()[1])-p.getRadius();
-		if(distance < minDist)
-		{
-			return 0;
-		}
-		potential+=distance*distance;
-		//System.out.println(System.currentTimeMillis()-start);
-		return potential;
+		p.setVelocity(v);
+		p.updateLocation(tdiff);
+		//System.out.println("--------------------------");
 	}
 }

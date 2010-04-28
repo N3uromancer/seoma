@@ -1,6 +1,7 @@
 package world.modifier;
 
 import geom.Boundable;
+import geom.LineSegment;
 
 /**
  * defines obstacles that prevent pathable objects from moving in certain
@@ -26,4 +27,5 @@ public interface PathObstacle extends Boundable, Locateable
 	 * @return
 	 */
 	public boolean intersects(Pathable p, double tdiff);
+	public boolean intersects(LineSegment ls);
 }
