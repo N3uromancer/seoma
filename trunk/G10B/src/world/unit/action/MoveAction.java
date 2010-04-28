@@ -30,7 +30,30 @@ public final class MoveAction implements Action
 	}
 	public boolean performAction(World w, double tdiff)
 	{
-		//System.out.println("performing move...");
+		LocalPlanner lp = pf.getLocalPlanner();
+		double[] l = p.getLocation();
+		
+		double searchWidth = 60;
+		double searchHeight = 60;
+		
+		HashSet<Boundable> b = w.getPartition(PathObstacle.class).intersects(l[0]-searchWidth/2, l[1]-searchHeight/2, searchWidth, searchHeight);
+		HashSet<PathObstacle> obstacles = new HashSet<PathObstacle>();
+		for(Boundable boundable: b)
+		{
+			obstacles.add((PathObstacle)boundable);
+		}
+		ApproachType approach = p.getPath().getPathNodeIndex()==p.getPath().getPath().keySet().size()-1? ApproachType.Arrval: ApproachType.None;
+		double[] target = p.getPath().getPath().get(p.getPath().getPathNodeIndex()).l;
+		lp.movePathableObj(p, target, approach, obstacles, tdiff);
+		
+		if(MathUtil.distance(target[0], target[1], p.getLocation()[0], p.getLocation()[1]) < 70 && approach == ApproachType.None)
+		{
+			p.getPath().incrementPathNodeIndex();
+		}
+		
+		return p.getPath() == null;
+		
+		/*//System.out.println("performing move...");
 		LocalPlanner lp = pf.getLocalPlanner();
 		double[] l = p.getLocation();
 		
@@ -50,7 +73,7 @@ public final class MoveAction implements Action
 		//return p.getPath()==null;
 		
 		//return MathUtil.distance(target[0], target[1], p.getLocation()[0], p.getLocation()[1]) < 40;
-		return false;
+		return p.getPath() == null;*/
 	}
 	public void cancelAction()
 	{
@@ -64,6 +87,10 @@ public final class MoveAction implements Action
 		temp.add(p);
 		pf.findPath(temp, target);
 		
-		//System.out.println("path found = "+(p.getPath()!=null));
+		System.out.println("path found = "+(p.getPath()!=null));
+		if(p.getPath()!=null)
+		{
+			System.out.println(p.getPath());
+		}
 	}
 }

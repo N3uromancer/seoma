@@ -19,7 +19,7 @@ public class Starter
 		
 		double width = 200;
 		double height = 200;
-		int units = 30;
+		int units = 100;
 		for(int i = 0; i < units; i ++)
 		{
 			Unit u = new Unit(new double[]{s1[0]+width*Math.random(), s1[1]+height*Math.random()});

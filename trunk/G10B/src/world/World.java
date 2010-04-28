@@ -158,13 +158,13 @@ public class World
 		
 		//p.drawPathGraph(g, 7);
 
+		pf.drawPathGraph(g);
 		g.setColor(Color.red);
 		long start = System.currentTimeMillis();
 		for(Boundable b: partitions.get(Drawable.class).intersects(c.getViewBounds()))
 		{
 			((Drawable)b).draw(g);
 		}
-		pf.drawPathGraph(g);
 		
 		drawTime+=System.currentTimeMillis()-start;
 		draws++;

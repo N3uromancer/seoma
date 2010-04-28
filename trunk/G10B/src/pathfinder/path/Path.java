@@ -40,4 +40,15 @@ public final class Path
 	{
 		index++;
 	}
+	public String toString()
+	{
+		String s = "path:\n";
+		for(int i: path.keySet())
+		{
+			double[] l = path.get(i).l;
+			s += i+": ("+l[0]+", "+l[1]+")\n";
+		}
+		s+="---------------------";
+		return s;
+	}
 }
