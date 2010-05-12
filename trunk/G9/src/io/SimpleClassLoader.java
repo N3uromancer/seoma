@@ -67,7 +67,24 @@ public class SimpleClassLoader extends ClassLoader {
 		if (c != null)
 			return c;
 		
-		/* FIXME: We probably shouldn't be using available() like this */
+		if (f.isDirectory())
+		{
+			File[] fs = f.listFiles();
+			
+			for (int i = 0; i < fs.length; i++)
+			{
+				if (getClassName(fs[i].getName()).equals(f.getName()+".class"))
+					c = loadClassFromFile(fs[i]);
+				else
+					loadClassFromFile(fs[i]);
+			}
+			
+			if (c == null)
+				System.out.println("Class folder format is invalid: The master class file is missing ("+f.getName()+".class)");
+			
+			return c;
+		}
+		
 		fileData = new byte[fIn.available()];
 		
 		fIn.read(fileData);
