@@ -1,0 +1,25 @@
+game overview:
+-gives a rough overview of how the game is structured and how various game details are implemented
+
+attacking:
+-whenever a unit attacks, an attack command is created and sent to the server (or client if the attack originated
+on the server)
+-when a client receives an attack order, it is immediately executed
+-attack orders consist of an id denoting the attack unit, and a byte denoting the direction of the attack
+-each value of a byte (0-256) is mapped to a degree value from 0-360 when determining direction
+
+TCP receiving:
+-important data that must be reliably transfered to either a client or the server is sent via TCP
+-when TCP data is received, it is read from the stream and put into a byte buffer to be processed by the operation executor
+-the id of the operation must be put at the start of the returned byte buffer after processing by a converter so that the
+operation executor knows which operation to perform
+
+UDP receiving:
+-UDP for unreliable information, such as unit stats, that gets sent out often
+-old data simply thrown out, replaced by newer data
+-byte buffers taken from received packets and sent to the operation executor for processing
+
+operation executor:
+-processes received data in another thread to allowed receiving threads to take in more data
+-reads and removes the first byte from byte buffers being proccessed, first byte always contains the operation to
+be performed on the buffer

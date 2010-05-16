@@ -1,0 +1,9 @@
+operation execution overview:
+
+-works for all data sent to the server or to the clients
+-each byte buffer can contain one or more operations
+
+-first byte of the byte buffer is read, the byte is the operation id
+-executor performs the operation specified by the operation id
+-checks after the operation is done if other operations are contained in the packet, performs those too
+-fails if it encounters an unrecognized operation

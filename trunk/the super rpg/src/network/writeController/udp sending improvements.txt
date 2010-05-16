@@ -1,0 +1,5 @@
+udp sending improvements:
+
+thread pool that writes messages
+
+auto combine messages into a single message if both are reliable or unreliable
