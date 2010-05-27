@@ -66,7 +66,7 @@ public final class Server implements Runnable
 	private void initiateServer()
 	{
 		OperationExecutor exe = new OperationExecutor();
-		exe.registerOperation(new ConnectClient());
+		exe.registerOperation(new ConnectClient(w));
 		
 		new TCPClientConnectThread(this, ss, exe);
 	}
