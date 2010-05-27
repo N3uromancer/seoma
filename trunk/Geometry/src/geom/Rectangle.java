@@ -25,10 +25,15 @@ public class Rectangle implements Boundable
 	 */
 	public Rectangle(double x, double y, double width, double height)
 	{
-		this.x = x;
+		this.x = x < x+width ? x : x+width;
+		this.y = y < y+height ? y : y+height;
+		this.width = width < 0 ? width*-1 : width;
+		this.height = height < 0 ? height*-1 : height;
+		
+		/*this.x = x;
 		this.y = y;
 		this.width = width;
-		this.height = height;
+		this.height = height;*/
 	}
 	public Rectangle(Rectangle r)
 	{
