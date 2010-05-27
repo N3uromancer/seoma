@@ -63,4 +63,8 @@ public class Circle
 	{
 		return radius;
 	}
+	public String toString()
+	{
+		return "l=("+l[0]+", "+l[1]+"), r="+radius;
+	}
 }
