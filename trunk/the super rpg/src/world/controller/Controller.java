@@ -2,46 +2,33 @@ package world.controller;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.Semaphore;
 
-import world.GameObject;
-
 /**
- * defines a controller for taking user input and controlling
- * a non-permanent game object, controllers are registered with
- * a world and updated by the world
+ * defines a controller for taking user input and controlling game object,
+ * controllers are registered and updated by the game world
  * @author Jack
  *
  */
-public class Controller implements KeyListener
+public final class Controller implements KeyListener, MouseListener
 {
-	HashSet<Character> down = new HashSet<Character>(); //keys that are currently depressed by the user
-	Semaphore downSem = new Semaphore(1, true);
-	HashMap<Character, double[]> actions = new HashMap<Character, double[]>();
-	GameObject g;
+	private HashSet<Character> down = new HashSet<Character>(); //keys that are currently depressed by the user
+	private Semaphore downSem = new Semaphore(1, true);
+	private HashMap<short[], Boolean> clicks = new HashMap<short[], Boolean>(); //true values indicate right clicks
+	private Semaphore clickSem = new Semaphore(1, true);
+	private Controllable c;
+	
 	/**
 	 * creates a new controller that is associated with the passed id
 	 * @param id
 	 */
-	public Controller(GameObject g)
+	public Controller(Controllable c)
 	{
-		if(g instanceof Permanent)
-		{
-			System.err.println("controller cannot control a permanent game object");
-			System.exit(0);
-		}
-		
-		this.g = g;
-		if(g instanceof Movable)
-		{
-			double m = ((Movable)g).getMovement();
-			actions.put('w', new double[]{0, -m});
-			actions.put('d', new double[]{m, 0});
-			actions.put('s', new double[]{0, m});
-			actions.put('a', new double[]{-m, 0});
-		}
+		this.c = c;
 	}
 	public void keyPressed(KeyEvent e)
 	{
@@ -68,7 +55,6 @@ public class Controller implements KeyListener
 	}
 	public void keyTyped(KeyEvent e)
 	{
-		//System.out.println("key typed");
 		if(e.getKeyChar() == KeyEvent.VK_ESCAPE)
 		{
 			System.exit(0);
@@ -81,32 +67,38 @@ public class Controller implements KeyListener
 	 */
 	public void updateController(double tdiff)
 	{
-		if(g instanceof Movable)
+		try
 		{
-			try
-			{
-				downSem.acquire();
-				for(Character c: down)
-				{
-					if(actions.containsKey(c))
-					{
-						double[] l = ((Movable)g).getLocation();
-						l[0]+=actions.get(c)[0]*tdiff;
-						l[1]+=actions.get(c)[1]*tdiff;
-						((Movable)g).setLocation(l);
-					}
-				}
-				downSem.release();
-			}
-			catch(InterruptedException e){}
+			downSem.acquire();
+			clickSem.acquire();
+			HashSet<Character> downTemp = new HashSet<Character>(down);
+			HashMap<short[], Boolean> clickTemp = new HashMap<short[], Boolean>();
+			downSem.release();
+			clickSem.release();
+			c.interpretUserInput(new UserInput(downTemp, clickTemp), tdiff);
 		}
+		catch(InterruptedException e){}
 	}
 	/**
 	 * gets the object controlled by this controller
-	 * @return returns the associated controlled object
+	 * @return returns the associated controllable object
 	 */
-	public GameObject getControlledObject()
+	public Controllable getControlledObject()
 	{
-		return g;
+		return c;
 	}
+	public void mousePressed(MouseEvent e)
+	{
+		try
+		{
+			clickSem.acquire();
+			clicks.put(new short[]{(short)e.getPoint().x, (short)e.getPoint().y}, e.getButton() == MouseEvent.BUTTON3);
+			clickSem.release();
+		}
+		catch(InterruptedException a){}
+	}
+	public void mouseClicked(MouseEvent arg0){}
+	public void mouseEntered(MouseEvent arg0){}
+	public void mouseExited(MouseEvent arg0){}
+	public void mouseReleased(MouseEvent arg0){}
 }

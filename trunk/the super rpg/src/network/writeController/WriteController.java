@@ -44,4 +44,12 @@ public final class WriteController
 	{
 		tcpWriter.interrupt();
 	}
+	/**
+	 * returns the number of bytes in the tcp write queue
+	 * @return returns the number of bytes in the tcp write queue
+	 */
+	public int getTCPQueueSize()
+	{
+		return tcpWriter.getQueueSize();
+	}
 }

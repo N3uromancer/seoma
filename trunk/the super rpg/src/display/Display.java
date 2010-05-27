@@ -53,6 +53,7 @@ public class Display
 		if(c != null)
 		{
 			f.addKeyListener(c);
+			f.addMouseListener(c);
 		}
 	}
 	public void drawWorld()

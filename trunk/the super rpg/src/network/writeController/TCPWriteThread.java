@@ -25,6 +25,10 @@ public final class TCPWriteThread extends Thread
 		setDaemon(true);
 		start();
 	}
+	public int getQueueSize()
+	{
+		return q.size();
+	}
 	public void run()
 	{
 		for(;;)

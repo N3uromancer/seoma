@@ -1,13 +1,6 @@
 game overview:
 -gives a rough overview of how the game is structured and how various game details are implemented
 
-attacking:
--whenever a unit attacks, an attack command is created and sent to the server (or client if the attack originated
-on the server)
--when a client receives an attack order, it is immediately executed
--attack orders consist of an id denoting the attack unit, and a byte denoting the direction of the attack
--each value of a byte (0-256) is mapped to a degree value from 0-360 when determining direction
-
 TCP receiving:
 -important data that must be reliably transfered to either a client or the server is sent via TCP
 -when TCP data is received, it is read from the stream and put into a byte buffer to be processed by the operation executor
@@ -23,3 +16,37 @@ operation executor:
 -processes received data in another thread to allowed receiving threads to take in more data
 -reads and removes the first byte from byte buffers being proccessed, first byte always contains the operation to
 be performed on the buffer
+
+world:
+-the game world is meant to work even if it has partial information concerning the game state
+-only network updateable objects can be modified through a connection
+-objects in the world are differentiated by their assigned ids
+-only the server can create game objects and assign objects ids
+-if data is received that would update the state of a non existant unit, it is stored until the world receives
+a command to make a unit (ex, udp update information may arrive before tcp create command does)
+
+network updateable objects:
+-units that can be updated by the server or the client are declared to be network updateable
+-network updateable units are only used in the world if they are declared to be ready
+-typical implementation declares ghost objects (ex. units) ready after they have ready their information from a recevied byte buffer,
+most non ghost objects are declared to be ready upon their instantiation
+
+relevant set:
+-the server maintains a relevant set of information for each client
+-the relevant set for each client differs slightly
+-relevant sets are determined by metrics such as distance and update priority for objects near a client's avatar
+-each relevant set also keeps track of information that needs to be sent to clients, such as new object spawns or destructions
+-typically, each relevant set only sends information to the client about the the region the client is currently in
+
+spawning units:
+-all units originally created on the server
+-the server assigns all unit ids, garenteeing that they are unique
+-clients only receive a unit id and a type from the server over tcp
+-the unit is actually created on the client when an update for its information (health, items, etc) is received over udp
+
+attacking:
+-whenever a unit attacks, an attack command is created and sent to the server (or client if the attack originated
+on the server)
+-when a client receives an attack order, it is immediately executed
+-attack orders consist of an id denoting the attack unit, and a byte denoting the direction of the attack
+-each value of a byte (0-256) is mapped to a degree value from 0-360 when determining direction

@@ -10,6 +10,7 @@ import network.Connection;
 import network.IOConstants;
 import network.operationExecutor.OperationExecutor;
 import network.operationExecutor.clientOperation.ControllerSetup;
+import network.receiver.tcpStreamConverter.ControllerSetupConverter;
 import network.receiver.tcpStreamConverter.TCPStreamConverter;
 import world.World;
 import display.Display;
@@ -52,10 +53,12 @@ public final class Client implements Runnable
 	 */
 	private void connectToServer()
 	{
-		TCPStreamConverter[] converters = new TCPStreamConverter[]{};
+		TCPStreamConverter[] converters = new TCPStreamConverter[]{
+				new ControllerSetupConverter()
+		};
 		c = new Connection(tcpSocket, udpSocket, IOConstants.serverPort, exe, converters);
 		
-		System.out.println("connecting...");
+		System.out.println("requesting game information...");
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		baos.write(IOConstants.connectClient);
 		c.write(baos.toByteArray(), true);

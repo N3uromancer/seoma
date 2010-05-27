@@ -37,7 +37,7 @@ public final class Connection
 		wc = new WriteController(tcpSocket, udpSocket, tcpSocket.getInetAddress(), port);
 		udpReceiver = new UDPReceiver(udpSocket, oe, this);
 		tcpReceiver = new TCPReceiver(tcpSocket, oe, converters, this);
-		System.out.println("new connection created");
+		System.out.println("new connection established");
 	}
 	/**
 	 * writes the passed byte buffer to the connection using the indicated method of data transfer
@@ -50,7 +50,7 @@ public final class Connection
 	}
 	public void closeConnection()
 	{
-		System.out.println("closing connection");
+		System.out.println("closing connection...");
 		udpReceiver.interrupt();
 		tcpReceiver.interrupt();
 		wc.interruptTCPWriteThread();
@@ -58,5 +58,13 @@ public final class Connection
 	public InetAddress getAddress()
 	{
 		return tcpSocket.getInetAddress();
+	}
+	/**
+	 * returns the number of bytes in the tcp write queue
+	 * @return returns the number of bytes in the tcp write queue
+	 */
+	public int getTCPQueueSize()
+	{
+		return wc.getTCPQueueSize();
 	}
 }
