@@ -1,0 +1,11 @@
+=lines that start with an equal sign character are not considered
+=all normal lines must start with a dash character
+=extra spacing is disregarded; as a result, unit information can span multiple lines as long
+as it begins with a dash character
+=each unit attribute should be separated by a comma character
+=DONT USE TABS IN THE UNIT STATS
+
+=name			health		movement
+-Example Unit,  9001,       176
+-Fighter,       30,         120
+-Dota Bird,     1,          205

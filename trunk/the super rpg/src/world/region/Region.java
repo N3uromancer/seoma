@@ -1,15 +1,20 @@
 package world.region;
 
+import geom.Boundable;
+import geomUtil.PartitionManager;
+
 import java.awt.Color;
 import java.awt.DisplayMode;
 import java.awt.Graphics2D;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 
 import world.World;
-import world.modifier.Updateable;
-import world.unit.Unit;
+import world.modifier.Drawable;
+import world.modifier.NetworkUpdateable;
 import display.Camera;
 
 /**
@@ -20,38 +25,78 @@ import display.Camera;
  */
 public class Region
 {
-	LinkedList<Updateable> u = new LinkedList<Updateable>();
-	Semaphore uSem = new Semaphore(1, true);
-	//LinkedList
+	LinkedList<NetworkUpdateable> u = new LinkedList<NetworkUpdateable>();
+	HashMap<Short, NetworkUpdateable> uidMap = new HashMap<Short, NetworkUpdateable>();
+	Semaphore uSem = new Semaphore(1, true); //controls access to both the linked list and the id map
+	
+	PartitionManager drawables;
+	Semaphore dSem = new Semaphore(1, true);
 	
 	public Region()
 	{
-		
+		drawables = new PartitionManager(0, 0, 1000, 1000, 20, 40, 400);
+	}
+	public byte getID()
+	{
+		return Byte.MIN_VALUE;
 	}
 	/**
 	 * registers an object with the region
-	 * @param unit
+	 * @param o
 	 */
-	public void registerObject(Unit unit)
+	public void registerObject(NetworkUpdateable o)
 	{
 		try
 		{
 			uSem.acquire();
-			u.add(unit);
+			u.add(o);
+			uSem.release();
+			if(o instanceof Drawable)
+			{
+				dSem.acquire();
+				drawables.add((Drawable)o);
+				dSem.release();
+			}
+		}
+		catch(InterruptedException e){}
+	}
+	/**
+	 * updates an object contained within this region
+	 * @param id the id of the object to be updated
+	 * @param buff the information to be loaded by the object
+	 */
+	public void updateObject(short id, byte[] buff)
+	{
+		try
+		{
+			uSem.acquire();
+			uidMap.get(id).loadState(buff);
 			uSem.release();
 		}
 		catch(InterruptedException e){}
 	}
+	/**
+	 * updates the objects contained within the region
+	 * @param w
+	 * @param tdiff
+	 */
 	public void updateRegion(World w, double tdiff)
 	{
 		try
 		{
 			uSem.acquire();
-			Iterator<Updateable> i = u.iterator();
+			Iterator<NetworkUpdateable> i = u.iterator();
 			while(i.hasNext())
 			{
-				Updateable u = i.next();
-				u.update(w, tdiff);
+				NetworkUpdateable u = i.next();
+				if(!u.isGhost())
+				{
+					u.update(w, tdiff);
+				}
+				else
+				{
+					u.simulate(w, tdiff);
+				}
 			}
 			uSem.release();
 		}
@@ -61,9 +106,16 @@ public class Region
 	{
 		g.setColor(Color.green);
 		g.fillRect(0, 0, dm.getWidth(), dm.getHeight());
-		/*for(Unit unit: u)
+		try
 		{
-			unit.draw(g);
-		}*/
+			dSem.acquire();
+			HashSet<Boundable> b = drawables.intersects(c.getViewBounds());
+			dSem.release();
+			for(Boundable temp: b)
+			{
+				((Drawable)temp).draw(g);
+			}
+		}
+		catch(InterruptedException e){}
 	}
 }
