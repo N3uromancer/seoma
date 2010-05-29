@@ -38,8 +38,15 @@ public final class RelevantSet implements SpawnListener
 	{
 		System.out.println("updating set...");
 		Region r = w.getAssociatedRegion(id);
-		if(newObjects.get(r) != null)
+		if(newObjects.get(r) != null && c.getTCPQueueSize() < 20)
 		{
+			/*
+			 * there should be something to watch the tcp queue size, if it
+			 * is allowed to grow to big, useless information may be queued in
+			 * front of more recent, pertinant information, a method should be
+			 * devised to determine the rate at which the queue is growing or
+			 * shrinking so that the max size can be adjusted dynamically
+			 */
 			System.out.println("client region contains new objects, sending spawn orders to client");
 			ArrayList<NetworkUpdateable> temp = new ArrayList<NetworkUpdateable>();
 			try
@@ -50,13 +57,6 @@ public final class RelevantSet implements SpawnListener
 				newObjSem.release();
 			}
 			catch(InterruptedException e){}
-			/*
-			 * there should be something to watch the tcp queue size, if it
-			 * is allowed to grow to big, useless information may be queued in
-			 * front of more recent, pertinant information, a method should be
-			 * devised to determine the rate at which the queue is growing or
-			 * shrinking so that the max size can be adjusted dynamically
-			 */
 			
 		}
 	}
