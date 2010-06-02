@@ -36,6 +36,20 @@ public class Region
 	{
 		drawables = new PartitionManager(0, 0, 1000, 1000, 20, 40, 400);
 	}
+	/**
+	 * gets the network objects associated with this region, this method should
+	 * always be used in conjunction with the get network object semaphore method
+	 * to ensure no concurrency problems
+	 * @return returns a list of network updateable object registered with this region
+	 */
+	public LinkedList<NetworkUpdateable> getNetworkObjects()
+	{
+		return u;
+	}
+	public Semaphore getSemaphore()
+	{
+		return uSem;
+	}
 	public byte getID()
 	{
 		return Byte.MIN_VALUE;

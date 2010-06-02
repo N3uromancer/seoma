@@ -2,9 +2,11 @@ package world;
 
 import java.awt.DisplayMode;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
 
+import network.Connection;
 import world.controller.Controller;
 import world.modifier.NetworkUpdateable;
 import world.region.Region;
@@ -29,6 +31,9 @@ public final class World
 	
 	private HashMap<Short, NetworkUpdateable> waiting = new HashMap<Short, NetworkUpdateable>(); //contains objects that are waiting for their data
 	private Semaphore waitingSem = new Semaphore(1, true);
+	
+	private ArrayList<RelevantSet> relevantSets = new ArrayList<RelevantSet>();
+	private Semaphore relSetSem = new Semaphore(1, true);
 	
 	public World()
 	{
@@ -145,6 +150,16 @@ public final class World
 		{
 			c.updateController(tdiff);
 		}
+		try
+		{
+			relSetSem.acquire();
+			for(RelevantSet r: relevantSets)
+			{
+				r.updateRelevantSet(this);
+			}
+			relSetSem.release();
+		}
+		catch(InterruptedException e){}
 	}
 	/**
 	 * generates an unused id for a game object
@@ -164,5 +179,20 @@ public final class World
 		this.c = c;
 		camera = new Camera(new double[]{0, 0}, dm.getWidth(), dm.getHeight());
 		System.out.println("controller registered with world, new camera created");
+	}
+	/**
+	 * registers a relevant set to be maintained by the world
+	 * @param id the id of the object for which the set is to be maintained
+	 * @param c the connection that the set is to write its udpate messages to
+	 */
+	public void registerRelevantSet(short id, Connection c)
+	{
+		try
+		{
+			relSetSem.acquire();
+			relevantSets.add(new RelevantSet(id, c));
+			relSetSem.release();
+		}
+		catch(InterruptedException e){}
 	}
 }
