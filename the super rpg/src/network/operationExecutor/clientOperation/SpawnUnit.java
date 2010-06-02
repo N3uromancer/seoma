@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 import network.Connection;
 import network.IOConstants;
@@ -44,7 +44,7 @@ public final class SpawnUnit extends Operation
 			w.registerObject(regionID, u);
 		}
 	}
-	public byte[] createByteBuffer(LinkedList<NetworkUpdateable> u, World w)
+	public static byte[] createByteBuffer(ArrayList<NetworkUpdateable> u, World w)
 	{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(baos);
