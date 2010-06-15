@@ -52,6 +52,7 @@ public class Display
 		
 		if(c != null)
 		{
+			System.out.println("input listeners added to the controller");
 			f.addKeyListener(c);
 			f.addMouseListener(c);
 		}

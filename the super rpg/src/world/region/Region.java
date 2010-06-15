@@ -26,7 +26,8 @@ import display.Camera;
 public class Region
 {
 	LinkedList<NetworkUpdateable> u = new LinkedList<NetworkUpdateable>();
-	HashMap<Short, NetworkUpdateable> uidMap = new HashMap<Short, NetworkUpdateable>();
+	HashMap<Short, NetworkUpdateable> uidMap = new HashMap<Short, NetworkUpdateable>(); //updateable id map
+	HashSet<NetworkUpdateable> drawRemove = new HashSet<NetworkUpdateable>(); //contains ids of objects that are dead and need to be removed from the draw partition
 	Semaphore uSem = new Semaphore(1, true); //controls access to both the linked list and the id map
 	
 	PartitionManager drawables;
@@ -38,7 +39,7 @@ public class Region
 	}
 	/**
 	 * gets the network objects associated with this region, this method should
-	 * always be used in conjunction with the get network object semaphore method
+	 * always be used in conjunction with the get region semaphore method
 	 * to ensure no concurrency problems
 	 * @return returns a list of network updateable object registered with this region
 	 */
@@ -50,7 +51,7 @@ public class Region
 	{
 		return uSem;
 	}
-	public byte getID()
+	public byte getRegionID()
 	{
 		return Byte.MIN_VALUE;
 	}
@@ -64,6 +65,7 @@ public class Region
 		{
 			uSem.acquire();
 			u.add(o);
+			uidMap.put(o.getID(), o);
 			uSem.release();
 			if(o instanceof Drawable)
 			{
@@ -90,12 +92,23 @@ public class Region
 		catch(InterruptedException e){}
 	}
 	/**
+	 * gets a single network object from the region, this method should be used in conjunction
+	 * to the get region semaphore method in order to assure no concurrency problems
+	 * @param id the id of the network object to retrieve
+	 * @return
+	 */
+	public NetworkUpdateable getNetworkObject(short id)
+	{
+		return uidMap.get(id);
+	}
+	/**
 	 * updates the objects contained within the region
 	 * @param w
 	 * @param tdiff
 	 */
 	public void updateRegion(World w, double tdiff)
 	{
+		HashSet<NetworkUpdateable> destroy = new HashSet<NetworkUpdateable>(); //objects to be destroyed
 		try
 		{
 			uSem.acquire();
@@ -103,18 +116,39 @@ public class Region
 			while(i.hasNext())
 			{
 				NetworkUpdateable u = i.next();
-				if(!u.isGhost())
+				if(!u.isDead())
 				{
-					u.update(w, tdiff);
+					if(!u.isGhost())
+					{
+						u.update(w, tdiff);
+					}
+					else
+					{
+						u.simulate(w, tdiff);
+					}
 				}
 				else
 				{
-					u.simulate(w, tdiff);
+					destroy.add(u);
+					i.remove();
 				}
 			}
 			uSem.release();
 		}
 		catch(InterruptedException e){}
+		if(destroy.size() > 0)
+		{
+			//destroyed objects removed after update to avoid deadlocking when calling the world destroy method
+			for(NetworkUpdateable u: destroy)
+			{
+				w.destroyObject(u.getID());
+				if(u instanceof Drawable)
+				{
+					drawRemove.add(u);
+				}
+				uidMap.remove(u.getID());
+			}
+		}
 	}
 	public void drawRegion(Graphics2D g, DisplayMode dm, Camera c)
 	{
@@ -122,7 +156,25 @@ public class Region
 		g.fillRect(0, 0, dm.getWidth(), dm.getHeight());
 		try
 		{
+			HashSet<NetworkUpdateable> remove = null;
+			if(drawRemove.size() > 0)
+			{
+				//checking the size in the line above might not be thread safe
+				remove = new HashSet<NetworkUpdateable>();
+				uSem.acquire();
+				remove.addAll(drawRemove);
+				drawRemove = new HashSet<NetworkUpdateable>();
+				uSem.release();
+			}
+			
 			dSem.acquire();
+			if(remove != null)
+			{
+				for(NetworkUpdateable n: remove)
+				{
+					drawables.remove((Boundable)n);
+				}
+			}
 			HashSet<Boundable> b = drawables.intersects(c.getViewBounds());
 			dSem.release();
 			for(Boundable temp: b)

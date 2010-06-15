@@ -21,6 +21,7 @@ public final class TCPClientConnectThread extends Thread
 	private Server s;
 	private ServerSocket ss;
 	private OperationExecutor oe;
+	private DatagramSocket ds;
 	
 	/**
 	 * creates a new connect thread to connect clients to the server
@@ -32,6 +33,12 @@ public final class TCPClientConnectThread extends Thread
 		this.s = s;
 		this.ss = ss;
 		this.oe = oe;
+		
+		try
+		{
+			ds = new DatagramSocket(IOConstants.serverPort);
+		}
+		catch(IOException e){}
 
 		setDaemon(true);
 		start();
@@ -47,7 +54,8 @@ public final class TCPClientConnectThread extends Thread
 				TCPStreamConverter[] converters = new TCPStreamConverter[]{
 						new ConnectClientConverter()
 				};
-				Connection c = new Connection(socket, new DatagramSocket(IOConstants.serverPort), IOConstants.clientPort, oe, converters);
+				System.out.println("tcp stream converters created");
+				Connection c = new Connection(socket, ds, IOConstants.clientPort, oe, converters);
 				s.addConnection(c);
 			}
 			catch(IOException e){}

@@ -13,6 +13,7 @@ import network.IOConstants;
 import network.operationExecutor.OperationExecutor;
 import network.operationExecutor.serverOperation.ConnectClient;
 import world.World;
+import world.unit.Unit;
 
 /**
  * represents the game server, runs a "true" copy of the game
@@ -73,6 +74,12 @@ public final class Server implements Runnable
 	public void run()
 	{
 		w = new World();
+		for(int i = 0; i < 3; i++)
+		{
+			Unit u = new Unit(false, w.generateNewID(), (byte)5, new double[]{Math.random()*400, Math.random()*400}, (short)15);
+			w.registerObject(Byte.MIN_VALUE, u);
+		}
+		
 		initiateServer();
 		
 		long sleepTime = 30;
@@ -101,7 +108,7 @@ public final class Server implements Runnable
 			if(updates % 1000 == 0)
 			{
 				//exe.printExecutionTimes();
-				System.out.println("---------------------------------");
+				//System.out.println("---------------------------------");
 			}
 		}
 	}

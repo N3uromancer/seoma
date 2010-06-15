@@ -1,0 +1,11 @@
+the following things listed are needed for the game to be ready for play testing, they are in listed
+in the order that they should be completed
+
+unit loading
+multiple units on server
+unit death
+check support for multiple clients
+
+design game world
+item loading
+using items, attacking, etc

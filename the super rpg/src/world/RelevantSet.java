@@ -11,8 +11,9 @@ import java.util.PriorityQueue;
 import java.util.concurrent.Semaphore;
 
 import network.Connection;
+import network.IOConstants;
+import network.operationExecutor.clientOperation.DestroyObject;
 import network.operationExecutor.clientOperation.SpawnUnit;
-import world.listener.SpawnListener;
 import world.modifier.NetworkUpdateable;
 import world.region.Region;
 
@@ -25,10 +26,20 @@ import world.region.Region;
  * @author Jack
  *
  */
-public final class RelevantSet implements SpawnListener
+public final class RelevantSet
 {
-	private HashMap<Region, HashSet<NetworkUpdateable>> newObjects = new HashMap<Region, HashSet<NetworkUpdateable>>();
+	/**
+	 * contains newly created objects whose spawn orders must be sent to the associated client
+	 */
+	private HashSet<NetworkUpdateable> newObjects = new HashSet<NetworkUpdateable>();
 	private Semaphore newObjSem = new Semaphore(1, true);
+	
+	/**
+	 * contains objects that have been destroyed on the server and have been created on the client,
+	 * the client must be informed that the objects have been destroyed to maintain an accurate world state
+	 */
+	private ArrayList<NetworkUpdateable> destroyedObj = new ArrayList<NetworkUpdateable>();
+	private Semaphore destObjSem = new Semaphore(1, true);
 
 	/**
 	 * maintains a mapping of objects to their update priorities, the map only contains objects that are
@@ -52,6 +63,7 @@ public final class RelevantSet implements SpawnListener
 	{
 		this.id = id;
 		this.c = c;
+		System.out.println("relevent set created for id="+id+", connection="+c);
 	}
 	/**
 	 * updates the relevant set and sends the update information
@@ -62,7 +74,21 @@ public final class RelevantSet implements SpawnListener
 	{
 		//System.out.println("updating set...");
 		Region r = w.getAssociatedRegion(id);
-		if(newObjects.get(r) != null && c.getTCPQueueSize() < 20)
+		if(destroyedObj.size() > 0 && c.getTCPQueueSize() < 20)
+		{
+			ArrayList<NetworkUpdateable> temp = new ArrayList<NetworkUpdateable>();
+			try
+			{
+				destObjSem.acquire();
+				temp.addAll(destroyedObj);
+				destroyedObj = new ArrayList<NetworkUpdateable>();
+				destObjSem.release();
+			}
+			catch(InterruptedException e){}
+			byte[] b = DestroyObject.createByteBuffer(temp, w);
+			c.write(b, true);
+		}
+		if(newObjects.size() > 0 && c.getTCPQueueSize() < 20)
 		{
 			//there are spawn orders that need to be sent for the region
 			/*
@@ -73,13 +99,13 @@ public final class RelevantSet implements SpawnListener
 			 * shrinking so that the max size can be adjusted dynamically to
 			 * maximize throughput
 			 */
-			System.out.println("client region contains new objects, sending spawn orders to client");
+			System.out.println("rSet for id="+id+" detected relevant new objects, sending spawn orders to client");
 			ArrayList<NetworkUpdateable> temp = new ArrayList<NetworkUpdateable>();
 			try
 			{
 				newObjSem.acquire();
-				temp.addAll(newObjects.get(r));
-				newObjects.remove(r);
+				temp.addAll(newObjects);
+				newObjects = new HashSet<NetworkUpdateable>();
 				newObjSem.release();
 			}
 			catch(InterruptedException e){}
@@ -93,13 +119,20 @@ public final class RelevantSet implements SpawnListener
 			r.getSemaphore().acquire();
 			for(NetworkUpdateable u: r.getNetworkObjects())
 			{
-				pSem.acquire();
-				if(priorities.get(u) == null)
+				if(u.getID() != id && !u.isDead())
 				{
-					priorities.put(u, u.getUpdatePriority());
+					pSem.acquire();
+					if(priorities.get(u) == null)
+					{
+						//detected a new object, adds the object to priority map and new object list
+						priorities.put(u, u.getUpdatePriority());
+						newObjSem.acquire();
+						newObjects.add(u);
+						newObjSem.release();
+					}
+					priorities.put(u, priorities.get(u)+u.getUpdatePriority());
+					pSem.release();
 				}
-				priorities.put(u, priorities.get(u)+u.getUpdatePriority());
-				pSem.release();
 			}
 			r.getSemaphore().release();
 		}
@@ -136,55 +169,65 @@ public final class RelevantSet implements SpawnListener
 					return 0;
 				}
 			};
-			PriorityQueue<NetworkUpdateable> q = new PriorityQueue<NetworkUpdateable>(priorities.size(), c);
+			int size = priorities.size() == 0? 1: priorities.size();
+			PriorityQueue<NetworkUpdateable> q = new PriorityQueue<NetworkUpdateable>(size, c);
 			q.addAll(priorities.keySet());
 			pSem.release();
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			DataOutputStream dos = new DataOutputStream(baos);
+			dos.write(IOConstants.updateNetworkObjects);
 			dos.writeShort(updateIndex);
 			updateIndex++;
-			while(baos.size() < maxSize && q.size() > 0)
+			
+			//System.out.println("========== update packet ==========");
+			ByteArrayOutputStream netObjData = new ByteArrayOutputStream();
+			DataOutputStream dos2 = new DataOutputStream(netObjData);
+			byte length = Byte.MIN_VALUE;
+			while(netObjData.size() < maxSize && q.size() > 0 && length < Byte.MAX_VALUE)
 			{
-				byte[] buff = q.poll().getState();
-				if(baos.size()+buff.length <= maxSize)
+				length++;
+				NetworkUpdateable n = q.poll();
+				byte[] buff = n.getState();
+				if(netObjData.size()+buff.length+3 <= maxSize)
 				{
-					baos.write(buff);
+					dos2.writeShort(n.getID());
+					//System.out.println("id="+n.getID()+", "+n.getClass().getSimpleName());
+					netObjData.write(buff.length-128);
+					netObjData.write(buff);
 				}
 			}
+			dos.write(length);
+			dos.write(netObjData.toByteArray());
 			return baos.toByteArray();
 		}
 		catch(InterruptedException e){}
 		catch(IOException e){}
 		return null;
 	}
-	public void objectSpawned(NetworkUpdateable o, Region r)
+	/**
+	 * called to notify the relevant set that an object has been destroyed, removes
+	 * the object from the set priority map and cancels the object's spawn order if
+	 * it has not already been sent, notifies the associated client, the client must
+	 * be notified so that it can clear any outstanding data received regarding the
+	 * object
+	 * @param o
+	 */
+	public void destroyObject(NetworkUpdateable o)
 	{
 		try
 		{
-			newObjSem.acquire();
-			if(newObjects.get(r) == null)
-			{
-				newObjects.put(r, new HashSet<NetworkUpdateable>());
-			}
-			newObjects.get(r).add(o);
-			newObjSem.release();
-		}
-		catch(InterruptedException e){}
-	}
-	public void objectDestroyed(NetworkUpdateable o, Region r)
-	{
-		try
-		{
-			newObjSem.acquire();
-			if(newObjects.get(r) != null)
-			{
-				newObjects.get(r).remove(o);
-			}
-			newObjSem.release();
+			destObjSem.acquire();
+			destroyedObj.add(o);
+			destObjSem.release();
 			
-			//network updateable is removed from the update map if necesary
+			//semaphores must be acquired in this order to prevent deadlocking with udpateSet... method
 			pSem.acquire();
+			newObjSem.acquire();
+			
 			priorities.remove(o);
+			newObjects.remove(o);
+			
+			newObjSem.release();
 			pSem.release();
 		}
 		catch(InterruptedException e){}

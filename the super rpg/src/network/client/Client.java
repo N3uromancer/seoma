@@ -10,7 +10,12 @@ import network.Connection;
 import network.IOConstants;
 import network.operationExecutor.OperationExecutor;
 import network.operationExecutor.clientOperation.ControllerSetup;
+import network.operationExecutor.clientOperation.DestroyObject;
+import network.operationExecutor.clientOperation.SpawnUnit;
+import network.operationExecutor.clientOperation.UpdateNetworkObjects;
 import network.receiver.tcpStreamConverter.ControllerSetupConverter;
+import network.receiver.tcpStreamConverter.DestroyObjectConverter;
+import network.receiver.tcpStreamConverter.SpawnUnitConverter;
 import network.receiver.tcpStreamConverter.TCPStreamConverter;
 import world.World;
 import display.Display;
@@ -43,6 +48,9 @@ public final class Client implements Runnable
 		
 		exe = new OperationExecutor();
 		exe.registerOperation(new ControllerSetup(w, this));
+		exe.registerOperation(new UpdateNetworkObjects(w));
+		exe.registerOperation(new SpawnUnit(w));
+		exe.registerOperation(new DestroyObject(w));
 		System.out.println("operation executor created");
 		
 		
@@ -54,7 +62,7 @@ public final class Client implements Runnable
 	private void connectToServer()
 	{
 		TCPStreamConverter[] converters = new TCPStreamConverter[]{
-				new ControllerSetupConverter()
+				new ControllerSetupConverter(), new SpawnUnitConverter(), new DestroyObjectConverter()
 		};
 		c = new Connection(tcpSocket, udpSocket, IOConstants.serverPort, exe, converters);
 		
@@ -76,7 +84,7 @@ public final class Client implements Runnable
 	{
 		System.out.println("initiating client main loop...");
 		
-		Display display = new Display(w, null);
+		Display display = new Display(w, w.getController());
 		long sleepTime = 30;
 		long start = System.currentTimeMillis();
 		long updates = 0;
@@ -102,8 +110,8 @@ public final class Client implements Runnable
 			updates++;
 			if(updates % 200 == 0)
 			{
-				exe.printExecutionTimes();
-				System.out.println("-----------------------------");
+				//exe.printExecutionTimes();
+				//System.out.println("-----------------------------");
 			}
 		}
 	}
@@ -111,7 +119,9 @@ public final class Client implements Runnable
 	{
 		try
 		{
-			new Client(true, InetAddress.getLocalHost());
+			//System.out.println(InetAddress.getLocalHost());
+			//System.out.println(InetAddress.getByName("QAYPN2"));
+			new Client(true, InetAddress.getByName("QAYPN2"));
 		}
 		catch(IOException e)
 		{

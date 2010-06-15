@@ -22,7 +22,7 @@ public class IOConstants
 	public static final byte updateWorld = 1;
 	public static final byte connectClient = 2;
 	public static final byte controllerSetup = 3;
-	public static final byte updateObject = 4;
+	public static final byte updateNetworkObjects = 4;
 	public static final byte unitAttack = 5;
 	
 	/*

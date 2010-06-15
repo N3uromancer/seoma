@@ -33,6 +33,7 @@ public final class Connection
 	 */
 	public Connection(Socket tcpSocket, DatagramSocket udpSocket, int port, OperationExecutor oe, TCPStreamConverter[] converters)
 	{
+		System.out.println("creating connection...");
 		this.tcpSocket = tcpSocket;
 		wc = new WriteController(tcpSocket, udpSocket, tcpSocket.getInetAddress(), port);
 		udpReceiver = new UDPReceiver(udpSocket, oe, this);
@@ -66,5 +67,9 @@ public final class Connection
 	public int getTCPQueueSize()
 	{
 		return wc.getTCPQueueSize();
+	}
+	public String toString()
+	{
+		return "[port="+tcpSocket.getPort()+"]";
 	}
 }
