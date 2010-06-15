@@ -7,6 +7,13 @@ import network.IOConstants;
 import network.operationExecutor.Operation;
 import world.World;
 
+/**
+ * used to update network objects, does most of its work when clients
+ * receive updates from the server although also used to update client
+ * avatars on the server
+ * @author Jack
+ *
+ */
 public final class UpdateNetworkObjects extends Operation
 {
 	private World w;
@@ -25,11 +32,13 @@ public final class UpdateNetworkObjects extends Operation
 			//System.out.println("======== updating network objects ========");
 			updateIndex = index;
 			byte length = buff.get();
+			//System.out.println("objects to udpate = "+(length+128));
 			for(int i = Byte.MIN_VALUE; i < length; i++)
 			{
 				short id = buff.getShort();
 				//System.out.println("id="+id+" updated");
 				byte dataLength = (byte)(buff.get()+128);
+				//System.out.println("data length = "+dataLength);
 				byte[] data = new byte[dataLength];
 				for(int a = 0; a < dataLength; a++)
 				{

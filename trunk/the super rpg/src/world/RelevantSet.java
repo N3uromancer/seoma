@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.concurrent.Semaphore;
 
@@ -38,7 +40,7 @@ public final class RelevantSet
 	 * contains objects that have been destroyed on the server and have been created on the client,
 	 * the client must be informed that the objects have been destroyed to maintain an accurate world state
 	 */
-	private ArrayList<NetworkUpdateable> destroyedObj = new ArrayList<NetworkUpdateable>();
+	private LinkedList<NetworkUpdateable> destroyedObj = new LinkedList<NetworkUpdateable>();
 	private Semaphore destObjSem = new Semaphore(1, true);
 
 	/**
@@ -80,8 +82,14 @@ public final class RelevantSet
 			try
 			{
 				destObjSem.acquire();
-				temp.addAll(destroyedObj);
-				destroyedObj = new ArrayList<NetworkUpdateable>();
+				//temp.addAll(destroyedObj);
+				//destroyedObj = new ArrayList<NetworkUpdateable>();
+				Iterator<NetworkUpdateable> it = destroyedObj.iterator();
+				for(int i = 0; i < 256 && destroyedObj.size() > 0; i++) //for loop to cap destroy orders at 256
+				{
+					temp.add(it.next());
+					it.remove();
+				}
 				destObjSem.release();
 			}
 			catch(InterruptedException e){}
@@ -104,8 +112,14 @@ public final class RelevantSet
 			try
 			{
 				newObjSem.acquire();
-				temp.addAll(newObjects);
-				newObjects = new HashSet<NetworkUpdateable>();
+				//temp.addAll(newObjects);
+				//newObjects = new HashSet<NetworkUpdateable>();
+				Iterator<NetworkUpdateable> it = newObjects.iterator();
+				for(int i = 0; i < 256 && newObjects.size() > 0; i++) //for loop to cap spawn orders at 256
+				{
+					temp.add(it.next());
+					it.remove();
+				}
 				newObjSem.release();
 			}
 			catch(InterruptedException e){}
@@ -185,11 +199,11 @@ public final class RelevantSet
 			byte length = Byte.MIN_VALUE;
 			while(netObjData.size() < maxSize && q.size() > 0 && length < Byte.MAX_VALUE)
 			{
-				length++;
 				NetworkUpdateable n = q.poll();
 				byte[] buff = n.getState();
 				if(netObjData.size()+buff.length+3 <= maxSize)
 				{
+					length++;
 					dos2.writeShort(n.getID());
 					//System.out.println("id="+n.getID()+", "+n.getClass().getSimpleName());
 					netObjData.write(buff.length-128);

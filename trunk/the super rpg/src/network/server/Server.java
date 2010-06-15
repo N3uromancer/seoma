@@ -11,6 +11,7 @@ import javax.swing.JLabel;
 import network.Connection;
 import network.IOConstants;
 import network.operationExecutor.OperationExecutor;
+import network.operationExecutor.clientOperation.UpdateNetworkObjects;
 import network.operationExecutor.serverOperation.ConnectClient;
 import world.World;
 import world.unit.Unit;
@@ -68,13 +69,14 @@ public final class Server implements Runnable
 	{
 		OperationExecutor exe = new OperationExecutor();
 		exe.registerOperation(new ConnectClient(w));
+		exe.registerOperation(new UpdateNetworkObjects(w));
 		
 		new TCPClientConnectThread(this, ss, exe);
 	}
 	public void run()
 	{
 		w = new World();
-		for(int i = 0; i < 3; i++)
+		for(int i = 0; i < 30; i++)
 		{
 			Unit u = new Unit(false, w.generateNewID(), (byte)5, new double[]{Math.random()*400, Math.random()*400}, (short)15);
 			w.registerObject(Byte.MIN_VALUE, u);

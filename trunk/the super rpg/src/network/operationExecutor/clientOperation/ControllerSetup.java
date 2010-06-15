@@ -38,6 +38,6 @@ public class ControllerSetup extends Operation
 		Controller controller = new Controller(a);
 		System.out.println("client controller set, avatar id = "+id);
 		w.setController(controller);
-		client.connected();
+		client.connected(a);
 	}
 }
