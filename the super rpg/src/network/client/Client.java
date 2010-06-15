@@ -1,6 +1,7 @@
 package network.client;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -18,6 +19,7 @@ import network.receiver.tcpStreamConverter.DestroyObjectConverter;
 import network.receiver.tcpStreamConverter.SpawnUnitConverter;
 import network.receiver.tcpStreamConverter.TCPStreamConverter;
 import world.World;
+import world.unit.Avatar;
 import display.Display;
 
 public final class Client implements Runnable
@@ -28,6 +30,7 @@ public final class Client implements Runnable
 	private World w;
 	private Connection c;
 	private OperationExecutor exe;
+	private Avatar a; //the client's avatar in the game world
 	
 	/**
 	 * creates a new client
@@ -75,14 +78,16 @@ public final class Client implements Runnable
 	 * called by the operation executor after the client connects to the server,
 	 * starts the main game update thread
 	 */
-	public void connected()
+	public void connected(Avatar a)
 	{
 		System.out.println("client connected!");
+		this.a = a;
 		new Thread(this).start();
 	}
 	public void run()
 	{
 		System.out.println("initiating client main loop...");
+		short avatarUpdateIndex = Short.MIN_VALUE;
 		
 		Display display = new Display(w, w.getController());
 		long sleepTime = 30;
@@ -113,7 +118,31 @@ public final class Client implements Runnable
 				//exe.printExecutionTimes();
 				//System.out.println("-----------------------------");
 			}
+			
+			updateAvatar(avatarUpdateIndex);
+			avatarUpdateIndex++;
 		}
+	}
+	/**
+	 * updates the avatar on the server
+	 */
+	private void updateAvatar(short updateIndex)
+	{
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		DataOutputStream dos = new DataOutputStream(baos);
+		try
+		{
+			dos.write(IOConstants.updateNetworkObjects);
+			dos.writeShort(updateIndex);
+			dos.writeByte(Byte.MIN_VALUE+1);
+			
+			dos.writeShort(a.getID());
+			byte[] buff = a.getState();
+			dos.write(buff.length-128);
+			dos.write(buff);
+		}
+		catch(IOException e){}
+		c.write(baos.toByteArray(), false);
 	}
 	public static void main(String[] args)
 	{
