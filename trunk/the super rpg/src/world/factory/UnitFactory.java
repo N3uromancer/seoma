@@ -5,22 +5,31 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import world.unit.Avatar;
 import world.unit.Unit;
 
 public class UnitFactory
 {
-	public Unit createUnit(byte type, short id)
+	public Unit createUnit(boolean isGhost, byte type, short id)
 	{
 		/*
 		 * temporary method filler here, this method should create the unit
 		 * specified by the byte type loaded from the unit file
 		 */
-		Unit u = new Unit(true);
-		u.setID(id);
+		Unit u = null;
+		if(type == 2)
+		{
+			u = new Avatar(isGhost, id);
+		}
+		else
+		{
+			u = new Unit(isGhost, id, type, (short)10);
+		}
 		return u;
 	}
 	public UnitFactory(String unitStats)
 	{
+		System.out.println("loading unit file...");
 		File f = new File(unitStats);
 		ArrayList<String> lines = new ArrayList<String>();
 		try

@@ -7,6 +7,7 @@ import network.IOConstants;
 import network.client.Client;
 import network.operationExecutor.Operation;
 import world.World;
+import world.controller.Controller;
 import world.unit.Avatar;
 
 /**
@@ -29,16 +30,14 @@ public class ControllerSetup extends Operation
 	public void performOperation(ByteBuffer buff, Connection c)
 	{
 		short id = buff.getShort();
-		Avatar a = new Avatar(true);
+		short x = buff.getShort();
+		short y = buff.getShort();
 		
-		
+		Avatar a = new Avatar(false, id, new double[]{x, y});
+		w.registerObject(Byte.MIN_VALUE, a);
+		Controller controller = new Controller(a);
 		System.out.println("client controller set, avatar id = "+id);
-		/*Avatar a = new Avatar(false, new double[]{50, 50});
-		a.readState(buff);
-		w.registerObject((GameObject)a, id, (byte)0);
-		
-		Controller c = new Controller(w.getObject(id));
-		w.setController(c);*/
+		w.setController(controller);
 		client.connected();
 	}
 }

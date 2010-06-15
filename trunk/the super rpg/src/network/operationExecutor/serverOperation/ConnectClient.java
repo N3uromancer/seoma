@@ -28,6 +28,9 @@ public final class ConnectClient extends Operation
 	}
 	public void performOperation(ByteBuffer buff, Connection c)
 	{
+		System.out.println("client connect message received!");
+		short[] l = {200, 200}; //where the avatar is to be spawned
+		
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(baos);
 		short id = w.generateNewID();
@@ -35,12 +38,15 @@ public final class ConnectClient extends Operation
 		{
 			dos.writeByte(IOConstants.controllerSetup);
 			dos.writeShort(id);
+			dos.writeShort(l[0]);
+			dos.writeShort(l[1]);
 		}
 		catch(IOException e){}
 		c.write(baos.toByteArray(), true);
-		System.out.println("client connect message received! sending controller setup data");
+		System.out.println("sending controller setup data");
 		
-		Avatar a = new Avatar(false);
+		Avatar a = new Avatar(true, id, new double[]{l[0], l[1]});
 		w.registerObject(Byte.MIN_VALUE, a);
+		w.registerRelevantSet(id, c);
 	}
 }

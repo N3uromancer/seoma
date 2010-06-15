@@ -4,12 +4,14 @@ import java.awt.DisplayMode;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.concurrent.Semaphore;
 
 import network.Connection;
 import world.controller.Controller;
 import world.modifier.NetworkUpdateable;
 import world.region.Region;
+import world.unit.Avatar;
 import display.Camera;
 
 /**
@@ -21,10 +23,13 @@ public final class World
 {
 	private short id = Short.MIN_VALUE;
 	private Controller c;
-	private Camera camera;
 	
 	private HashMap<Byte, Region> regions = new HashMap<Byte, Region>(); //maps regions to their ids
-	private HashMap<Short, Region> objRegMap = new HashMap<Short, Region>(); //maps network objects to the region they are in
+	/**
+	 * maps network objects to the region they are in, all objects are mapped when registered with the world
+	 * regardless of their ready status
+	 */
+	private HashMap<Short, Region> objRegMap = new HashMap<Short, Region>();
 	
 	private HashMap<Short, byte[]> objData = new HashMap<Short, byte[]>(); //stores data for objects not yet registered with the world
 	private Semaphore objDataSem = new Semaphore(1, true);
@@ -35,10 +40,17 @@ public final class World
 	private ArrayList<RelevantSet> relevantSets = new ArrayList<RelevantSet>();
 	private Semaphore relSetSem = new Semaphore(1, true);
 	
+	/**
+	 * contains the ids of all avatars in the game world, only regions that contain an avatar
+	 * are updated by the world
+	 */
+	private HashSet<Short> avatars = new HashSet<Short>();
+	private Semaphore avatarSem = new Semaphore(1, true);
+	
 	public World()
 	{
 		Region r = new Region();
-		regions.put(r.getID(), r);
+		regions.put(r.getRegionID(), r);
 	}
 	/**
 	 * gets the region associated with the passed id
@@ -50,6 +62,46 @@ public final class World
 		return objRegMap.get(id);
 	}
 	/**
+	 * destroys the passed object, removes the object from the game world
+	 * and notifies clients to destroy the object, declares the object dead
+	 * @param id the id of the object to be destroyed
+	 */
+	public void destroyObject(short id)
+	{
+		try
+		{
+			Region r = objRegMap.get(id);
+			r.getSemaphore().acquire();
+			NetworkUpdateable u = r.getNetworkObject(id);
+			r.getSemaphore().release();
+			
+			u.setDead();
+			
+			relSetSem.acquire();
+			for(RelevantSet set: relevantSets)
+			{
+				set.destroyObject(u);
+			}
+			relSetSem.release();
+			
+			if(u instanceof Avatar)
+			{
+				avatarSem.acquire();
+				avatars.remove(u.getID());
+				avatarSem.release();
+			}
+			
+			objDataSem.acquire();
+			objData.remove(id);
+			objDataSem.release();
+			
+			waitingSem.acquire();
+			waiting.remove(u);
+			waitingSem.release();
+		}
+		catch(InterruptedException e){}
+	}
+	/**
 	 * registers an object with the world, when this method is called the unit data map
 	 * is quereied to determine if any outstanding data for the unit has already been received
 	 * prior to the object's registration, if outstanding data has been received it is automtically
@@ -59,12 +111,14 @@ public final class World
 	 */
 	public void registerObject(byte regionID, NetworkUpdateable u)
 	{
+		System.out.println("registering object id="+u.getID()+"...");
 		try
 		{
 			objDataSem.acquire();
 			if(objData.get(u.getID()) != null)
 			{
 				//data already received before object spawn order
+				System.out.println("loading pre-received data...");
 				u.loadState(objData.get(u.getID()));
 				objData.remove(u.getID());
 			}
@@ -75,16 +129,33 @@ public final class World
 		if(u.isReady())
 		{
 			//object ready for use within the world, registered with appropriate region
-			regions.get(regionID).registerObject(u);
+			System.out.println("object ready, registered with region "+regionID);
+			//regions.get(regionID).registerObject(u);
+			spawnObject(u, regions.get(regionID));
 		}
 		else
 		{
 			//object not ready, still waiting for data
+			System.out.println("object not ready, waiting for data");
 			try
 			{
 				waitingSem.acquire();
 				waiting.put(u.getID(), u);
 				waitingSem.release();
+			}
+			catch(InterruptedException e){}
+		}
+	}
+	private void spawnObject(NetworkUpdateable u, Region r)
+	{
+		r.registerObject(u);
+		if(u instanceof Avatar)
+		{
+			try
+			{
+				avatarSem.acquire();
+				avatars.add(u.getID());
+				avatarSem.release();
 			}
 			catch(InterruptedException e){}
 		}
@@ -101,6 +172,7 @@ public final class World
 			//a spawn order for the object has alraedy been received
 			if(waiting.containsKey(id))
 			{
+				System.out.println("id="+id+" was waiting, data received, loading data and adding to region");
 				//object not yet ready for use
 				try
 				{
@@ -109,7 +181,8 @@ public final class World
 					if(waiting.get(id).isReady())
 					{
 						//object received data, registered with appropriate region
-						objRegMap.get(id).registerObject(waiting.get(id));
+						//objRegMap.get(id).registerObject(waiting.get(id));
+						spawnObject(waiting.get(id), objRegMap.get(id));
 						waiting.remove(id);
 					}
 					waitingSem.release();
@@ -118,6 +191,7 @@ public final class World
 			}
 			else
 			{
+				//System.out.println("updating id="+id);
 				//object ready for use and already registered with a region
 				objRegMap.get(id).updateObject(id, buff);
 			}
@@ -138,10 +212,11 @@ public final class World
 	{
 		if(c != null)
 		{
+			Camera camera = new Camera(new double[]{0, 0}, dm.getWidth(), dm.getHeight());
 			c.getControlledObject().adjustCamera(camera);
 			g.setTransform(camera.getTransform());
-			
-			
+			Region r = objRegMap.get(((NetworkUpdateable)c.getControlledObject()).getID());
+			r.drawRegion(g, dm, camera);
 		}
 	}
 	public void updateWorld(double tdiff)
@@ -152,6 +227,12 @@ public final class World
 		}
 		try
 		{
+			avatarSem.acquire();
+			for(short id: avatars)
+			{
+				objRegMap.get(id).updateRegion(this, tdiff);
+			}
+			avatarSem.release();
 			relSetSem.acquire();
 			for(RelevantSet r: relevantSets)
 			{
@@ -174,11 +255,10 @@ public final class World
 	 * sets the controller to be used and updated by the world
 	 * @param c
 	 */
-	public void setController(Controller c, DisplayMode dm)
+	public void setController(Controller c)
 	{
 		this.c = c;
-		camera = new Camera(new double[]{0, 0}, dm.getWidth(), dm.getHeight());
-		System.out.println("controller registered with world, new camera created");
+		System.out.println("controller registered with world");
 	}
 	/**
 	 * registers a relevant set to be maintained by the world
@@ -194,5 +274,9 @@ public final class World
 			relSetSem.release();
 		}
 		catch(InterruptedException e){}
+	}
+	public Controller getController()
+	{
+		return c;
 	}
 }

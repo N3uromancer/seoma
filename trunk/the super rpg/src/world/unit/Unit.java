@@ -21,18 +21,21 @@ public class Unit extends NetworkUpdateable implements Drawable
 	/**
 	 * the location of the center of the unit
 	 */
-	private double[] l; //stored as a double but written over network as a short
+	private double[] l = new double[2]; //stored as a double but written over network as a short
 	private short r;
 	private AttributeManager am = new AttributeManager();
+	
+	double m = 100;
 
 	/**
 	 * blank constructor for creating the unit on clients, state information
 	 * is instead loaded as it is received from the server
 	 * @param isGhost
 	 */
-	public Unit(boolean isGhost, short id, byte type)
+	public Unit(boolean isGhost, short id, byte type, short r)
 	{
 		super(isGhost, id, type, 1);
+		this.r = r;
 	}
 	/**
 	 * constructor for creating the unit and specifying its state, used for creating
@@ -47,6 +50,7 @@ public class Unit extends NetworkUpdateable implements Drawable
 		this.l = l;
 		this.r = r;
 		am.setAttribute(Attribute.health, 100);
+		setReady();
 	}
 	/**
 	 * gets the location of the center of the unit
@@ -91,15 +95,26 @@ public class Unit extends NetworkUpdateable implements Drawable
 	public void draw(Graphics2D g)
 	{
 		g.setColor(Color.red);
+		if(!(this instanceof Avatar))
+		{
+			g.setColor(Color.blue);
+			//System.out.println("l=("+l[0]+", "+l[1]+"), r="+r);
+		}
 		g.fillOval((int)(l[0]-r), (int)(l[1]-r), r*2, r*2);
 	}
 	public void update(World w, double tdiff)
 	{
-		
+		//System.out.println(getID()+" updated");
+		l[0]+=m*tdiff;
+		if(l[0] > 500 || l[0] < 0)
+		{
+			m *= -1;
+			//setDead();
+		}
 	}
 	public void simulate(World w, double tdiff)
 	{
-		
+		//System.out.println(getID()+" simulated");
 	}
 	public boolean isDisplayed()
 	{

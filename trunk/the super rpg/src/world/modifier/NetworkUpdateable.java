@@ -20,6 +20,7 @@ public abstract class NetworkUpdateable implements Locateable
 	 * updated from another source
 	 */
 	private boolean isGhost;
+	private boolean dead = false;
 	
 	public NetworkUpdateable(boolean isGhost, short id, byte type, int updatePriority)
 	{
@@ -29,12 +30,28 @@ public abstract class NetworkUpdateable implements Locateable
 		this.updatePriority = updatePriority;
 	}
 	/**
+	 * checks to see if the network object is dead, dead objects should be removed from the game world
+	 * @return returns true if the object is dead, false otherwise
+	 */
+	public boolean isDead()
+	{
+		return dead;
+	}
+	/**
+	 * declares the object to be dead and removes it from the game world
+	 */
+	public void setDead()
+	{
+		dead = true;
+	}
+	/**
 	 * loads the state specified by the data in the byte buffer
 	 * @param b
 	 */
 	public abstract void loadState(byte[] b);
 	/**
-	 * gets the current state of the object
+	 * gets the current state of the object, the state must be represented in
+	 * less than 256 bytes
 	 * @return returns a byte buffer containing the current state of the object
 	 */
 	public abstract byte[] getState();

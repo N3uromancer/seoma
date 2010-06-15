@@ -7,16 +7,11 @@ import java.io.IOException;
 
 import network.IOConstants;
 
-/**
- * defines a class to convert controller setup information to a byte buffer
- * @author Jack
- *
- */
-public class ControllerSetupConverter extends TCPStreamConverter
+public class DestroyObjectConverter extends TCPStreamConverter
 {
-	public ControllerSetupConverter()
+	public DestroyObjectConverter()
 	{
-		super(IOConstants.controllerSetup);
+		super(IOConstants.destroyObject);
 	}
 	public byte[] convertStream(DataInputStream dis)
 	{
@@ -24,13 +19,15 @@ public class ControllerSetupConverter extends TCPStreamConverter
 		DataOutputStream dos = new DataOutputStream(baos);
 		try
 		{
-			dos.write(IOConstants.controllerSetup);
-			short id = dis.readShort();
-			short x = dis.readShort();
-			short y = dis.readShort();
-			dos.writeShort(id);
-			dos.writeShort(x);
-			dos.writeShort(y);
+			dos.write(IOConstants.destroyObject);
+			byte length = dis.readByte();
+			dos.write(length);
+			
+			for(int i = Byte.MIN_VALUE; i < length; i++)
+			{
+				short id = dis.readShort();
+				dos.writeShort(id);
+			}
 		}
 		catch(IOException e){}
 		return baos.toByteArray();

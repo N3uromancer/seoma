@@ -10,39 +10,26 @@ import network.Connection;
 import network.IOConstants;
 import network.operationExecutor.Operation;
 import world.World;
-import world.factory.UnitFactory;
 import world.modifier.NetworkUpdateable;
 import world.unit.Unit;
 
-/**
- * an operation for spawning units, used by the client to interpret
- * spawn orders from the server
- * @author Jack
- *
- */
-public final class SpawnUnit extends Operation
+public final class DestroyObject extends Operation
 {
 	private World w;
-	private UnitFactory f;
 	
-	public SpawnUnit(World w)
+	public DestroyObject(World w)
 	{
-		super(IOConstants.spawnUnit);
+		super(IOConstants.destroyObject);
 		this.w = w;
-		f = new UnitFactory("example unit stats.txt");
 	}
 	public void performOperation(ByteBuffer buff, Connection c)
 	{
-		System.out.println("spawn unit command received from c="+c);
 		byte length = buff.get();
 		for(int i = Byte.MIN_VALUE; i < length; i++)
 		{
-			byte type = buff.get();
-			byte regionID = buff.get();
-			short objID = buff.getShort();
-			Unit u = f.createUnit(true, type, objID);
-			System.out.println("spawning id="+objID+", type="+u.getClass().getSimpleName());
-			w.registerObject(regionID, u);
+			short id = buff.getShort();
+			System.out.println("destroying id="+id);
+			w.destroyObject(id);
 		}
 	}
 	public static byte[] createByteBuffer(ArrayList<NetworkUpdateable> u, World w)
@@ -51,14 +38,12 @@ public final class SpawnUnit extends Operation
 		DataOutputStream dos = new DataOutputStream(baos);
 		try
 		{
-			dos.write(IOConstants.spawnUnit);
+			dos.write(IOConstants.destroyObject);
 			dos.write(u.size()-128);
 			for(NetworkUpdateable o: u)
 			{
 				if(o instanceof Unit)
 				{
-					dos.write(o.getType());
-					baos.write(w.getAssociatedRegion(o.getID()).getRegionID());
 					dos.writeShort(o.getID());
 				}
 			}

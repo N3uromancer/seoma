@@ -59,6 +59,7 @@ public final class TCPWriteThread extends Thread
 				}
 			}
 		}
+		System.out.println("tcp write thread terminated");
 	}
 	/**
 	 * adds the passed byte buffer to the queue to be written to the socket
