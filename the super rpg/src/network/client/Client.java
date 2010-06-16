@@ -6,14 +6,19 @@ import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import network.Connection;
+import network.ConnectionManager;
 import network.IOConstants;
 import network.operationExecutor.OperationExecutor;
 import network.operationExecutor.clientOperation.ControllerSetup;
 import network.operationExecutor.clientOperation.DestroyObject;
 import network.operationExecutor.clientOperation.SpawnUnit;
 import network.operationExecutor.clientOperation.UpdateNetworkObjects;
+import network.receiver.UDPReceiver;
 import network.receiver.tcpStreamConverter.ControllerSetupConverter;
 import network.receiver.tcpStreamConverter.DestroyObjectConverter;
 import network.receiver.tcpStreamConverter.SpawnUnitConverter;
@@ -22,10 +27,11 @@ import world.World;
 import world.unit.Avatar;
 import display.Display;
 
-public final class Client implements Runnable
+public final class Client implements Runnable, ConnectionManager
 {
 	private Socket tcpSocket;
 	private DatagramSocket udpSocket;
+	private Map<InetAddress, Connection> connections = Collections.synchronizedMap(new HashMap<InetAddress, Connection>());
 	
 	private World w;
 	private Connection c;
@@ -55,9 +61,14 @@ public final class Client implements Runnable
 		exe.registerOperation(new SpawnUnit(w));
 		exe.registerOperation(new DestroyObject(w));
 		System.out.println("operation executor created");
-		
+
+		new UDPReceiver(udpSocket, exe, this);
 		
 		connectToServer();
+	}
+	public Map<InetAddress, Connection> getConnections()
+	{
+		return connections;
 	}
 	/**
 	 * connects the client to the server

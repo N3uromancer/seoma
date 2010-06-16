@@ -4,12 +4,13 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
-import network.Connection;
+import network.ConnectionManager;
 import network.operationExecutor.OperationExecutor;
 
 /**
  * receives packets and forwards them to the operation executor
- * to be carried out
+ * to be carried out, only one udp listener is needed per machine
+ * because it listens to all incoming data on a port
  * @author Jack
  *
  */
@@ -17,29 +18,25 @@ public final class UDPReceiver extends Thread
 {
 	private DatagramSocket socket;
 	private OperationExecutor oe;
-	private Connection c;
+	private ConnectionManager cm;
 	
 	/**
 	 * creates a new udp packet receiver
 	 * @param socket
 	 * @param oe
-	 * @param connection the connection this receiver is part of
+	 * @param cm
 	 */
-	public UDPReceiver(DatagramSocket socket, OperationExecutor oe, Connection c)
+	public UDPReceiver(DatagramSocket socket, OperationExecutor oe, ConnectionManager cm)
 	{
 		this.socket = socket;
 		this.oe = oe;
-		this.c = c;
-
-		/*Thread t = new Thread(this);
-		t.setDaemon(true);
-		t.start();*/
+		this.cm = cm;
+		
 		setDaemon(true);
 		start();
 	}
 	public void run()
 	{
-		//System.out.println("udp receiver started");
 		try
 		{
 			for(;;)
@@ -47,8 +44,7 @@ public final class UDPReceiver extends Thread
 				byte[] buff = new byte[1024];
 				DatagramPacket packet = new DatagramPacket(buff, buff.length);
 				socket.receive(packet);
-				oe.add(packet.getData(), c);
-				//System.out.println("received! ip="+packet.getAddress().getHostAddress()+", port="+packet.getPort());
+				oe.add(packet.getData(), cm.getConnections().get(packet.getAddress()));
 			}
 		}
 		catch(IOException e)

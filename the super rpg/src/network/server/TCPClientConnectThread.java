@@ -28,18 +28,13 @@ public final class TCPClientConnectThread extends Thread
 	 * @param ss
 	 * @param oe
 	 */
-	public TCPClientConnectThread(Server s, ServerSocket ss, OperationExecutor oe)
+	public TCPClientConnectThread(Server s, ServerSocket ss, DatagramSocket ds, OperationExecutor oe)
 	{
 		this.s = s;
 		this.ss = ss;
+		this.ds = ds;
 		this.oe = oe;
 		
-		try
-		{
-			ds = new DatagramSocket(IOConstants.serverPort);
-		}
-		catch(IOException e){}
-
 		setDaemon(true);
 		start();
 	}
@@ -56,7 +51,7 @@ public final class TCPClientConnectThread extends Thread
 				};
 				System.out.println("tcp stream converters created");
 				Connection c = new Connection(socket, ds, IOConstants.clientPort, oe, converters);
-				s.addConnection(c);
+				s.getConnections().put(c.getAddress(), c);
 			}
 			catch(IOException e){}
 		}
