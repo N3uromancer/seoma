@@ -85,4 +85,18 @@ public class Avatar extends Unit implements Controllable
 	{
 		
 	}
+	public void loadState(byte[] b)
+	{
+		ByteArrayInputStream bais = new ByteArrayInputStream(b);
+		DataInputStream dis = new DataInputStream(bais);
+		try
+		{
+			short x = dis.readShort();
+			short y = dis.readShort();
+			//System.out.println("id="+getID()+", "+x+", "+y);
+			setLocation(new double[]{x, y});
+		}
+		catch(IOException e){}
+		setReady();
+	}
 }

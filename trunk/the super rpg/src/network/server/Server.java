@@ -1,18 +1,23 @@
 package network.server;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import network.Connection;
+import network.ConnectionManager;
 import network.IOConstants;
 import network.operationExecutor.OperationExecutor;
 import network.operationExecutor.clientOperation.UpdateNetworkObjects;
 import network.operationExecutor.serverOperation.ConnectClient;
+import network.receiver.UDPReceiver;
 import world.World;
 import world.unit.Unit;
 
@@ -22,10 +27,10 @@ import world.unit.Unit;
  * @author Jack
  *
  */
-public final class Server implements Runnable
+public final class Server implements Runnable, ConnectionManager
 {
 	private ServerSocket ss;
-	private HashMap<InetAddress, Connection> connections = new HashMap<InetAddress, Connection>(); //set of connected clients
+	private Map<InetAddress, Connection> connections = Collections.synchronizedMap(new HashMap<InetAddress, Connection>()); //set of connected clients
 	private World w;
 	
 	public Server()
@@ -49,34 +54,31 @@ public final class Server implements Runnable
 		}
 	}
 	/**
-	 * gets the connection that is associated with the passed address
-	 * @param address
-	 * @return returns the connection mapped to the passed address
+	 * gets the completed connections to the server
 	 */
-	public Connection getConnection(InetAddress address)
+	public Map<InetAddress, Connection> getConnections()
 	{
-		return connections.get(address);
-	}
-	/**
-	 * adds a connection to the server
-	 * @param c
-	 */
-	public void addConnection(Connection c)
-	{
-		connections.put(c.getAddress(), c);
+		return connections;
 	}
 	private void initiateServer()
 	{
 		OperationExecutor exe = new OperationExecutor();
 		exe.registerOperation(new ConnectClient(w));
 		exe.registerOperation(new UpdateNetworkObjects(w));
-		
-		new TCPClientConnectThread(this, ss, exe);
+
+		DatagramSocket ds = null;
+		try
+		{
+			ds = new DatagramSocket(IOConstants.serverPort);
+		}
+		catch(IOException e){}
+		new UDPReceiver(ds, exe, this);
+		new TCPClientConnectThread(this, ss, ds, exe);
 	}
 	public void run()
 	{
 		w = new World();
-		for(int i = 0; i < 30; i++)
+		for(int i = 0; i < 6; i++)
 		{
 			Unit u = new Unit(false, w.generateNewID(), (byte)5, new double[]{Math.random()*400, Math.random()*400}, (short)15);
 			w.registerObject(Byte.MIN_VALUE, u);
@@ -92,9 +94,6 @@ public final class Server implements Runnable
 			long tdiff = System.currentTimeMillis()-start;
 			start = System.currentTimeMillis();
 			w.updateWorld(tdiff/1000.);
-			//System.out.println("world updated");
-			
-			//writeUpdates();
 			
 			long updateDiff = System.currentTimeMillis()-start;
 			if(sleepTime-updateDiff > 0)

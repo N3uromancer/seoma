@@ -1,6 +1,7 @@
 package network.operationExecutor.clientOperation;
 
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 
 import network.Connection;
 import network.IOConstants;
@@ -17,7 +18,7 @@ import world.World;
 public final class UpdateNetworkObjects extends Operation
 {
 	private World w;
-	private short updateIndex = Short.MIN_VALUE;
+	private HashMap<Connection, Short> indeces = new HashMap<Connection, Short>(); //update indeces, on a per connection basic
 	
 	public UpdateNetworkObjects(World w)
 	{
@@ -26,26 +27,31 @@ public final class UpdateNetworkObjects extends Operation
 	}
 	public void performOperation(ByteBuffer buff, Connection c)
 	{
+		//System.out.println("======== updating network objects ========");
+		//System.out.println("checking to perform network object update, c="+c);
 		short index = buff.getShort();
-		if(index >= updateIndex || index < updateIndex-20000) //second boolean for if it rolls over
+		//System.out.println("index="+index+", old index="+indeces.get(c));
+		byte length = buff.get();
+		//System.out.println("objects to udpate = "+(length+128));
+		for(int i = Byte.MIN_VALUE; i < length; i++)
 		{
-			//System.out.println("======== updating network objects ========");
-			updateIndex = index;
-			byte length = buff.get();
-			//System.out.println("objects to udpate = "+(length+128));
-			for(int i = Byte.MIN_VALUE; i < length; i++)
+			short id = buff.getShort();
+			byte dataLength = (byte)(buff.get()+128);
+			//System.out.println("data length = "+dataLength);
+			byte[] data = new byte[dataLength];
+			for(int a = 0; a < dataLength; a++)
 			{
-				short id = buff.getShort();
+				data[a] = buff.get();
+			}
+			if(indeces.get(c) == null || index >= indeces.get(c) || index < indeces.get(c)-20000) //third boolean for if it rolls over
+			{
 				//System.out.println("id="+id+" updated");
-				byte dataLength = (byte)(buff.get()+128);
-				//System.out.println("data length = "+dataLength);
-				byte[] data = new byte[dataLength];
-				for(int a = 0; a < dataLength; a++)
-				{
-					data[a] = buff.get();
-				}
 				w.updateNetworkObject(id, data);
 			}
+		}
+		if(indeces.get(c) == null || index >= indeces.get(c) || index < indeces.get(c)-20000) //third boolean for if it rolls over
+		{
+			indeces.put(c, index);
 		}
 	}
 }

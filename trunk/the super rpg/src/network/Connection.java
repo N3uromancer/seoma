@@ -6,7 +6,6 @@ import java.net.Socket;
 
 import network.operationExecutor.OperationExecutor;
 import network.receiver.TCPReceiver;
-import network.receiver.UDPReceiver;
 import network.receiver.tcpStreamConverter.TCPStreamConverter;
 import network.writeController.WriteController;
 
@@ -18,7 +17,6 @@ import network.writeController.WriteController;
 public final class Connection
 {
 	private WriteController wc;
-	private UDPReceiver udpReceiver;
 	private TCPReceiver tcpReceiver;
 	private Socket tcpSocket;
 	
@@ -36,7 +34,6 @@ public final class Connection
 		System.out.println("creating connection...");
 		this.tcpSocket = tcpSocket;
 		wc = new WriteController(tcpSocket, udpSocket, tcpSocket.getInetAddress(), port);
-		udpReceiver = new UDPReceiver(udpSocket, oe, this);
 		tcpReceiver = new TCPReceiver(tcpSocket, oe, converters, this);
 		System.out.println("new connection established");
 	}
@@ -52,7 +49,6 @@ public final class Connection
 	public void closeConnection()
 	{
 		System.out.println("closing connection...");
-		udpReceiver.interrupt();
 		tcpReceiver.interrupt();
 		wc.interruptTCPWriteThread();
 	}
@@ -67,9 +63,5 @@ public final class Connection
 	public int getTCPQueueSize()
 	{
 		return wc.getTCPQueueSize();
-	}
-	public String toString()
-	{
-		return "[port="+tcpSocket.getPort()+"]";
 	}
 }

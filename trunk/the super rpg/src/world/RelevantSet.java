@@ -186,7 +186,6 @@ public final class RelevantSet
 			int size = priorities.size() == 0? 1: priorities.size();
 			PriorityQueue<NetworkUpdateable> q = new PriorityQueue<NetworkUpdateable>(size, c);
 			q.addAll(priorities.keySet());
-			pSem.release();
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			DataOutputStream dos = new DataOutputStream(baos);
 			dos.write(IOConstants.updateNetworkObjects);
@@ -208,10 +207,12 @@ public final class RelevantSet
 					//System.out.println("id="+n.getID()+", "+n.getClass().getSimpleName());
 					netObjData.write(buff.length-128);
 					netObjData.write(buff);
+					priorities.put(n, n.getUpdatePriority());
 				}
 			}
 			dos.write(length);
 			dos.write(netObjData.toByteArray());
+			pSem.release();
 			return baos.toByteArray();
 		}
 		catch(InterruptedException e){}
