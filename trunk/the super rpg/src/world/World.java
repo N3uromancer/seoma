@@ -1,5 +1,6 @@
 package world;
 
+import java.awt.Color;
 import java.awt.DisplayMode;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
@@ -15,7 +16,7 @@ import world.unit.Avatar;
 import display.Camera;
 
 /**
- * definse the entirety of the game world, the world is divided into regions
+ * defines the entirety of the game world, the world is divided into regions
  * @author Jack
  *
  */
@@ -23,6 +24,7 @@ public final class World
 {
 	private short id = Short.MIN_VALUE;
 	private Controller c;
+	public static final int gridSize = 50; //grid size used for terrain in regions
 	
 	private HashMap<Byte, Region> regions = new HashMap<Byte, Region>(); //maps regions to their ids
 	/**
@@ -212,6 +214,9 @@ public final class World
 	{
 		if(c != null)
 		{
+			g.setColor(Color.green);
+			g.fillRect(0, 0, dm.getWidth(), dm.getHeight());
+			
 			Camera camera = new Camera(new double[]{0, 0}, dm.getWidth(), dm.getHeight());
 			c.getControlledObject().adjustCamera(camera);
 			g.setTransform(camera.getTransform());

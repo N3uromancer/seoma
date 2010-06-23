@@ -78,7 +78,7 @@ public final class Server implements Runnable, ConnectionManager
 	public void run()
 	{
 		w = new World();
-		for(int i = 0; i < 6; i++)
+		for(int i = 0; i < 20; i++)
 		{
 			Unit u = new Unit(false, w.generateNewID(), (byte)5, new double[]{Math.random()*400, Math.random()*400}, (short)15);
 			w.registerObject(Byte.MIN_VALUE, u);

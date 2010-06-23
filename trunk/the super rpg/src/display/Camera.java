@@ -2,28 +2,21 @@ package display;
 
 import geom.Rectangle;
 
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.geom.AffineTransform;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.concurrent.Semaphore;
 
 public final class Camera
 {
 	/**
-	 * the location of top right corner of the camera
+	 * the location of top left corner of the camera view area
 	 */
-	private double[] l; //camera location, where it is centered
+	private double[] l;
 	private double zoom = 1;
 	private int dwidth;
 	private int dheight;
 	
 	/**
 	 * creates a new camera
-	 * @param l the location of the center of the camera
+	 * @param l the location of the top left corner of the camera view area
 	 * @param dwidth the width of the display area
 	 * @param dheight the height of the display area
 	 */
@@ -33,17 +26,55 @@ public final class Camera
 		this.dwidth = dwidth;
 		this.dheight = dheight;
 	}
+	/**
+	 * returns the zoom amount of the camera
+	 * @return
+	 */
+	public double getZoom()
+	{
+		return zoom;
+	}
+	/**
+	 * gets a copy of the location of the top left corner of the view area of the camera
+	 * @return gets a copy of the location of the camera
+	 */
+	public double[] getLocation()
+	{
+		return new double[]{l[0], l[1]};
+	}
 	public void translate(double[] t, double tdiff)
 	{
 		l[0]+=t[0]*tdiff/zoom;
 		l[1]+=t[1]*tdiff/zoom;
 	}
+	public void centerCamera(double[] l)
+	{
+		this.l[0] = l[0]-dwidth/2;
+		this.l[1] = l[1]+dheight/2;
+	}
+	/**
+	 * gets the proper affine transofrm representative of the camera's view
+	 * @return
+	 */
 	public AffineTransform getTransform()
 	{
 		AffineTransform at = new AffineTransform();
 		at.translate(-l[0]*zoom, l[1]*zoom);
 		at.scale(zoom, zoom);
 		return at;
+	}
+	/**
+	 * translates the passed mouse click into game space
+	 * @param m the coordinates of the mouse click
+	 * @return returns the game location of the mouse click
+	 */
+	public double[] getGameLocation(int[] m)
+	{
+		//System.out.println(l[0]+" + ("+m[0]+" / "+dwidth+") * ("+zoom+" * "+dwidth+") =");
+		/*return new double[]{l[0]+(m[0]*1./dwidth)*(dwidth/zoom),
+				-l[1]+(m[1]*1./dheight)*(dheight/zoom)};*/
+		return new double[]{l[0]+(m[0]/zoom),
+				-l[1]+(m[1]/zoom)}; //simplified from above line
 	}
 	public void zoom(double z)
 	{

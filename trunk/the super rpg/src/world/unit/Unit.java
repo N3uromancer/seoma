@@ -58,7 +58,7 @@ public class Unit extends NetworkUpdateable implements Drawable
 	 */
 	public double[] getLocation()
 	{
-		return l;
+		return new double[]{l[0], l[1]};
 	}
 	/**
 	 * sets the location of the center of the unit
@@ -101,6 +101,8 @@ public class Unit extends NetworkUpdateable implements Drawable
 			//System.out.println("l=("+l[0]+", "+l[1]+"), r="+r);
 		}
 		g.fillOval((int)(l[0]-r), (int)(l[1]-r), r*2, r*2);
+		//g.setColor(Color.black);
+		//g.drawOval((int)(l[0]-r), (int)(l[1]-r), r*2, r*2);
 	}
 	public void update(World w, double tdiff)
 	{
