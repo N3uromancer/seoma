@@ -1,11 +1,12 @@
 package display;
 
+import java.awt.BasicStroke;
 import java.awt.DisplayMode;
-
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.RenderingHints;
 import java.awt.image.BufferStrategy;
 
 import javax.swing.JFrame;
@@ -60,6 +61,12 @@ public class Display
 	public void drawWorld()
 	{
 		Graphics2D g = (Graphics2D)bs.getDrawGraphics();
+		//g.setStroke(new BasicStroke(2));
+		/*RenderingHints rh = new RenderingHints(
+				RenderingHints.KEY_TEXT_ANTIALIASING,
+				RenderingHints.VALUE_TEXT_ANTIALIAS_ON);*/
+		//g.setRenderingHints(rh);
+		
 		w.drawWorld(g, dm);
 		bs.show();
 	}

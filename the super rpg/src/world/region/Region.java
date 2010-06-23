@@ -33,6 +33,8 @@ public class Region
 	PartitionManager drawables;
 	Semaphore dSem = new Semaphore(1, true);
 	
+	int[] dim = {1000, 1000}; //the dimensions of the region
+	
 	public Region()
 	{
 		drawables = new PartitionManager(0, 0, 1000, 1000, 20, 40, 400);
@@ -152,8 +154,10 @@ public class Region
 	}
 	public void drawRegion(Graphics2D g, DisplayMode dm, Camera c)
 	{
-		g.setColor(Color.green);
-		g.fillRect(0, 0, dm.getWidth(), dm.getHeight());
+		g.setColor(Color.black);
+		g.drawRect(0, 0, dim[0], dim[1]);
+		g.fillRect(0, 0, 50, 50);
+		
 		try
 		{
 			HashSet<NetworkUpdateable> remove = null;

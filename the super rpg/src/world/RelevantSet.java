@@ -152,7 +152,7 @@ public final class RelevantSet
 		}
 		catch(InterruptedException e){}
 		
-		byte[] buff = compileClientUpdatePacket(100);
+		byte[] buff = compileClientUpdatePacket(300);
 		c.write(buff, false);
 	}
 	/**

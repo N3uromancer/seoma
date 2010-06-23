@@ -79,6 +79,9 @@ public class Avatar extends Unit implements Controllable
 	}
 	public void adjustCamera(Camera c)
 	{
+		double[] l = getLocation();
+		l[1]*=-1;
+		c.centerCamera(l);
 		c.zoom(zoom);
 	}
 	public void update(World w, double tdiff)
