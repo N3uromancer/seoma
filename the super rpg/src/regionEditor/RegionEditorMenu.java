@@ -5,11 +5,14 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -30,6 +33,47 @@ public final class RegionEditorMenu extends JMenuBar
 		owner = f;
 		
 		JMenu file = new JMenu("File");
+		JMenuItem save = new JMenuItem("Save");
+		save.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+			{
+				JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
+				int returnValue = fc.showSaveDialog(owner);
+				if(returnValue == JFileChooser.APPROVE_OPTION)
+				{
+					File f = fc.getSelectedFile();
+					try
+					{
+						model.saveRegion(f);
+					}
+					catch(IOException a){}
+				}
+			}
+		});
+		JMenuItem load = new JMenuItem("Load");
+		load.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e)
+			{
+				JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
+				int returnValue = fc.showOpenDialog(owner);
+				if(returnValue == JFileChooser.APPROVE_OPTION)
+				{
+					File f = fc.getSelectedFile();
+					try
+					{
+						model.loadRegion(f);
+					}
+					catch(IOException a)
+					{
+						a.printStackTrace();
+					}
+					catch(ClassNotFoundException b)
+					{
+						System.out.println("class not found");
+					}
+				}
+			}
+		});
 		JMenuItem exit = new JMenuItem("Exit");
 		exit.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e)
@@ -37,6 +81,9 @@ public final class RegionEditorMenu extends JMenuBar
 				System.exit(0);
 			}
 		});
+		file.add(save);
+		file.add(load);
+		file.addSeparator();
 		file.add(exit);
 		add(file);
 		

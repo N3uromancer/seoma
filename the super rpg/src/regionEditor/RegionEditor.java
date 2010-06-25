@@ -126,9 +126,9 @@ public final class RegionEditor implements Runnable, KeyListener, MouseListener,
 				runTime = System.currentTimeMillis()-start;
 				totalRunTime+=runTime;
 				runs++;
-				if(runs%400 == 0)
+				if(runs%1000 == 0)
 				{
-					System.out.println("runs/sec = ["+runs+"] / ["+totalRunTime+" ms] = "+(runs*1000./totalRunTime));
+					//System.out.println("runs/sec = ["+runs+"] / ["+totalRunTime+" ms] = "+(runs*1000./totalRunTime));
 				}
 				if(runTime < sleepTime)
 				{
