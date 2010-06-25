@@ -4,6 +4,12 @@ import geom.Rectangle;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import world.World;
 import world.terrain.Terrain;
@@ -14,11 +20,11 @@ import display.Camera;
  * @author Jack
  *
  */
-public class RegionModel
+public final class RegionModel
 {
-	Color background = Color.green;
-	int[] dim;
-	Terrain[][] t;
+	private Color background = Color.green;
+	private int[] dim;
+	private Terrain[][] t;
 	
 	public RegionModel()
 	{
@@ -31,6 +37,10 @@ public class RegionModel
 	public Color getBackground()
 	{
 		return background;
+	}
+	public Terrain[][] getTerrain()
+	{
+		return t;
 	}
 	public void drawRegionModel(Graphics2D g, Camera c, int width, int height)
 	{
@@ -71,6 +81,54 @@ public class RegionModel
 			this.t[(int)l[0]/World.gridSize][(int)l[1]/World.gridSize] = t;
 		}
 		catch(ArrayIndexOutOfBoundsException e){}
+	}
+	/**
+	 * writes the region to the specified file
+	 * @param f
+	 * @throws IOException
+	 */
+	public void saveRegion(File f) throws IOException
+	{
+		System.out.print("saving... ");
+		FileOutputStream fos = new FileOutputStream(f);
+		DataOutputStream dos = new DataOutputStream(fos);
+		dos.writeInt(t.length);
+		dos.writeInt(t[0].length);
+		
+		for(int x = 0; x < t.length; x++)
+		{
+			for(int y = 0; y < t[0].length; y++)
+			{
+				dos.writeUTF(t[x][y].name());
+			}
+		}
+		System.out.println("done");
+	}
+	/**
+	 * loads the region from the specified file
+	 * @param f
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	public void loadRegion(File f) throws IOException, ClassNotFoundException
+	{
+		System.out.print("loading region... ");
+		FileInputStream fis = new FileInputStream(f);
+		DataInputStream dis = new DataInputStream(fis);
+		int width = dis.readInt();
+		int height = dis.readInt();
+		dim = new int[]{width*World.gridSize, height*World.gridSize};
+		t = new Terrain[width][height];
+		
+		for(int x = 0; x < t.length; x++)
+		{
+			for(int y = 0; y < t[0].length; y++)
+			{
+				String name = dis.readUTF();
+				t[x][y] = Terrain.valueOf(name);
+			}
+		}
+		System.out.println("done");
 	}
 	/**
 	 * sets the size of the region
