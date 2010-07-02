@@ -50,3 +50,10 @@ on the server)
 -when a client receives an attack order, it is immediately executed
 -attack orders consist of an id denoting the attack unit, and a byte denoting the direction of the attack
 -each value of a byte (0-256) is mapped to a degree value from 0-360 when determining direction
+
+actions:
+-handle everything units in the game do (except move)
+-each unit contains an action map, mapping a byte value to a specific action; in this manner a single unit can perform up to
+256 different actions
+-actions are sent to the server in the following manner: 1 short id for the unit doing the action, 1 byte to specify the action,
+1 byte for initialization data length, x bytes for action initialization data

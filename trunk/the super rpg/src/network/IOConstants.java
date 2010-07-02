@@ -24,12 +24,5 @@ public class IOConstants
 	public static final byte controllerSetup = 3;
 	public static final byte updateNetworkObjects = 4;
 	public static final byte unitAttack = 5;
-	
-	/*
-	 * the spawn orders are split up into several categories
-	 * to allow 256 types for each category of objects
-	 */
-	public static final byte spawnUnit = 6;
-	public static final byte spawnItem = 7;
-	public static final byte destroyObject = 8;
+	public static final byte spawnObject = 6;
 }

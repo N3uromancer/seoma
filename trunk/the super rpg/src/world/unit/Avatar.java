@@ -30,7 +30,7 @@ public class Avatar extends Unit implements Controllable
 	 */
 	public Avatar(boolean isGhost, short id)
 	{
-		super(isGhost, id, (byte)2, (short)15);
+		super(isGhost, id, UnitTypeConstants.avatar, (short)15);
 	}
 	/**
 	 * creates avatar for owning client and server, an avatar must be created this way
@@ -42,7 +42,7 @@ public class Avatar extends Unit implements Controllable
 	 */
 	public Avatar(boolean isGhost, short id, double[] l)
 	{
-		super(isGhost, id, (byte)2, l, (short)15);
+		super(isGhost, id, UnitTypeConstants.avatar, l, (short)15);
 		
 		if(!isGhost)
 		{
