@@ -8,11 +8,12 @@ import world.World;
  * @author Jack
  *
  */
-public abstract class NetworkUpdateable implements Locateable
+public abstract class NetworkUpdateable implements Locateable, Initializable
 {
 	private short id;
-	private byte type;
+	private ObjectType type;
 	private int updatePriority;
+	private boolean broadcastDeath;
 	private boolean ready = false;
 	/**
 	 * represents the objects state in regard to the control the engine has
@@ -22,15 +23,17 @@ public abstract class NetworkUpdateable implements Locateable
 	private boolean isGhost;
 	private boolean dead = false;
 	
-	public NetworkUpdateable(boolean isGhost, short id, byte type, int updatePriority)
+	public NetworkUpdateable(boolean isGhost, short id, ObjectType type, int updatePriority, boolean broadcastDeath)
 	{
 		this.isGhost = isGhost;
 		this.id = id;
 		this.type = type;
 		this.updatePriority = updatePriority;
+		this.broadcastDeath = broadcastDeath;
 	}
 	/**
-	 * checks to see if the network object is dead, dead objects should be removed from the game world
+	 * checks to see if the network object is dead, dead objects should be removed from the game world,
+	 * udpate information from dead objects is not sent to clients
 	 * @return returns true if the object is dead, false otherwise
 	 */
 	public boolean isDead()
@@ -43,6 +46,17 @@ public abstract class NetworkUpdateable implements Locateable
 	public void setDead()
 	{
 		dead = true;
+	}
+	/**
+	 * checks to see if the network updateable should have its death broadcast to clients,
+	 * network objects that are timed and will automatically be disposed by clients without
+	 * an order from the server should not broadcast their deaths (ex. attacks)
+	 * @return returns true if the network updateable object should broadcast its death to
+	 * clients, false otherwise
+	 */
+	public boolean broadcastDeath()
+	{
+		return broadcastDeath;
 	}
 	/**
 	 * loads the state specified by the data in the byte buffer
@@ -93,7 +107,8 @@ public abstract class NetworkUpdateable implements Locateable
 	 * the relevant set, update priority is dynamic and non fixed and is
 	 * determined at the discretion of the game object itself, an object
 	 * with a higher update priority will be updated more often than one
-	 * with a lower priority
+	 * with a lower priority, an update priority of 0 will guarantee that
+	 * udpate information for the object is never sent to clients
 	 * @return returns the update priority for the object
 	 */
 	public int getUpdatePriority()
@@ -121,7 +136,7 @@ public abstract class NetworkUpdateable implements Locateable
 	 * to instantiate when receiving spawn orders from the server
 	 * @return returns the type of the object
 	 */
-	public byte getType()
+	public ObjectType getType()
 	{
 		return type;
 	}

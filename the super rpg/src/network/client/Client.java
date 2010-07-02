@@ -16,12 +16,12 @@ import network.IOConstants;
 import network.operationExecutor.OperationExecutor;
 import network.operationExecutor.clientOperation.ControllerSetup;
 import network.operationExecutor.clientOperation.DestroyObject;
-import network.operationExecutor.clientOperation.SpawnUnit;
+import network.operationExecutor.clientOperation.SpawnNetworkObject;
 import network.operationExecutor.clientOperation.UpdateNetworkObjects;
 import network.receiver.UDPReceiver;
 import network.receiver.tcpStreamConverter.ControllerSetupConverter;
 import network.receiver.tcpStreamConverter.DestroyObjectConverter;
-import network.receiver.tcpStreamConverter.SpawnUnitConverter;
+import network.receiver.tcpStreamConverter.SpawnObjectConverter;
 import network.receiver.tcpStreamConverter.TCPStreamConverter;
 import world.World;
 import world.unit.Avatar;
@@ -58,7 +58,7 @@ public final class Client implements Runnable, ConnectionManager
 		exe = new OperationExecutor();
 		exe.registerOperation(new ControllerSetup(w, this));
 		exe.registerOperation(new UpdateNetworkObjects(w));
-		exe.registerOperation(new SpawnUnit(w));
+		exe.registerOperation(new SpawnNetworkObject(w));
 		exe.registerOperation(new DestroyObject(w));
 		System.out.println("operation executor created");
 
@@ -76,7 +76,7 @@ public final class Client implements Runnable, ConnectionManager
 	private void connectToServer()
 	{
 		TCPStreamConverter[] converters = new TCPStreamConverter[]{
-				new ControllerSetupConverter(), new SpawnUnitConverter(), new DestroyObjectConverter()
+				new ControllerSetupConverter(), new SpawnObjectConverter(), new DestroyObjectConverter()
 		};
 		c = new Connection(tcpSocket, udpSocket, IOConstants.serverPort, exe, converters);
 		

@@ -9,33 +9,47 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
 
 import world.World;
 import world.modifier.Drawable;
 import world.modifier.NetworkUpdateable;
+import world.modifier.ObjectType;
+import world.unit.action.Action;
+import world.unit.action.AttackAction;
 import world.unit.attribute.Attribute;
 import world.unit.attribute.AttributeManager;
 
+/**
+ * defines a unit, units are capable of interacting with the game world
+ * by executing actions
+ * @author Jack
+ *
+ */
 public class Unit extends NetworkUpdateable implements Drawable
 {
 	/**
 	 * the location of the center of the unit
 	 */
 	private double[] l = new double[2]; //stored as a double but written over network as a short
-	private short r;
+	private short r; //radius
+	private byte unitType; //the type of unit
 	private AttributeManager am = new AttributeManager();
+	private HashMap<Byte, Action> actions = new HashMap<Byte, Action>();
 	
-	double m = 100;
+	double m = 100; //movement speed
 
 	/**
 	 * blank constructor for creating the unit on clients, state information
 	 * is instead loaded as it is received from the server
 	 * @param isGhost
 	 */
-	public Unit(boolean isGhost, short id, byte type, short r)
+	public Unit(boolean isGhost, short id, byte unitType, short r)
 	{
-		super(isGhost, id, type, 1);
+		super(isGhost, id, ObjectType.unit, 1, true);
 		this.r = r;
+		this.unitType = unitType;
+		initializeActions();
 	}
 	/**
 	 * constructor for creating the unit and specifying its state, used for creating
@@ -44,13 +58,19 @@ public class Unit extends NetworkUpdateable implements Drawable
 	 * @param l
 	 * @param r radius of the unit
 	 */
-	public Unit(boolean isGhost, short id, byte type, double[] l, short r)
+	public Unit(boolean isGhost, short id, byte unitType, double[] l, short r)
 	{
-		super(isGhost, id, type, 1);
+		super(isGhost, id, ObjectType.unit, 1, true);
 		this.l = l;
 		this.r = r;
+		this.unitType = unitType;
 		am.setAttribute(Attribute.health, 100);
+		initializeActions();
 		setReady();
+	}
+	private void initializeActions()
+	{
+		actions.put(Byte.MIN_VALUE, new AttackAction());
 	}
 	/**
 	 * gets the location of the center of the unit
@@ -125,5 +145,13 @@ public class Unit extends NetworkUpdateable implements Drawable
 	public Rectangle getBounds()
 	{
 		return new Rectangle(l[0]-r, l[1]-r, r*2, r*2);
+	}
+	public void loadInitialState(byte[] b)
+	{
+		
+	}
+	public byte[] getInitialState()
+	{
+		return new byte[]{unitType};
 	}
 }

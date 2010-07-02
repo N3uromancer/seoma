@@ -7,23 +7,24 @@ import java.util.Scanner;
 
 import world.unit.Avatar;
 import world.unit.Unit;
+import world.unit.UnitTypeConstants;
 
 public class UnitFactory
 {
-	public Unit createUnit(boolean isGhost, byte type, short id)
+	public Unit createUnit(boolean isGhost, byte unitType, short id)
 	{
 		/*
 		 * temporary method filler here, this method should create the unit
 		 * specified by the byte type loaded from the unit file
 		 */
 		Unit u = null;
-		if(type == 2)
+		if(unitType == UnitTypeConstants.avatar)
 		{
 			u = new Avatar(isGhost, id);
 		}
 		else
 		{
-			u = new Unit(isGhost, id, type, (short)10);
+			u = new Unit(isGhost, id, unitType, (short)10);
 		}
 		return u;
 	}

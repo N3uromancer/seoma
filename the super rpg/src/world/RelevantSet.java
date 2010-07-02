@@ -15,7 +15,7 @@ import java.util.concurrent.Semaphore;
 import network.Connection;
 import network.IOConstants;
 import network.operationExecutor.clientOperation.DestroyObject;
-import network.operationExecutor.clientOperation.SpawnUnit;
+import network.operationExecutor.clientOperation.SpawnNetworkObject;
 import world.modifier.NetworkUpdateable;
 import world.region.Region;
 
@@ -54,6 +54,7 @@ public final class RelevantSet
 	private short id;
 	private Connection c;
 	private short updateIndex = Short.MIN_VALUE; //used to determine old messages, higher indeces are more recent (until it rolls over)
+	private HashSet<Short> sentIDs = new HashSet<Short>(); //records the ids of objects for whom spawn orders were sent to clients
 	
 	/**
 	 * creates a new relevant set
@@ -82,8 +83,6 @@ public final class RelevantSet
 			try
 			{
 				destObjSem.acquire();
-				//temp.addAll(destroyedObj);
-				//destroyedObj = new ArrayList<NetworkUpdateable>();
 				Iterator<NetworkUpdateable> it = destroyedObj.iterator();
 				for(int i = 0; i < 256 && destroyedObj.size() > 0; i++) //for loop to cap destroy orders at 256
 				{
@@ -107,26 +106,25 @@ public final class RelevantSet
 			 * shrinking so that the max size can be adjusted dynamically to
 			 * maximize throughput
 			 */
-			System.out.println("rSet for id="+id+" detected relevant new objects, sending spawn orders to client");
+			System.out.println("rSet for id="+id+" detected new relevant objects, sending spawn orders to client");
 			ArrayList<NetworkUpdateable> temp = new ArrayList<NetworkUpdateable>();
 			try
 			{
 				newObjSem.acquire();
-				//temp.addAll(newObjects);
-				//newObjects = new HashSet<NetworkUpdateable>();
 				Iterator<NetworkUpdateable> it = newObjects.iterator();
 				for(int i = 0; i < 256 && newObjects.size() > 0; i++) //for loop to cap spawn orders at 256
 				{
-					temp.add(it.next());
+					NetworkUpdateable n = it.next();
+					temp.add(n);
+					sentIDs.add(n.getID());
 					it.remove();
 				}
 				newObjSem.release();
 			}
 			catch(InterruptedException e){}
-			byte[] b = SpawnUnit.createByteBuffer(temp, w);
+			byte[] b = SpawnNetworkObject.createByteBuffer(temp, w);
 			c.write(b, true);
 		}
-		
 		//updates the priorities of all network objects
 		try
 		{
@@ -136,15 +134,21 @@ public final class RelevantSet
 				if(u.getID() != id && !u.isDead())
 				{
 					pSem.acquire();
-					if(priorities.get(u) == null)
+					if(priorities.get(u) == null && u.getUpdatePriority() > 0)
 					{
 						//detected a new object, adds the object to priority map and new object list
 						priorities.put(u, u.getUpdatePriority());
-						newObjSem.acquire();
-						newObjects.add(u);
-						newObjSem.release();
+						if(!sentIDs.contains(u.getID()))
+						{
+							newObjSem.acquire();
+							newObjects.add(u);
+							newObjSem.release();
+						}
 					}
-					priorities.put(u, priorities.get(u)+u.getUpdatePriority());
+					else
+					{
+						priorities.put(u, priorities.get(u)+u.getUpdatePriority());
+					}
 					pSem.release();
 				}
 			}
@@ -231,9 +235,13 @@ public final class RelevantSet
 	{
 		try
 		{
-			destObjSem.acquire();
-			destroyedObj.add(o);
-			destObjSem.release();
+			if(o.broadcastDeath())
+			{
+				//clients require notification of object destruction
+				destObjSem.acquire();
+				destroyedObj.add(o);
+				destObjSem.release();
+			}
 			
 			//semaphores must be acquired in this order to prevent deadlocking with udpateSet... method
 			pSem.acquire();
