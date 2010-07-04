@@ -10,7 +10,7 @@ import network.Connection;
 import network.IOConstants;
 import network.operationExecutor.Operation;
 import world.World;
-import world.modifier.NetworkUpdateable;
+import world.networkUpdateable.NetworkUpdateable;
 import world.unit.Unit;
 
 public final class DestroyObject extends Operation

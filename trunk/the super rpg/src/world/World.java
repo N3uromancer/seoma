@@ -10,7 +10,7 @@ import java.util.concurrent.Semaphore;
 
 import network.Connection;
 import world.controller.Controller;
-import world.modifier.NetworkUpdateable;
+import world.networkUpdateable.NetworkUpdateable;
 import world.region.Region;
 import world.unit.Avatar;
 import display.Camera;
@@ -114,19 +114,23 @@ public final class World
 	public void registerObject(byte regionID, NetworkUpdateable u)
 	{
 		System.out.println("registering object id="+u.getID()+"...");
-		try
+		if(u.isGhost())
 		{
-			objDataSem.acquire();
-			if(objData.get(u.getID()) != null)
+			//only ghost objects would have received information
+			try
 			{
-				//data already received before object spawn order
-				System.out.println("loading pre-received data...");
-				u.loadState(objData.get(u.getID()));
-				objData.remove(u.getID());
+				objDataSem.acquire();
+				if(objData.get(u.getID()) != null)
+				{
+					//data already received before object spawn order
+					System.out.println("loading pre-received data...");
+					u.loadState(objData.get(u.getID()));
+					objData.remove(u.getID());
+				}
+				objDataSem.release();
 			}
-			objDataSem.release();
+			catch(InterruptedException e){}
 		}
-		catch(InterruptedException e){}
 		objRegMap.put(u.getID(), regions.get(regionID));
 		if(u.isReady())
 		{
@@ -148,6 +152,11 @@ public final class World
 			catch(InterruptedException e){}
 		}
 	}
+	/**
+	 * called to properly register an object with a specific region
+	 * @param u
+	 * @param r
+	 */
 	private void spawnObject(NetworkUpdateable u, Region r)
 	{
 		r.registerObject(u);

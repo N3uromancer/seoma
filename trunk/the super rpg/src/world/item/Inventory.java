@@ -3,6 +3,8 @@ package world.item;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import world.item.weapon.Weapon;
+
 public class Inventory
 {
 	HashMap<ItemSlot, Item> equipment = new HashMap<ItemSlot, Item>();
@@ -37,6 +39,14 @@ public class Inventory
 		{
 			equipment.put(slot, i);
 		}
+	}
+	/**
+	 * gets the primary weapon used for attacking
+	 * @return
+	 */
+	public Weapon getPrimaryWeapon()
+	{
+		return null;
 	}
 }
 enum ItemSlot

@@ -11,8 +11,8 @@ import network.IOConstants;
 import network.operationExecutor.Operation;
 import world.World;
 import world.factory.UnitFactory;
-import world.modifier.NetworkUpdateable;
 import world.modifier.ObjectType;
+import world.networkUpdateable.NetworkUpdateable;
 import world.unit.Unit;
 
 /**

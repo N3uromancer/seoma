@@ -16,7 +16,7 @@ import network.Connection;
 import network.IOConstants;
 import network.operationExecutor.clientOperation.DestroyObject;
 import network.operationExecutor.clientOperation.SpawnNetworkObject;
-import world.modifier.NetworkUpdateable;
+import world.networkUpdateable.NetworkUpdateable;
 import world.region.Region;
 
 /**

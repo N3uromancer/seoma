@@ -4,7 +4,7 @@ import geom.LineSegment;
 import world.World;
 
 /**
- * defines a weapon that has defined bounds and swings tp damage targets
+ * defines a weapon that has defined bounds and swings to damage targets
  * @author Jack
  *
  */
@@ -32,7 +32,7 @@ public class MeleeWeapon extends Weapon
 	{
 		return swingSpeed;
 	}
-	public void executeAttack(World w)
+	public void executeAttack(World w, byte[] data)
 	{
 		//code goes here to generate weapon swing (possible register an updateable with the world)
 	}
