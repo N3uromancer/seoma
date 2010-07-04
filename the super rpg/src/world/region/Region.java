@@ -14,7 +14,7 @@ import java.util.concurrent.Semaphore;
 
 import world.World;
 import world.modifier.Drawable;
-import world.modifier.NetworkUpdateable;
+import world.networkUpdateable.NetworkUpdateable;
 import display.Camera;
 
 /**

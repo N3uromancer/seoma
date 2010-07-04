@@ -6,8 +6,8 @@ import java.io.IOException;
 
 import world.World;
 import world.item.weapon.Weapon;
-import world.modifier.NetworkUpdateable;
 import world.modifier.ObjectType;
+import world.networkUpdateable.NetworkUpdateable;
 import world.unit.Unit;
 
 public class MeleeAttack extends NetworkUpdateable

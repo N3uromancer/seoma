@@ -10,5 +10,10 @@ import world.item.Item;
  */
 public abstract class Weapon extends Item
 {
-	public abstract void executeAttack(World w);
+	/**
+	 * executes the attack
+	 * @param w
+	 * @param data the data the attack needs in order to execute properly
+	 */
+	public abstract void executeAttack(World w, byte[] data);
 }

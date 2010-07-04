@@ -25,4 +25,5 @@ public class IOConstants
 	public static final byte updateNetworkObjects = 4;
 	public static final byte unitAttack = 5;
 	public static final byte spawnObject = 6;
+	public static final byte executeAction = 7;
 }

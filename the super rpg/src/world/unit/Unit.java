@@ -9,14 +9,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
 
 import world.World;
+import world.action.AttackAction;
+import world.item.Inventory;
 import world.modifier.Drawable;
-import world.modifier.NetworkUpdateable;
 import world.modifier.ObjectType;
-import world.unit.action.Action;
-import world.unit.action.AttackAction;
+import world.networkUpdateable.NetworkUpdateable;
 import world.unit.attribute.Attribute;
 import world.unit.attribute.AttributeManager;
 
@@ -35,7 +34,7 @@ public class Unit extends NetworkUpdateable implements Drawable
 	private short r; //radius
 	private byte unitType; //the type of unit
 	private AttributeManager am = new AttributeManager();
-	private HashMap<Byte, Action> actions = new HashMap<Byte, Action>();
+	private Inventory inventory = new Inventory();
 	
 	double m = 100; //movement speed
 
@@ -68,9 +67,16 @@ public class Unit extends NetworkUpdateable implements Drawable
 		initializeActions();
 		setReady();
 	}
+	public Inventory getInventory()
+	{
+		return inventory;
+	}
+	/**
+	 * initializes all the actions a unit can perform
+	 */
 	private void initializeActions()
 	{
-		actions.put(Byte.MIN_VALUE, new AttackAction());
+		registerAction(new AttackAction(this));
 	}
 	/**
 	 * gets the location of the center of the unit
