@@ -76,7 +76,7 @@ public class Unit extends NetworkUpdateable implements Drawable
 	 */
 	private void initializeActions()
 	{
-		registerAction(new AttackAction(this));
+		registerAction(new AttackAction((byte)0, this));
 	}
 	/**
 	 * gets the location of the center of the unit
@@ -152,12 +152,12 @@ public class Unit extends NetworkUpdateable implements Drawable
 	{
 		return new Rectangle(l[0]-r, l[1]-r, r*2, r*2);
 	}
-	public void loadInitialState(byte[] b)
-	{
-		
-	}
 	public byte[] getInitialState()
 	{
 		return new byte[]{unitType};
+	}
+	public void loadInitialState(byte[] b, World w)
+	{
+		//there is where the unit type should be read so that the proper unit can be loaded
 	}
 }

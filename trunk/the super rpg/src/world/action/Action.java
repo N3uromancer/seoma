@@ -1,7 +1,6 @@
 package world.action;
 
 import world.World;
-import world.modifier.Initializable;
 
 /**
  * defines a game action, everything that units do (other than move) is an action,
@@ -10,7 +9,7 @@ import world.modifier.Initializable;
  * @author Jack
  *
  */
-public abstract class Action implements Initializable
+public abstract class Action
 {
 	private byte actionID;
 	

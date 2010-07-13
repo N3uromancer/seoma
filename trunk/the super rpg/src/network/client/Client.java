@@ -21,6 +21,7 @@ import network.operationExecutor.jointOperation.UpdateNetworkObjects;
 import network.receiver.UDPReceiver;
 import network.receiver.tcpStreamConverter.ControllerSetupConverter;
 import network.receiver.tcpStreamConverter.DestroyObjectConverter;
+import network.receiver.tcpStreamConverter.ExecuteActionsConverter;
 import network.receiver.tcpStreamConverter.SpawnObjectConverter;
 import network.receiver.tcpStreamConverter.TCPStreamConverter;
 import world.World;
@@ -76,7 +77,8 @@ public final class Client implements Runnable, ConnectionManager
 	private void connectToServer()
 	{
 		TCPStreamConverter[] converters = new TCPStreamConverter[]{
-				new ControllerSetupConverter(), new SpawnObjectConverter(), new DestroyObjectConverter()
+				new ControllerSetupConverter(), new SpawnObjectConverter(), new DestroyObjectConverter(),
+				new ExecuteActionsConverter()
 		};
 		c = new Connection(tcpSocket, udpSocket, IOConstants.serverPort, exe, converters);
 		

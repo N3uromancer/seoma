@@ -1,7 +1,5 @@
 package world.action;
 
-import java.nio.ByteBuffer;
-
 import world.World;
 import world.unit.Unit;
 
@@ -14,24 +12,14 @@ public final class AttackAction extends Action
 {
 	private Unit u;
 	
-	public AttackAction(Unit u)
+	public AttackAction(byte actionID, Unit u)
 	{
+		super(actionID);
 		this.u = u;
 	}
-	public void executeAction(World w, ByteBuffer actionData)
+	public void executeAction(byte[] pertData, World w)
 	{
-		byte direction = actionData.get();
-		u.getInventory().getPrimaryWeapon().executeAttack(w);
-		/*
-		 * calls the execute attack method of the primary weapon of the unit executing the attack action
-		 */
-	}
-	public byte[] getInitialState()
-	{
-		return null;
-	}
-	public void loadInitialState(byte[] b)
-	{
-		
+		byte direction = pertData[0];
+		u.getInventory().getPrimaryWeapon().executeAttack(w, direction);
 	}
 }
