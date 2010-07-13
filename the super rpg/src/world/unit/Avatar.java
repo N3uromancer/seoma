@@ -76,6 +76,10 @@ public class Avatar extends Unit implements Controllable
 				zoom*=z.get(c);
 			}
 		}
+		if(ui.getMousePresses().size() > 0)
+		{
+			System.out.println("mouse clicked");
+		}
 	}
 	public void adjustCamera(Camera c)
 	{

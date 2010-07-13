@@ -13,7 +13,7 @@ public abstract class Weapon extends Item
 	/**
 	 * executes the attack
 	 * @param w
-	 * @param data the data the attack needs in order to execute properly
+	 * @param direction
 	 */
-	public abstract void executeAttack(World w, byte[] data);
+	public abstract void executeAttack(World w, byte direction);
 }

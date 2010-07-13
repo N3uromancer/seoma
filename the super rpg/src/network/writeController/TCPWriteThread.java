@@ -43,7 +43,8 @@ public final class TCPWriteThread extends Thread
 				catch(IOException e)
 				{
 					System.err.println("tcp write thread io exception, cannot write to socket stream");
-					e.printStackTrace();
+					//e.printStackTrace();
+					break;
 				}
 			}
 			synchronized(this)

@@ -10,7 +10,6 @@ import java.util.concurrent.Semaphore;
 
 import world.World;
 import world.action.Action;
-import world.modifier.Initializable;
 import world.modifier.Locateable;
 import world.modifier.ObjectType;
 
@@ -21,7 +20,7 @@ import world.modifier.ObjectType;
  * @author Jack
  *
  */
-public abstract class NetworkUpdateable implements Locateable, Initializable
+public abstract class NetworkUpdateable implements Locateable
 {
 	private short id;
 	private ObjectType type;
@@ -106,6 +105,19 @@ public abstract class NetworkUpdateable implements Locateable, Initializable
 		}
 		catch(InterruptedException e){}
 	}
+	/**
+	 * loads the initial state specified by the data in the byte buffer
+	 * @param b
+	 */
+	public abstract void loadInitialState(byte[] b, World w);
+	/**
+	 * gets the initial starting state of the object, this starting information is
+	 * sent to connected clients when the object is created, this method can be used
+	 * to send constructor like information to network objects, the state must be represented
+	 * in less than 256 bytes
+	 * @return
+	 */
+	public abstract byte[] getInitialState();
 	/**
 	 * checks to see if the network object is dead, dead objects should be removed from the game world,
 	 * udpate information from dead objects is not sent to clients

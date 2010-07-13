@@ -32,7 +32,7 @@ public class MeleeWeapon extends Weapon
 	{
 		return swingSpeed;
 	}
-	public void executeAttack(World w, byte[] data)
+	public void executeAttack(World w, byte direction)
 	{
 		//code goes here to generate weapon swing (possible register an updateable with the world)
 	}

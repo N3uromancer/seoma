@@ -23,7 +23,8 @@ public class IOConstants
 	public static final byte connectClient = 2;
 	public static final byte controllerSetup = 3;
 	public static final byte updateNetworkObjects = 4;
-	public static final byte unitAttack = 5;
+	public static final byte unitAttack = 5; //probably useless
 	public static final byte spawnObject = 6;
 	public static final byte executeAction = 7;
+	public static final byte destroyObject = 8;
 }
