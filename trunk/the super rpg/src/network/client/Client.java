@@ -17,7 +17,7 @@ import network.operationExecutor.OperationExecutor;
 import network.operationExecutor.clientOperation.ControllerSetup;
 import network.operationExecutor.clientOperation.DestroyObject;
 import network.operationExecutor.clientOperation.SpawnNetworkObject;
-import network.operationExecutor.clientOperation.UpdateNetworkObjects;
+import network.operationExecutor.jointOperation.UpdateNetworkObjects;
 import network.receiver.UDPReceiver;
 import network.receiver.tcpStreamConverter.ControllerSetupConverter;
 import network.receiver.tcpStreamConverter.DestroyObjectConverter;

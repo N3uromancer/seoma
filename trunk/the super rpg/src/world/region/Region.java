@@ -6,6 +6,7 @@ import geomUtil.PartitionManager;
 import java.awt.Color;
 import java.awt.DisplayMode;
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -32,6 +33,15 @@ public class Region
 	
 	PartitionManager drawables;
 	Semaphore dSem = new Semaphore(1, true);
+	
+	/**
+	 * stores executed actions executed by the region, stored actions are retrieved by the world for processing
+	 * by the relevant sets, stored actions should be cleared after they have been querried by the world, the key
+	 * is the id of the network object that executed the action, the list contains groups of executed actions
+	 * (necesary because the network object could be told to executed actions several times before the world itself
+	 * querries the region for executed actions)
+	 */
+	HashMap<Short, ArrayList<byte[][]>> executedActions = new HashMap<Short, ArrayList<byte[][]>>();
 	
 	int[] dim = {1000, 1000}; //the dimensions of the region
 	
@@ -93,6 +103,16 @@ public class Region
 		}
 		catch(InterruptedException e){}
 	}
+	public void queueNetworkObjAction(short id, byte actionID, byte[] pertData)
+	{
+		try
+		{
+			uSem.acquire();
+			uidMap.get(id).queueAction(actionID, pertData);
+			uSem.release();
+		}
+		catch(InterruptedException e){}
+	}
 	/**
 	 * gets a single network object from the region, this method should be used in conjunction
 	 * to the get region semaphore method in order to assure no concurrency problems
@@ -102,6 +122,19 @@ public class Region
 	public NetworkUpdateable getNetworkObject(short id)
 	{
 		return uidMap.get(id);
+	}
+	/**
+	 * returns the executed actions of the network objects in the region, executed actions
+	 * are stored by the region until the clearExecutedAction method is called
+	 * @return
+	 */
+	public HashMap<Short, ArrayList<byte[][]>> getExecutedActions()
+	{
+		return executedActions;
+	}
+	public void clearExecutedActions()
+	{
+		executedActions = new HashMap<Short, ArrayList<byte[][]>>();
 	}
 	/**
 	 * updates the objects contained within the region
@@ -128,6 +161,11 @@ public class Region
 					{
 						u.simulate(w, tdiff);
 					}
+					if(executedActions.get(u.getID()) == null)
+					{
+						executedActions.put(u.getID(), new ArrayList<byte[][]>());
+					}
+					executedActions.get(u.getID()).add(u.executeActions(w));
 				}
 				else
 				{

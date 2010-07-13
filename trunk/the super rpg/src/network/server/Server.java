@@ -15,7 +15,7 @@ import network.Connection;
 import network.ConnectionManager;
 import network.IOConstants;
 import network.operationExecutor.OperationExecutor;
-import network.operationExecutor.clientOperation.UpdateNetworkObjects;
+import network.operationExecutor.jointOperation.UpdateNetworkObjects;
 import network.operationExecutor.serverOperation.ConnectClient;
 import network.receiver.UDPReceiver;
 import world.World;

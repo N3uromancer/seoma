@@ -16,6 +16,7 @@ import network.Connection;
 import network.IOConstants;
 import network.operationExecutor.clientOperation.DestroyObject;
 import network.operationExecutor.clientOperation.SpawnNetworkObject;
+import network.operationExecutor.jointOperation.ExecuteActions;
 import world.networkUpdateable.NetworkUpdateable;
 import world.region.Region;
 
@@ -42,6 +43,12 @@ public final class RelevantSet
 	 */
 	private LinkedList<NetworkUpdateable> destroyedObj = new LinkedList<NetworkUpdateable>();
 	private Semaphore destObjSem = new Semaphore(1, true);
+	
+	/**
+	 * contains committed actions that the client has yet to be informed of
+	 */
+	private LinkedList<byte[]> actions = new LinkedList<byte[]>();
+	private Semaphore actionSem = new Semaphore(1, true);
 
 	/**
 	 * maintains a mapping of objects to their update priorities, the map only contains objects that are
@@ -51,7 +58,7 @@ public final class RelevantSet
 	private HashMap<NetworkUpdateable, Integer> priorities = new HashMap<NetworkUpdateable, Integer>();
 	private Semaphore pSem = new Semaphore(1, true);
 	
-	private short id;
+	private short id; //the id of the unit for whom the relevant set is maintained
 	private Connection c;
 	private short updateIndex = Short.MIN_VALUE; //used to determine old messages, higher indeces are more recent (until it rolls over)
 	private HashSet<Short> sentIDs = new HashSet<Short>(); //records the ids of objects for whom spawn orders were sent to clients
@@ -77,7 +84,7 @@ public final class RelevantSet
 	{
 		//System.out.println("updating set...");
 		Region r = w.getAssociatedRegion(id);
-		if(destroyedObj.size() > 0 && c.getTCPQueueSize() < 20)
+		if(destroyedObj.size() > 0 && c.getTCPQueueSize() < 40)
 		{
 			ArrayList<NetworkUpdateable> temp = new ArrayList<NetworkUpdateable>();
 			try
@@ -95,7 +102,7 @@ public final class RelevantSet
 			byte[] b = DestroyObject.createByteBuffer(temp, w);
 			c.write(b, true);
 		}
-		if(newObjects.size() > 0 && c.getTCPQueueSize() < 20)
+		if(newObjects.size() > 0 && c.getTCPQueueSize() < 40)
 		{
 			//there are spawn orders that need to be sent for the region
 			/*
@@ -123,6 +130,26 @@ public final class RelevantSet
 			}
 			catch(InterruptedException e){}
 			byte[] b = SpawnNetworkObject.createByteBuffer(temp, w);
+			c.write(b, true);
+		}
+		if(actions.size() > 0 && c.getTCPQueueSize() < 20)
+		{
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			byte objCount = Byte.MIN_VALUE; //number of network objects to be included in the update packet
+			try
+			{
+				actionSem.acquire();
+				Iterator<byte[]> it = actions.iterator();
+				for(int i = 0; i < 256 && actions.size() > 0; i++, objCount++) //for loop to cap action orders at 256
+				{
+					baos.write(it.next());
+					it.remove();
+				}
+				actionSem.release();
+			}
+			catch(InterruptedException e){}
+			catch(IOException e){}
+			byte[] b = ExecuteActions.compileExeActionBuff(objCount, baos.toByteArray());
 			c.write(b, true);
 		}
 		//updates the priorities of all network objects
@@ -254,5 +281,45 @@ public final class RelevantSet
 			pSem.release();
 		}
 		catch(InterruptedException e){}
+	}
+	/**
+	 * called to inform the relevant set of actions executed in the world environment, only
+	 * sends actions if the units committing the actions have already been created in the
+	 * client world and are near visible to the client's avatar
+	 * @param worldActions
+	 * @param w
+	 */
+	public void actionPerformed(ArrayList<HashMap<Short, ArrayList<byte[][]>>> worldActions, World w)
+	{
+		for(HashMap<Short, ArrayList<byte[][]>> regionActions: worldActions)
+		{
+			for(short id: regionActions.keySet())
+			{
+				if(sentIDs.contains(id) && w.getAssociatedRegion(id) == w.getAssociatedRegion(this.id))
+				{
+					//committing unit created client side and resides in same region as avatar
+					try
+					{
+						ByteArrayOutputStream baos = new ByteArrayOutputStream();
+						DataOutputStream dos = new DataOutputStream(baos);
+						dos.writeShort(id);
+						for(byte[][] dataBuff: regionActions.get(id))
+						{
+							baos.write(dataBuff.length); //number of actions committed by the network object
+							for(int i = 0; i < dataBuff.length; i++)
+							{
+								baos.write(dataBuff[i].length);
+								baos.write(dataBuff[i]);
+							}
+						}
+						actionSem.acquire();
+						actions.add(baos.toByteArray());
+						actionSem.release();
+					}
+					catch(InterruptedException e){}
+					catch(IOException e){}
+				}
+			}
+		}
 	}
 }

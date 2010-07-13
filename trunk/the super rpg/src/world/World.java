@@ -76,7 +76,6 @@ public final class World
 			r.getSemaphore().acquire();
 			NetworkUpdateable u = r.getNetworkObject(id);
 			r.getSemaphore().release();
-			
 			u.setDead();
 			
 			relSetSem.acquire();
@@ -172,6 +171,21 @@ public final class World
 		}
 	}
 	/**
+	 * queues an action to be executed by a specific object in the world, actions
+	 * can only be queued for objects that have already been created in the world,
+	 * network objects that are waiting for data cannot execute actions
+	 * @param id
+	 * @param actionID
+	 * @param pertData
+	 */
+	public void queueNetworkObjAction(short id, byte actionID, byte[] pertData)
+	{
+		if(objRegMap.get(id) != null && !waiting.containsKey(id))
+		{
+			objRegMap.get(id).queueNetworkObjAction(id, actionID, pertData);
+		}
+	}
+	/**
 	 * updates a network object based off the passed arguments
 	 * @param id the id of the object to be updated
 	 * @param buff the byte buffer containing the information to be loaded
@@ -241,15 +255,24 @@ public final class World
 		}
 		try
 		{
+			HashSet<Region> updatedRegions = new HashSet<Region>();
+			ArrayList<HashMap<Short, ArrayList<byte[][]>>> actions = new ArrayList<HashMap<Short, ArrayList<byte[][]>>>();
 			avatarSem.acquire();
 			for(short id: avatars)
 			{
-				objRegMap.get(id).updateRegion(this, tdiff);
+				if(!updatedRegions.contains(objRegMap.get(id)))
+				{
+					objRegMap.get(id).updateRegion(this, tdiff);
+					updatedRegions.add(objRegMap.get(id));
+					actions.add(objRegMap.get(id).getExecutedActions());
+					objRegMap.get(id).clearExecutedActions();
+				}
 			}
 			avatarSem.release();
 			relSetSem.acquire();
 			for(RelevantSet r: relevantSets)
 			{
+				r.actionPerformed(actions, this);
 				r.updateRelevantSet(this);
 			}
 			relSetSem.release();

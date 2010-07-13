@@ -1,8 +1,12 @@
 package world.networkUpdateable;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Semaphore;
 
 import world.World;
 import world.action.Action;
@@ -31,7 +35,11 @@ public abstract class NetworkUpdateable implements Locateable, Initializable
 	 */
 	private boolean isGhost;
 	private boolean dead = false;
+	
 	private Map<Byte, Action> actions = Collections.synchronizedMap(new HashMap<Byte, Action>());
+	private LinkedBlockingQueue<Byte> actionQueue = new LinkedBlockingQueue<Byte>(); //queue of actions to be executed
+	private LinkedBlockingQueue<byte[]> actionData = new LinkedBlockingQueue<byte[]>();
+	private Semaphore actionSem = new Semaphore(1, true);
 	
 	public NetworkUpdateable(boolean isGhost, short id, ObjectType type, int updatePriority, boolean broadcastDeath)
 	{
@@ -51,21 +59,52 @@ public abstract class NetworkUpdateable implements Locateable, Initializable
 		actions.put(a.getActionID(), a);
 	}
 	/**
-	 * orders the network updateable object to execute an action
+	 * orders the network updateable object to execute all queued actions, this
+	 * method should only be called by the world
+	 * @param w a reference to the world to be affected by the action
+	 * @param returns an array of byte arrays containing the executed actions, the first
+	 * byte is the actionID followed by the pertinant information, this should be used to
+	 * update the relevent sets maintained by the world
+	 */
+	public byte[][] executeActions(World w)
+	{
+		try
+		{
+			actionSem.acquire();
+			byte[][] executedActions = new byte[actionQueue.size()][];
+			for(int i = 0; actionQueue.size() > 0; i++)
+			{
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				byte actionID = actionQueue.poll();
+				byte[] pertData = actionData.poll();
+				baos.write(actionID);
+				baos.write(pertData);
+				executedActions[i] = baos.toByteArray();
+				
+				actions.get(actionID).executeAction(pertData, w);
+			}
+			actionSem.release();
+			return executedActions;
+		}
+		catch(InterruptedException e){}
+		catch(IOException e){}
+		return null;
+	}
+	/**
+	 * queues an action to be executed when the execute action method is next called
 	 * @param actionID the id of the action to be executed
 	 * @param pertData the pertinant data required to execute the action
-	 * @param w a reference to the world to be affected by the action
 	 */
-	public void executeAction(byte actionID, byte[] pertData, World w)
+	public void queueAction(byte actionID, byte[] pertData)
 	{
-		if(!actions.containsKey(actionID))
+		try
 		{
-			System.err.println("net obj id="+getID()+" failed to execute unrecognized action, actionID="+actionID);
+			actionSem.acquire();
+			actionQueue.add(actionID);
+			actionData.add(pertData);
+			actionSem.release();
 		}
-		else
-		{
-			actions.get(actionID).executeAction(pertData, w);
-		}
+		catch(InterruptedException e){}
 	}
 	/**
 	 * checks to see if the network object is dead, dead objects should be removed from the game world,
