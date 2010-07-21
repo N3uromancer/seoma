@@ -1,5 +1,6 @@
 package network.writeController;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -17,11 +18,6 @@ public final class TCPWriteThread extends Thread
 	public TCPWriteThread(Socket s)
 	{
 		this.s = s;
-		
-		/*Thread t = new Thread(this);
-		t.setDaemon(true);
-		t.start();*/
-		
 		setDaemon(true);
 		start();
 	}
@@ -31,13 +27,20 @@ public final class TCPWriteThread extends Thread
 	}
 	public void run()
 	{
-		for(;;)
+		DataOutputStream dos = null;
+		try
+		{
+			new DataOutputStream(s.getOutputStream());
+		}
+		catch(IOException e){}
+		while(dos != null)
 		{
 			while(q.size() > 0)
 			{
 				byte[] b = q.poll();
 				try
 				{
+					dos.writeShort(Short.MIN_VALUE+b.length);
 					s.getOutputStream().write(b);
 				}
 				catch(IOException e)

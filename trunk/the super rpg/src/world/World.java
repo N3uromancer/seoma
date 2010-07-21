@@ -6,10 +6,13 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import network.Connection;
 import world.controller.Controller;
+import world.initializer.Initializable;
+import world.initializer.Initializer;
 import world.networkUpdateable.NetworkUpdateable;
 import world.region.Region;
 import world.unit.Avatar;
@@ -25,6 +28,11 @@ public final class World
 	private short id = Short.MIN_VALUE;
 	private Controller c;
 	public static final int gridSize = 50; //grid size used for terrain in regions
+	
+	private Initializer initializer;
+	private LinkedBlockingQueue<Initializable> initializations = new LinkedBlockingQueue<Initializable>(); //queued initialize actions
+	private LinkedBlockingQueue<byte[]> iniData = new LinkedBlockingQueue<byte[]>();
+	private Semaphore iniSem = new Semaphore(1, true);
 	
 	private HashMap<Byte, Region> regions = new HashMap<Byte, Region>(); //maps regions to their ids
 	/**
@@ -106,7 +114,8 @@ public final class World
 	 * registers an object with the world, when this method is called the unit data map
 	 * is quereied to determine if any outstanding data for the unit has already been received
 	 * prior to the object's registration, if outstanding data has been received it is automtically
-	 * loaded by the object
+	 * loaded by the object, this method should be called by initializables to properly guarantee
+	 * that the action of initializing the object is relayed to each connected client
 	 * @param regionID the region the object is to be placed in
 	 * @param u the object to be registered
 	 */
@@ -168,21 +177,6 @@ public final class World
 				avatarSem.release();
 			}
 			catch(InterruptedException e){}
-		}
-	}
-	/**
-	 * queues an action to be executed by a specific object in the world, actions
-	 * can only be queued for objects that have already been created in the world,
-	 * network objects that are waiting for data cannot execute actions
-	 * @param id
-	 * @param actionID
-	 * @param pertData
-	 */
-	public void queueNetworkObjAction(short id, byte actionID, byte[] pertData)
-	{
-		if(objRegMap.get(id) != null && !waiting.containsKey(id))
-		{
-			objRegMap.get(id).queueNetworkObjAction(id, actionID, pertData);
 		}
 	}
 	/**
@@ -256,7 +250,6 @@ public final class World
 		try
 		{
 			HashSet<Region> updatedRegions = new HashSet<Region>();
-			ArrayList<HashMap<Short, ArrayList<byte[][]>>> actions = new ArrayList<HashMap<Short, ArrayList<byte[][]>>>();
 			avatarSem.acquire();
 			for(short id: avatars)
 			{
@@ -264,15 +257,30 @@ public final class World
 				{
 					objRegMap.get(id).updateRegion(this, tdiff);
 					updatedRegions.add(objRegMap.get(id));
-					actions.add(objRegMap.get(id).getExecutedActions());
-					objRegMap.get(id).clearExecutedActions();
 				}
 			}
 			avatarSem.release();
+			
+			while(initializations.size() > 0)
+			{
+				iniSem.acquire();
+				Initializable i = initializations.poll();
+				byte[] args = iniData.poll();
+				iniSem.release();
+				//avoid deadlocking threads if the initializable initializes another initializable
+				i.initialize(args, this);
+				relSetSem.acquire();
+				for(RelevantSet r: relevantSets)
+				{
+					r.initializationPerformed(i, args);
+					r.updateRelevantSet(this);
+				}
+				relSetSem.release();
+			}
+			
 			relSetSem.acquire();
 			for(RelevantSet r: relevantSets)
 			{
-				r.actionPerformed(actions, this);
 				r.updateRelevantSet(this);
 			}
 			relSetSem.release();
@@ -315,5 +323,26 @@ public final class World
 	public Controller getController()
 	{
 		return c;
+	}
+	/**
+	 * adds an initializate action to the initialize queue, actions are deffered until
+	 * next world update call
+	 * @param i
+	 * @param args
+	 */
+	public void initialize(Initializable i, byte[] args)
+	{
+		try
+		{
+			iniSem.acquire();
+			initializations.add(i);
+			iniData.add(args);
+			iniSem.release();
+		}
+		catch(InterruptedException e){}
+	}
+	public Initializer getInitializer()
+	{
+		return initializer;
 	}
 }

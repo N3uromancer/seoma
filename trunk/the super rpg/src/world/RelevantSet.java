@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
@@ -15,8 +14,8 @@ import java.util.concurrent.Semaphore;
 import network.Connection;
 import network.IOConstants;
 import network.operationExecutor.clientOperation.DestroyObject;
-import network.operationExecutor.clientOperation.SpawnNetworkObject;
-import network.operationExecutor.jointOperation.ExecuteActions;
+import network.operationExecutor.jointOperation.PerformInitialization;
+import world.initializer.Initializable;
 import world.networkUpdateable.NetworkUpdateable;
 import world.region.Region;
 
@@ -32,23 +31,11 @@ import world.region.Region;
 public final class RelevantSet
 {
 	/**
-	 * contains newly created objects whose spawn orders must be sent to the associated client
-	 */
-	private HashSet<NetworkUpdateable> newObjects = new HashSet<NetworkUpdateable>();
-	private Semaphore newObjSem = new Semaphore(1, true);
-	
-	/**
 	 * contains objects that have been destroyed on the server and have been created on the client,
 	 * the client must be informed that the objects have been destroyed to maintain an accurate world state
 	 */
 	private LinkedList<NetworkUpdateable> destroyedObj = new LinkedList<NetworkUpdateable>();
 	private Semaphore destObjSem = new Semaphore(1, true);
-	
-	/**
-	 * contains committed actions that the client has yet to be informed of
-	 */
-	private LinkedList<byte[]> actions = new LinkedList<byte[]>();
-	private Semaphore actionSem = new Semaphore(1, true);
 
 	/**
 	 * maintains a mapping of objects to their update priorities, the map only contains objects that are
@@ -58,10 +45,13 @@ public final class RelevantSet
 	private HashMap<NetworkUpdateable, Integer> priorities = new HashMap<NetworkUpdateable, Integer>();
 	private Semaphore pSem = new Semaphore(1, true);
 	
+	private LinkedList<Initializable> ini = new LinkedList<Initializable>(); //initializations that have occured on the server
+	private HashMap<Initializable, byte[]> iniData = new HashMap<Initializable, byte[]>();
+	private Semaphore iniSem = new Semaphore(1, true);
+	
 	private short id; //the id of the unit for whom the relevant set is maintained
 	private Connection c;
 	private short updateIndex = Short.MIN_VALUE; //used to determine old messages, higher indeces are more recent (until it rolls over)
-	private HashSet<Short> sentIDs = new HashSet<Short>(); //records the ids of objects for whom spawn orders were sent to clients
 	
 	/**
 	 * creates a new relevant set
@@ -102,9 +92,8 @@ public final class RelevantSet
 			byte[] b = DestroyObject.createByteBuffer(temp, w);
 			c.write(b, true);
 		}
-		if(newObjects.size() > 0 && c.getTCPQueueSize() < 40)
+		if(ini.size() > 0 && c.getTCPQueueSize() < 40)
 		{
-			//there are spawn orders that need to be sent for the region
 			/*
 			 * there should be something to watch the tcp queue size, if it
 			 * is allowed to grow to big, useless information may be queued in
@@ -113,43 +102,33 @@ public final class RelevantSet
 			 * shrinking so that the max size can be adjusted dynamically to
 			 * maximize throughput
 			 */
-			System.out.println("rSet for id="+id+" detected new relevant objects, sending spawn orders to client");
-			ArrayList<NetworkUpdateable> temp = new ArrayList<NetworkUpdateable>();
+			System.out.println("rSet for id="+id+" detected initialization orders");
+			HashMap<Initializable, byte[]> temp = new HashMap<Initializable, byte[]>();
 			try
 			{
-				newObjSem.acquire();
-				Iterator<NetworkUpdateable> it = newObjects.iterator();
-				for(int i = 0; i < 256 && newObjects.size() > 0; i++) //for loop to cap spawn orders at 256
+				iniSem.acquire();
+				Iterator<Initializable> it = ini.iterator();
+				for(int i = 0; i < 256 && ini.size() > 0; i++) //for loop to cap spawn orders at 256
 				{
-					NetworkUpdateable n = it.next();
-					temp.add(n);
-					sentIDs.add(n.getID());
-					it.remove();
+					Initializable n = it.next();
+					if(n.immediatelyRelevant(id, w))
+					{
+						//order relevant to client, sent
+						temp.put(n, iniData.get(n));
+						iniData.remove(n);
+						it.remove();
+					}
+					else if(!n.isRelevant(id, w))
+					{
+						//not relevant to client, initialization order not sent
+						iniData.remove(n);
+						it.remove();
+					}
 				}
-				newObjSem.release();
+				iniSem.release();
 			}
 			catch(InterruptedException e){}
-			byte[] b = SpawnNetworkObject.createByteBuffer(temp, w);
-			c.write(b, true);
-		}
-		if(actions.size() > 0 && c.getTCPQueueSize() < 20)
-		{
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			byte objCount = Byte.MIN_VALUE; //number of network objects to be included in the update packet
-			try
-			{
-				actionSem.acquire();
-				Iterator<byte[]> it = actions.iterator();
-				for(int i = 0; i < 256 && actions.size() > 0; i++, objCount++) //for loop to cap action orders at 256
-				{
-					baos.write(it.next());
-					it.remove();
-				}
-				actionSem.release();
-			}
-			catch(InterruptedException e){}
-			catch(IOException e){}
-			byte[] b = ExecuteActions.compileExeActionBuff(objCount, baos.toByteArray());
+			byte[] b = PerformInitialization.createByteBuffer(temp, w);
 			c.write(b, true);
 		}
 		//updates the priorities of all network objects
@@ -163,14 +142,8 @@ public final class RelevantSet
 					pSem.acquire();
 					if(priorities.get(u) == null && u.getUpdatePriority() > 0)
 					{
-						//detected a new object, adds the object to priority map and new object list
+						//detected a new object, adds the object to priority map
 						priorities.put(u, u.getUpdatePriority());
-						if(!sentIDs.contains(u.getID()))
-						{
-							newObjSem.acquire();
-							newObjects.add(u);
-							newObjSem.release();
-						}
 					}
 					else
 					{
@@ -272,54 +245,25 @@ public final class RelevantSet
 			
 			//semaphores must be acquired in this order to prevent deadlocking with udpateSet... method
 			pSem.acquire();
-			newObjSem.acquire();
-			
 			priorities.remove(o);
-			newObjects.remove(o);
-			
-			newObjSem.release();
 			pSem.release();
 		}
 		catch(InterruptedException e){}
 	}
 	/**
-	 * called to inform the relevant set of actions executed in the world environment, only
-	 * sends actions if the units committing the actions have already been created in the
-	 * client world and are near visible to the client's avatar
-	 * @param worldActions
-	 * @param w
+	 * notifies the relevant set that an initialization action has occured
+	 * @param i
+	 * @param args
 	 */
-	public void actionPerformed(ArrayList<HashMap<Short, ArrayList<byte[][]>>> worldActions, World w)
+	public void initializationPerformed(Initializable i, byte[] args)
 	{
-		for(HashMap<Short, ArrayList<byte[][]>> regionActions: worldActions)
+		try
 		{
-			for(short id: regionActions.keySet())
-			{
-				if(sentIDs.contains(id) && w.getAssociatedRegion(id) == w.getAssociatedRegion(this.id))
-				{
-					//committing unit created client side and resides in same region as avatar
-					try
-					{
-						ByteArrayOutputStream baos = new ByteArrayOutputStream();
-						DataOutputStream dos = new DataOutputStream(baos);
-						dos.writeShort(id);
-						for(byte[][] dataBuff: regionActions.get(id))
-						{
-							baos.write(dataBuff.length); //number of actions committed by the network object
-							for(int i = 0; i < dataBuff.length; i++)
-							{
-								baos.write(dataBuff[i].length);
-								baos.write(dataBuff[i]);
-							}
-						}
-						actionSem.acquire();
-						actions.add(baos.toByteArray());
-						actionSem.release();
-					}
-					catch(InterruptedException e){}
-					catch(IOException e){}
-				}
-			}
+			iniSem.acquire();
+			ini.add(i);
+			iniData.put(i, args);
+			iniSem.release();
 		}
+		catch(InterruptedException e){}
 	}
 }
