@@ -1,17 +1,7 @@
 package world.networkUpdateable;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.Semaphore;
-
 import world.World;
-import world.action.Action;
 import world.modifier.Locateable;
-import world.modifier.ObjectType;
 
 /**
  * defines an interface for objects that can be updated over the network
@@ -23,7 +13,6 @@ import world.modifier.ObjectType;
 public abstract class NetworkUpdateable implements Locateable
 {
 	private short id;
-	private ObjectType type;
 	private int updatePriority;
 	private boolean broadcastDeath;
 	private boolean ready = false;
@@ -35,94 +24,13 @@ public abstract class NetworkUpdateable implements Locateable
 	private boolean isGhost;
 	private boolean dead = false;
 	
-	private Map<Byte, Action> actions = Collections.synchronizedMap(new HashMap<Byte, Action>());
-	private LinkedBlockingQueue<Byte> actionQueue = new LinkedBlockingQueue<Byte>(); //queue of actions to be executed
-	private LinkedBlockingQueue<byte[]> actionData = new LinkedBlockingQueue<byte[]>();
-	private Semaphore actionSem = new Semaphore(1, true);
-	
-	public NetworkUpdateable(boolean isGhost, short id, ObjectType type, int updatePriority, boolean broadcastDeath)
+	public NetworkUpdateable(boolean isGhost, short id, int updatePriority, boolean broadcastDeath)
 	{
 		this.isGhost = isGhost;
 		this.id = id;
-		this.type = type;
 		this.updatePriority = updatePriority;
 		this.broadcastDeath = broadcastDeath;
 	}
-	/**
-	 * registers an action with the network updateable, actions must be first registered
-	 * with the object in order to be executed
-	 * @param a
-	 */
-	protected void registerAction(Action a)
-	{
-		actions.put(a.getActionID(), a);
-	}
-	/**
-	 * orders the network updateable object to execute all queued actions, this
-	 * method should only be called by the world
-	 * @param w a reference to the world to be affected by the action
-	 * @param returns an array of byte arrays containing the executed actions, the first
-	 * byte is the actionID followed by the pertinant information, this should be used to
-	 * update the relevent sets maintained by the world
-	 */
-	public byte[][] executeActions(World w)
-	{
-		try
-		{
-			actionSem.acquire();
-			byte[][] executedActions = new byte[actionQueue.size()][];
-			for(int i = 0; actionQueue.size() > 0; i++)
-			{
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				byte actionID = actionQueue.poll();
-				byte[] pertData = actionData.poll();
-				baos.write(actionID);
-				baos.write(pertData);
-				executedActions[i] = baos.toByteArray();
-				
-				actions.get(actionID).executeAction(pertData, w);
-			}
-			actionSem.release();
-			return executedActions;
-		}
-		catch(InterruptedException e){}
-		catch(IOException e){}
-		return null;
-	}
-	/**
-	 * queues an action to be executed when the execute action method is next called
-	 * @param actionID the id of the action to be executed
-	 * @param pertData the pertinant data required to execute the action
-	 */
-	public void queueAction(byte actionID, byte[] pertData)
-	{
-		try
-		{
-			actionSem.acquire();
-			actionQueue.add(actionID);
-			actionData.add(pertData);
-			actionSem.release();
-		}
-		catch(InterruptedException e){}
-	}
-	/**
-	 * loads the initial state specified by the data in the byte buffer
-	 * @param b
-	 */
-	public abstract void loadInitialState(byte[] b, World w);
-	/**
-	 * gets the initial starting state of the object, this starting information is
-	 * sent to connected clients when the object is created, this method can be used
-	 * to send constructor like information to network objects, the state must be represented
-	 * in less than 256 bytes
-	 * @return
-	 */
-	public abstract byte[] getInitialState();
-	/**
-	 * checks to see if the network object is dead, dead objects should be removed from the game world,
-	 * udpate information from dead objects is not sent to clients
-	 * @return returns true if the object is dead, false otherwise
-	 */
 	public boolean isDead()
 	{
 		return dead;
@@ -217,14 +125,5 @@ public abstract class NetworkUpdateable implements Locateable
 	protected void setReady()
 	{
 		ready = true;
-	}
-	/**
-	 * gets the type of the object, used to determine which class of object
-	 * to instantiate when receiving spawn orders from the server
-	 * @return returns the type of the object
-	 */
-	public ObjectType getType()
-	{
-		return type;
 	}
 }
