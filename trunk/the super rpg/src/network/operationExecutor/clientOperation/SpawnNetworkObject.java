@@ -10,10 +10,10 @@ import network.Connection;
 import network.IOConstants;
 import network.operationExecutor.Operation;
 import world.World;
-import world.factory.UnitFactory;
 import world.modifier.ObjectType;
 import world.networkUpdateable.NetworkUpdateable;
 import world.unit.Unit;
+import world.unit.UnitLoader;
 
 /**
  * an operation for spawning network updateable objects, used by the client to interpret
@@ -24,13 +24,13 @@ import world.unit.Unit;
 public final class SpawnNetworkObject extends Operation
 {
 	private World w;
-	private UnitFactory f;
+	private UnitLoader f;
 	
 	public SpawnNetworkObject(World w)
 	{
 		super(IOConstants.spawnObject);
 		this.w = w;
-		f = new UnitFactory("example unit stats.txt");
+		f = new UnitLoader("example unit stats.txt");
 	}
 	public void performOperation(ByteBuffer buff, Connection c)
 	{
