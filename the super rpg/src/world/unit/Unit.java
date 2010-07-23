@@ -11,10 +11,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 
 import world.World;
-import world.action.AttackAction;
 import world.item.Inventory;
 import world.modifier.Drawable;
-import world.modifier.ObjectType;
 import world.networkUpdateable.NetworkUpdateable;
 import world.unit.attribute.Attribute;
 import world.unit.attribute.AttributeManager;
@@ -32,7 +30,6 @@ public class Unit extends NetworkUpdateable implements Drawable
 	 */
 	private double[] l = new double[2]; //stored as a double but written over network as a short
 	private short r; //radius
-	private byte unitType; //the type of unit
 	private AttributeManager am = new AttributeManager();
 	private Inventory inventory = new Inventory();
 	
@@ -43,12 +40,10 @@ public class Unit extends NetworkUpdateable implements Drawable
 	 * is instead loaded as it is received from the server
 	 * @param isGhost
 	 */
-	public Unit(boolean isGhost, short id, byte unitType, short r)
+	public Unit(boolean isGhost, short id, short r)
 	{
-		super(isGhost, id, ObjectType.unit, 1, true);
+		super(isGhost, id, 1, true);
 		this.r = r;
-		this.unitType = unitType;
-		initializeActions();
 	}
 	/**
 	 * constructor for creating the unit and specifying its state, used for creating
@@ -57,26 +52,17 @@ public class Unit extends NetworkUpdateable implements Drawable
 	 * @param l
 	 * @param r radius of the unit
 	 */
-	public Unit(boolean isGhost, short id, byte unitType, double[] l, short r)
+	public Unit(boolean isGhost, short id, double[] l, short r)
 	{
-		super(isGhost, id, ObjectType.unit, 1, true);
+		super(isGhost, id, 1, true);
 		this.l = l;
 		this.r = r;
-		this.unitType = unitType;
 		am.setAttribute(Attribute.health, 100);
-		initializeActions();
 		setReady();
 	}
 	public Inventory getInventory()
 	{
 		return inventory;
-	}
-	/**
-	 * initializes all the actions a unit can perform
-	 */
-	private void initializeActions()
-	{
-		registerAction(new AttackAction((byte)0, this));
 	}
 	/**
 	 * gets the location of the center of the unit
@@ -151,13 +137,5 @@ public class Unit extends NetworkUpdateable implements Drawable
 	public Rectangle getBounds()
 	{
 		return new Rectangle(l[0]-r, l[1]-r, r*2, r*2);
-	}
-	public byte[] getInitialState()
-	{
-		return new byte[]{unitType};
-	}
-	public void loadInitialState(byte[] b, World w)
-	{
-		//there is where the unit type should be read so that the proper unit can be loaded
 	}
 }

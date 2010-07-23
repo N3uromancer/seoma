@@ -4,8 +4,10 @@ import java.awt.Color;
 import java.awt.DisplayMode;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
@@ -25,7 +27,9 @@ import display.Camera;
  */
 public final class World
 {
-	private short id = Short.MIN_VALUE;
+	private short id = Short.MIN_VALUE; //the current id to be returned when a new id is requested, ids are useable once
+	private Set<Short> destroyedIDs = Collections.synchronizedSet(new HashSet<Short>()); //contains destroyed ids
+	
 	private Controller c;
 	public static final int gridSize = 50; //grid size used for terrain in regions
 	
@@ -63,6 +67,15 @@ public final class World
 		regions.put(r.getRegionID(), r);
 	}
 	/**
+	 * checks to see if the world has already destroyed the passed id
+	 * @param id
+	 * @return returns true if the id has already been destroyed, false otherwise
+	 */
+	public boolean isDestroyed(short id)
+	{
+		return destroyedIDs.contains(id);
+	}
+	/**
 	 * gets the region associated with the passed id
 	 * @param id the id of the object
 	 * @return returns the region containing the specified object
@@ -80,6 +93,8 @@ public final class World
 	{
 		try
 		{
+			destroyedIDs.add(id);
+			
 			Region r = objRegMap.get(id);
 			r.getSemaphore().acquire();
 			NetworkUpdateable u = r.getNetworkObject(id);
@@ -269,13 +284,15 @@ public final class World
 				iniSem.release();
 				//avoid deadlocking threads if the initializable initializes another initializable
 				i.initialize(args, this);
-				relSetSem.acquire();
-				for(RelevantSet r: relevantSets)
+				if(i.broadcast())
 				{
-					r.initializationPerformed(i, args);
-					r.updateRelevantSet(this);
+					relSetSem.acquire();
+					for(RelevantSet r: relevantSets)
+					{
+						r.initializationPerformed(i, args);
+					}
+					relSetSem.release();
 				}
-				relSetSem.release();
 			}
 			
 			relSetSem.acquire();
