@@ -138,4 +138,8 @@ public class Unit extends NetworkUpdateable implements Drawable
 	{
 		return new Rectangle(l[0]-r, l[1]-r, r*2, r*2);
 	}
+	public boolean isRelevant(short id, World w)
+	{
+		return false;
+	}
 }

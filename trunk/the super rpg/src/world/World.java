@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
@@ -18,7 +17,6 @@ import world.controller.Controller;
 import world.initializer.Initializable;
 import world.initializer.Initializer;
 import world.networkUpdateable.NetworkUpdateable;
-import world.networkUpdateable.Updateable;
 import world.region.Region;
 import world.unit.Avatar;
 import world.unit.UnitInitializer;
@@ -38,14 +36,12 @@ public final class World
 	
 	private Initializer initializer;
 	private LinkedBlockingQueue<Initializable> initializations = new LinkedBlockingQueue<Initializable>(); //queued initialize actions
-	private LinkedBlockingQueue<byte[]> iniData = new LinkedBlockingQueue<byte[]>();
 	private Semaphore iniSem = new Semaphore(1, true);
 	
 	/**
 	 * maps each network updateable id in the world to the initializable that created it
 	 */
 	private Map<Short, Initializable> objIniMap = Collections.synchronizedMap(new HashMap<Short, Initializable>());
-	private LinkedList<Updateable> updateables = new LinkedList<Updateable>();
 	
 	private HashMap<Byte, Region> regions = new HashMap<Byte, Region>(); //maps regions to their ids
 	/**
@@ -147,7 +143,7 @@ public final class World
 	 * @param u the object to be registered
 	 * @param i the initializable that created the object
 	 */
-	public void registerObject(byte regionID, NetworkUpdateable u, Initializable i)
+	private void registerObject(byte regionID, NetworkUpdateable u, Initializable i)
 	{
 		objIniMap.put(u.getID(), i);
 		System.out.println("registering object id="+u.getID()+"...");
@@ -294,29 +290,12 @@ public final class World
 			{
 				iniSem.acquire();
 				Initializable i = initializations.poll();
-				byte[] args = iniData.poll();
 				iniSem.release();
 				//avoid deadlocking threads if the initializable initializes another initializable
-				i.initialize(this);
-				if(i.broadcast())
+				HashMap<NetworkUpdateable, Byte> netObj = i.initialize(this);
+				for(NetworkUpdateable u: netObj.keySet())
 				{
-					relSetSem.acquire();
-					for(RelevantSet r: relevantSets)
-					{
-						r.initializationPerformed(i, args);
-					}
-					relSetSem.release();
-				}
-			}
-			
-			Iterator<Updateable> i = updateables.iterator();
-			while(i.hasNext())
-			{
-				Updateable u = i.next();
-				u.update(this, tdiff);
-				if(u.isDead())
-				{
-					i.remove();
+					registerObject(netObj.get(u), u, i);
 				}
 			}
 			
@@ -372,13 +351,12 @@ public final class World
 	 * @param i
 	 * @param args
 	 */
-	public void initialize(Initializable i, byte[] args)
+	public void initialize(Initializable i)
 	{
 		try
 		{
 			iniSem.acquire();
 			initializations.add(i);
-			iniData.add(args);
 			iniSem.release();
 		}
 		catch(InterruptedException e){}

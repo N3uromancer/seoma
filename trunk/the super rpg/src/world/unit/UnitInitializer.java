@@ -16,58 +16,55 @@ import world.networkUpdateable.NetworkUpdateable;
  */
 public final class UnitInitializer implements Initializable
 {
-	public byte[] initialize(byte[] args, World w)
+	short unitID;
+	byte regionID;
+	double x;
+	double y;
+	short radius;
+	boolean server;
+	
+	public UnitInitializer(byte[] args)
 	{
 		if(args.length == 21)
 		{
-			//unit created on server
+			server = true;
 			ByteBuffer b = ByteBuffer.wrap(args);
-			short unitID = b.getShort();
-			byte regionID = b.get();
-			double x = b.getDouble();
-			double y = b.getDouble();
-			short radius = b.getShort(); //here there should be instead a byte for unit type to be loaded by the unit loader
+			unitID = b.getShort();
+			regionID = b.get();
+			x = b.getDouble();
+			y = b.getDouble();
+			radius = b.getShort();
+		}
+	}
+	public void initialize(World w)
+	{
+		if(server)
+		{
+			//unit created on server
 			NetworkUpdateable u = new Unit(false, unitID, new double[]{x, y}, radius);
-			w.registerObject(regionID, u);
+			w.registerObject(regionID, u, this);
 			
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			DataOutputStream dos = new DataOutputStream(baos);
-			try
-			{
-				dos.writeShort(unitID);
-				dos.write(regionID);
-				dos.writeShort(radius); //should write unit type here
-			}
-			catch(IOException e){}
-			return baos.toByteArray();
 		}
 		else
 		{
 			//unit created on client
-			ByteBuffer b = ByteBuffer.wrap(args);
-			short unitID = b.getShort();
-			byte regionID = b.get();
-			short radius = b.getShort(); //here there should be instead a byte for unit type to be loaded by the unit loader
 			NetworkUpdateable u = new Unit(true, unitID, radius);
-			w.registerObject(regionID, u);
-			return args;
+			w.registerObject(regionID, u, this);
 		}
 	}
-	public boolean isRelevant(short id, byte[] args, World w)
+	public boolean isRelevant(short id, World w)
 	{
-		ByteBuffer b = ByteBuffer.wrap(args);
-		short unitID = b.getShort();
-		return !w.isDestroyed(unitID);
+		//never called for this initializer
+		return false;
 	}
-	public boolean immediatelyRelevant(short id, byte[] args, World w)
+	public boolean immediatelyRelevant(short id, World w)
 	{
-		ByteBuffer b = ByteBuffer.wrap(args);
-		short unitID = b.getShort();
-		return w.getAssociatedRegion(id) == w.getAssociatedRegion(unitID);
+		//never called for this initializer
+		return false;
 	}
 	public boolean broadcast()
 	{
-		return true;
+		return false;
 	}
 	/**
 	 * a convenience method for compiling a data packet to create a unit, the packet created is for
@@ -89,6 +86,19 @@ public final class UnitInitializer implements Initializable
 			dos.write(regionID);
 			dos.writeDouble(x);
 			dos.writeDouble(y);
+			dos.writeShort(radius); //should write unit type here
+		}
+		catch(IOException e){}
+		return baos.toByteArray();
+	}
+	public byte[] getIniArgs()
+	{
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		DataOutputStream dos = new DataOutputStream(baos);
+		try
+		{
+			dos.writeShort(unitID);
+			dos.write(regionID);
 			dos.writeShort(radius); //should write unit type here
 		}
 		catch(IOException e){}

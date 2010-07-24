@@ -1,7 +1,6 @@
 package world.networkUpdateable;
 
 import world.World;
-import world.modifier.Locateable;
 
 /**
  * defines an interface for objects that can be updated over the network
@@ -10,7 +9,7 @@ import world.modifier.Locateable;
  * @author Jack
  *
  */
-public abstract class NetworkUpdateable implements Locateable
+public abstract class NetworkUpdateable
 {
 	private short id;
 	private int updatePriority;
@@ -31,6 +30,14 @@ public abstract class NetworkUpdateable implements Locateable
 		this.updatePriority = updatePriority;
 		this.broadcastDeath = broadcastDeath;
 	}
+	/**
+	 * tests to determine whether or not this network updateable is relevant
+	 * to the passed id, relevant objects will be updated on clients by the server
+	 * @param id
+	 * @param w
+	 * @return returns true if the object is relevant to the passed id, false otherwise
+	 */
+	public abstract boolean isRelevant(short id, World w);
 	public boolean isDead()
 	{
 		return dead;

@@ -83,7 +83,7 @@ public final class Server implements Runnable, ConnectionManager
 			//Unit u = new Unit(false, w.generateNewID(), (byte)5, new double[]{Math.random()*400, Math.random()*400}, (short)15);
 			//w.registerObject(Byte.MIN_VALUE, u);
 			byte[] args = UnitInitializer.createDataBuffer(w.generateNewID(), Byte.MIN_VALUE, Math.random()*400, Math.random()*400, (short)15);
-			w.initialize(new UnitInitializer(), args);
+			w.initialize(new UnitInitializer(args));
 		}
 		
 		initiateServer();
