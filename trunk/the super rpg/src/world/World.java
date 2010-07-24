@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
@@ -16,8 +18,10 @@ import world.controller.Controller;
 import world.initializer.Initializable;
 import world.initializer.Initializer;
 import world.networkUpdateable.NetworkUpdateable;
+import world.networkUpdateable.Updateable;
 import world.region.Region;
 import world.unit.Avatar;
+import world.unit.UnitInitializer;
 import display.Camera;
 
 /**
@@ -28,7 +32,6 @@ import display.Camera;
 public final class World
 {
 	private short id = Short.MIN_VALUE; //the current id to be returned when a new id is requested, ids are useable once
-	private Set<Short> destroyedIDs = Collections.synchronizedSet(new HashSet<Short>()); //contains destroyed ids
 	
 	private Controller c;
 	public static final int gridSize = 50; //grid size used for terrain in regions
@@ -37,6 +40,12 @@ public final class World
 	private LinkedBlockingQueue<Initializable> initializations = new LinkedBlockingQueue<Initializable>(); //queued initialize actions
 	private LinkedBlockingQueue<byte[]> iniData = new LinkedBlockingQueue<byte[]>();
 	private Semaphore iniSem = new Semaphore(1, true);
+	
+	/**
+	 * maps each network updateable id in the world to the initializable that created it
+	 */
+	private Map<Short, Initializable> objIniMap = Collections.synchronizedMap(new HashMap<Short, Initializable>());
+	private LinkedList<Updateable> updateables = new LinkedList<Updateable>();
 	
 	private HashMap<Byte, Region> regions = new HashMap<Byte, Region>(); //maps regions to their ids
 	/**
@@ -65,15 +74,8 @@ public final class World
 	{
 		Region r = new Region();
 		regions.put(r.getRegionID(), r);
-	}
-	/**
-	 * checks to see if the world has already destroyed the passed id
-	 * @param id
-	 * @return returns true if the id has already been destroyed, false otherwise
-	 */
-	public boolean isDestroyed(short id)
-	{
-		return destroyedIDs.contains(id);
+		
+		initializer = new Initializer(new String[]{UnitInitializer.class.getName()});
 	}
 	/**
 	 * gets the region associated with the passed id
@@ -93,7 +95,7 @@ public final class World
 	{
 		try
 		{
-			destroyedIDs.add(id);
+			objIniMap.remove(id);
 			
 			Region r = objRegMap.get(id);
 			r.getSemaphore().acquire();
@@ -126,16 +128,28 @@ public final class World
 		catch(InterruptedException e){}
 	}
 	/**
+	 * traces the initialization order for the passed id
+	 * @param id
+	 * @return returns the initializable object that created the
+	 * network updateable with the passed id
+	 */
+	public Initializable traceInitialization(short id)
+	{
+		return objIniMap.get(id);
+	}
+	/**
 	 * registers an object with the world, when this method is called the unit data map
 	 * is quereied to determine if any outstanding data for the unit has already been received
 	 * prior to the object's registration, if outstanding data has been received it is automtically
-	 * loaded by the object, this method should be called by initializables to properly guarantee
+	 * loaded by the object, this method should only be called by initializables to properly guarantee
 	 * that the action of initializing the object is relayed to each connected client
 	 * @param regionID the region the object is to be placed in
 	 * @param u the object to be registered
+	 * @param i the initializable that created the object
 	 */
-	public void registerObject(byte regionID, NetworkUpdateable u)
+	public void registerObject(byte regionID, NetworkUpdateable u, Initializable i)
 	{
+		objIniMap.put(u.getID(), i);
 		System.out.println("registering object id="+u.getID()+"...");
 		if(u.isGhost())
 		{
@@ -283,7 +297,7 @@ public final class World
 				byte[] args = iniData.poll();
 				iniSem.release();
 				//avoid deadlocking threads if the initializable initializes another initializable
-				i.initialize(args, this);
+				i.initialize(this);
 				if(i.broadcast())
 				{
 					relSetSem.acquire();
@@ -292,6 +306,17 @@ public final class World
 						r.initializationPerformed(i, args);
 					}
 					relSetSem.release();
+				}
+			}
+			
+			Iterator<Updateable> i = updateables.iterator();
+			while(i.hasNext())
+			{
+				Updateable u = i.next();
+				u.update(this, tdiff);
+				if(u.isDead())
+				{
+					i.remove();
 				}
 			}
 			

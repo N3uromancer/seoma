@@ -8,9 +8,6 @@ import java.net.Socket;
 import network.Connection;
 import network.IOConstants;
 import network.operationExecutor.OperationExecutor;
-import network.receiver.tcpStreamConverter.ConnectClientConverter;
-import network.receiver.tcpStreamConverter.ExecuteActionsConverter;
-import network.receiver.tcpStreamConverter.TCPStreamConverter;
 
 /**
  * listens to the server socket and connects clients to the server
@@ -47,11 +44,8 @@ public final class TCPClientConnectThread extends Thread
 			{
 				Socket socket = ss.accept();
 				System.out.println("new client connection found!");
-				TCPStreamConverter[] converters = new TCPStreamConverter[]{
-						new ConnectClientConverter(), new ExecuteActionsConverter()
-				};
 				System.out.println("tcp stream converters created");
-				Connection c = new Connection(socket, ds, IOConstants.clientPort, oe, converters);
+				Connection c = new Connection(socket, ds, IOConstants.clientPort, oe);
 				s.getConnections().put(c.getAddress(), c);
 			}
 			catch(IOException e){}
