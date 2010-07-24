@@ -30,7 +30,7 @@ public final class TCPWriteThread extends Thread
 		DataOutputStream dos = null;
 		try
 		{
-			new DataOutputStream(s.getOutputStream());
+			dos = new DataOutputStream(s.getOutputStream());
 		}
 		catch(IOException e){}
 		while(dos != null)
@@ -45,7 +45,7 @@ public final class TCPWriteThread extends Thread
 				}
 				catch(IOException e)
 				{
-					System.err.println("tcp write thread io exception, cannot write to socket stream");
+					System.out.println("tcp write thread io exception, cannot write to socket stream");
 					//e.printStackTrace();
 					break;
 				}

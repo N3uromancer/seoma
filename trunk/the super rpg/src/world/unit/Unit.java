@@ -29,7 +29,7 @@ public class Unit extends NetworkUpdateable implements Drawable
 	 * the location of the center of the unit
 	 */
 	private double[] l = new double[2]; //stored as a double but written over network as a short
-	private short r; //radius
+	private short radius; //radius
 	private AttributeManager am = new AttributeManager();
 	private Inventory inventory = new Inventory();
 	
@@ -40,25 +40,29 @@ public class Unit extends NetworkUpdateable implements Drawable
 	 * is instead loaded as it is received from the server
 	 * @param isGhost
 	 */
-	public Unit(boolean isGhost, short id, short r)
+	public Unit(boolean isGhost, short id, short radius)
 	{
 		super(isGhost, id, 1, true);
-		this.r = r;
+		this.radius = radius;
 	}
 	/**
 	 * constructor for creating the unit and specifying its state, used for creating
 	 * units on the server, units created in this manner are declared to be ready for use
 	 * @param isGhost
 	 * @param l
-	 * @param r radius of the unit
+	 * @param radius radius of the unit
 	 */
-	public Unit(boolean isGhost, short id, double[] l, short r)
+	public Unit(boolean isGhost, short id, double[] l, short radius)
 	{
 		super(isGhost, id, 1, true);
 		this.l = l;
-		this.r = r;
+		this.radius = radius;
 		am.setAttribute(Attribute.health, 100);
 		setReady();
+	}
+	public short getRadius()
+	{
+		return radius;
 	}
 	public Inventory getInventory()
 	{
@@ -94,6 +98,7 @@ public class Unit extends NetworkUpdateable implements Drawable
 	}
 	public void loadState(byte[] b)
 	{
+		//System.out.println("id="+getID()+" state information loaded");
 		ByteArrayInputStream bais = new ByteArrayInputStream(b);
 		DataInputStream dis = new DataInputStream(bais);
 		try
@@ -112,13 +117,13 @@ public class Unit extends NetworkUpdateable implements Drawable
 			g.setColor(Color.blue);
 			//System.out.println("l=("+l[0]+", "+l[1]+"), r="+r);
 		}
-		g.fillOval((int)(l[0]-r), (int)(l[1]-r), r*2, r*2);
+		g.fillOval((int)(l[0]-radius), (int)(l[1]-radius), radius*2, radius*2);
 		//g.setColor(Color.black);
 		//g.drawOval((int)(l[0]-r), (int)(l[1]-r), r*2, r*2);
 	}
 	public void update(World w, double tdiff)
 	{
-		//System.out.println(getID()+" updated");
+		//System.out.println(getID()+" updated, ("+(int)l[0]+", "+(int)l[1]+")");
 		l[0]+=m*tdiff;
 		if(l[0] > 500 || l[0] < 0)
 		{
@@ -136,10 +141,10 @@ public class Unit extends NetworkUpdateable implements Drawable
 	}
 	public Rectangle getBounds()
 	{
-		return new Rectangle(l[0]-r, l[1]-r, r*2, r*2);
+		return new Rectangle(l[0]-radius, l[1]-radius, radius*2, radius*2);
 	}
 	public boolean isRelevant(short id, World w)
 	{
-		return false;
+		return w.getAssociatedRegion(getID()) == w.getAssociatedRegion(id);
 	}
 }

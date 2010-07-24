@@ -44,7 +44,6 @@ public final class TCPClientConnectThread extends Thread
 			{
 				Socket socket = ss.accept();
 				System.out.println("new client connection found!");
-				System.out.println("tcp stream converters created");
 				Connection c = new Connection(socket, ds, IOConstants.clientPort, oe);
 				s.getConnections().put(c.getAddress(), c);
 			}

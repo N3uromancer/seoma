@@ -9,6 +9,7 @@ import network.operationExecutor.Operation;
 import world.World;
 import world.controller.Controller;
 import world.unit.Avatar;
+import world.unit.UnitInitializer;
 
 /**
  * the operation for setting up the controller on clients
@@ -34,7 +35,9 @@ public class ControllerSetup extends Operation
 		short y = buff.getShort();
 		
 		Avatar a = new Avatar(false, id, new double[]{x, y});
-		w.registerObject(Byte.MIN_VALUE, a);
+		w.initialize(UnitInitializer.createInitializer(a, Byte.MIN_VALUE));
+		
+		
 		Controller controller = new Controller(a);
 		System.out.println("client controller set, avatar id = "+id);
 		w.setController(controller);

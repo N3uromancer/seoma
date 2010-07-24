@@ -6,8 +6,6 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
@@ -18,7 +16,6 @@ import world.initializer.Initializable;
 import world.initializer.Initializer;
 import world.networkUpdateable.NetworkUpdateable;
 import world.region.Region;
-import world.unit.Avatar;
 import world.unit.UnitInitializer;
 import display.Camera;
 
@@ -59,13 +56,6 @@ public final class World
 	private ArrayList<RelevantSet> relevantSets = new ArrayList<RelevantSet>();
 	private Semaphore relSetSem = new Semaphore(1, true);
 	
-	/**
-	 * contains the ids of all avatars in the game world, only regions that contain an avatar
-	 * are updated by the world
-	 */
-	private HashSet<Short> avatars = new HashSet<Short>();
-	private Semaphore avatarSem = new Semaphore(1, true);
-	
 	public World()
 	{
 		Region r = new Region();
@@ -105,13 +95,6 @@ public final class World
 				set.destroyObject(u);
 			}
 			relSetSem.release();
-			
-			if(u instanceof Avatar)
-			{
-				avatarSem.acquire();
-				avatars.remove(u.getID());
-				avatarSem.release();
-			}
 			
 			objDataSem.acquire();
 			objData.remove(id);
@@ -169,8 +152,7 @@ public final class World
 		{
 			//object ready for use within the world, registered with appropriate region
 			System.out.println("object ready, registered with region "+regionID);
-			//regions.get(regionID).registerObject(u);
-			spawnObject(u, regions.get(regionID));
+			regions.get(regionID).registerObject(u);
 		}
 		else
 		{
@@ -181,25 +163,6 @@ public final class World
 				waitingSem.acquire();
 				waiting.put(u.getID(), u);
 				waitingSem.release();
-			}
-			catch(InterruptedException e){}
-		}
-	}
-	/**
-	 * called to properly register an object with a specific region
-	 * @param u
-	 * @param r
-	 */
-	private void spawnObject(NetworkUpdateable u, Region r)
-	{
-		r.registerObject(u);
-		if(u instanceof Avatar)
-		{
-			try
-			{
-				avatarSem.acquire();
-				avatars.add(u.getID());
-				avatarSem.release();
 			}
 			catch(InterruptedException e){}
 		}
@@ -225,8 +188,7 @@ public final class World
 					if(waiting.get(id).isReady())
 					{
 						//object received data, registered with appropriate region
-						//objRegMap.get(id).registerObject(waiting.get(id));
-						spawnObject(waiting.get(id), objRegMap.get(id));
+						objRegMap.get(id).registerObject(waiting.get(id));
 						waiting.remove(id);
 					}
 					waitingSem.release();
@@ -274,17 +236,10 @@ public final class World
 		}
 		try
 		{
-			HashSet<Region> updatedRegions = new HashSet<Region>();
-			avatarSem.acquire();
-			for(short id: avatars)
+			for(byte id: regions.keySet())
 			{
-				if(!updatedRegions.contains(objRegMap.get(id)))
-				{
-					objRegMap.get(id).updateRegion(this, tdiff);
-					updatedRegions.add(objRegMap.get(id));
-				}
+				regions.get(id).updateRegion(this, tdiff);
 			}
-			avatarSem.release();
 			
 			while(initializations.size() > 0)
 			{

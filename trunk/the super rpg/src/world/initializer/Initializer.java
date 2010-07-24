@@ -1,5 +1,6 @@
 package world.initializer;
 
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 
 /**
@@ -38,7 +39,7 @@ public final class Initializer
 	 * @param id
 	 * @return returns the newly loaded initializable
 	 */
-	public Initializable getInitializable(byte id)
+	public Initializable getInitializable(byte id, byte[] args)
 	{
 		if(!ini.containsKey(id))
 		{
@@ -50,13 +51,15 @@ public final class Initializer
 		{
 			ClassLoader loader = getClass().getClassLoader();
 			Class<?> c = loader.loadClass(ini.get(id));
-			//Constructor<?> constr = c.getConstructor();
-			//constr.newInstance();
-			o = c.newInstance();
+			Class<?>[] constrClasses = {byte[].class};
+			Constructor<?> constr = c.getConstructor(constrClasses);
+			Object[] constrArgs = {args};
+			o = constr.newInstance(constrArgs);
 		}
 		catch(Exception e)
 		{
 			System.err.println("illegal initialization load, "+ini.get(id)+" does not exist");
+			e.printStackTrace();
 			System.exit(0);
 		}
 		

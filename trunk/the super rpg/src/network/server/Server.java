@@ -19,6 +19,7 @@ import network.operationExecutor.jointOperation.UpdateNetworkObjects;
 import network.operationExecutor.serverOperation.ConnectClient;
 import network.receiver.UDPReceiver;
 import world.World;
+import world.initializer.Initializable;
 import world.unit.UnitInitializer;
 
 /**
@@ -78,12 +79,10 @@ public final class Server implements Runnable, ConnectionManager
 	public void run()
 	{
 		w = new World();
-		for(int i = 0; i < 20; i++)
+		for(int i = 0; i < 1; i++)
 		{
-			//Unit u = new Unit(false, w.generateNewID(), (byte)5, new double[]{Math.random()*400, Math.random()*400}, (short)15);
-			//w.registerObject(Byte.MIN_VALUE, u);
-			byte[] args = UnitInitializer.createDataBuffer(w.generateNewID(), Byte.MIN_VALUE, Math.random()*400, Math.random()*400, (short)15);
-			w.initialize(new UnitInitializer(args));
+			Initializable temp = UnitInitializer.createInitializer(w.generateNewID(), Byte.MIN_VALUE, Math.random()*400, Math.random()*400, (short)15);
+			w.initialize(temp);
 		}
 		
 		initiateServer();
