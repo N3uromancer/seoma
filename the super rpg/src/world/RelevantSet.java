@@ -4,11 +4,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 import network.Connection;
@@ -45,11 +48,10 @@ public final class RelevantSet
 	private HashMap<NetworkUpdateable, Integer> priorities = new HashMap<NetworkUpdateable, Integer>();
 	private Semaphore pSem = new Semaphore(1, true);
 	
-	private LinkedList<Initializable> ini = new LinkedList<Initializable>(); //initializations that have occured on the server
-	private HashMap<Initializable, byte[]> iniData = new HashMap<Initializable, byte[]>();
-	private Semaphore iniSem = new Semaphore(1, true);
+	private LinkedList<Initializable> ini = new LinkedList<Initializable>(); //queued initializations to be sent to the connected client
 	
 	private short id; //the id of the unit for whom the relevant set is maintained
+	private Set<Short> sentIds = Collections.synchronizedSet(new HashSet<Short>());
 	private Connection c;
 	private short updateIndex = Short.MIN_VALUE; //used to determine old messages, higher indeces are more recent (until it rolls over)
 	
@@ -73,7 +75,18 @@ public final class RelevantSet
 	public void updateRelevantSet(World w)
 	{
 		//System.out.println("updating set...");
-		Region r = w.getAssociatedRegion(id);
+		sendDestructions(w);
+		updatePriorities(w);
+		sendInitializations(w);
+		byte[] buff = compileClientUpdatePacket(300);
+		c.write(buff, false);
+	}
+	/**
+	 * notifies the associated client of destroyed network objects
+	 * @param w
+	 */
+	private void sendDestructions(World w)
+	{
 		if(destroyedObj.size() > 0 && c.getTCPQueueSize() < 40)
 		{
 			ArrayList<NetworkUpdateable> temp = new ArrayList<NetworkUpdateable>();
@@ -92,7 +105,59 @@ public final class RelevantSet
 			byte[] b = DestroyObject.createByteBuffer(temp, w);
 			c.write(b, true);
 		}
-		if(ini.size() > 0 && c.getTCPQueueSize() < 40)
+	}
+	/**
+	 * updates the priority of all relevant network objects and detects new
+	 * relevant network objects
+	 * @param w
+	 */
+	private void updatePriorities(World w)
+	{
+		Region r = w.getAssociatedRegion(id);
+		try
+		{
+			r.getSemaphore().acquire();
+			for(NetworkUpdateable u: r.getNetworkObjects())
+			{
+				if(u.getID() != id && !u.isDead())
+				{
+					if(u.isRelevant(id, w))
+					{
+						pSem.acquire();
+						if(priorities.get(u) == null)
+						{
+							//detected a new object, adds the object to priority map
+							priorities.put(u, u.getUpdatePriority());
+							if(!sentIds.contains(u.getID()))
+							{
+								ini.add(w.traceInitialization(u.getID()));
+							}
+						}
+						else
+						{
+							priorities.put(u, priorities.get(u)+u.getUpdatePriority());
+						}
+						pSem.release();
+					}
+					else
+					{
+						pSem.acquire();
+						priorities.remove(u);
+						pSem.release();
+					}
+				}
+			}
+			r.getSemaphore().release();
+		}
+		catch(InterruptedException e){}
+	}
+	/**
+	 * sends the queued initialization orders to the assoicated client
+	 * @param w
+	 */
+	private void sendInitializations(World w)
+	{
+		if(ini.size() > 0 && c.getTCPQueueSize() < 60)
 		{
 			/*
 			 * there should be something to watch the tcp queue size, if it
@@ -104,60 +169,15 @@ public final class RelevantSet
 			 */
 			System.out.println("rSet for id="+id+" detected initialization orders");
 			HashMap<Initializable, byte[]> temp = new HashMap<Initializable, byte[]>();
-			try
+			Iterator<Initializable> it = ini.iterator();
+			for(int i = 0; i < 256 && ini.size() > 0; i++) //for loop to cap spawn orders at 256
 			{
-				iniSem.acquire();
-				Iterator<Initializable> it = ini.iterator();
-				for(int i = 0; i < 256 && ini.size() > 0; i++) //for loop to cap spawn orders at 256
-				{
-					Initializable n = it.next();
-					if(n.immediatelyRelevant(id, iniData.get(n), w))
-					{
-						//order relevant to client, sent
-						temp.put(n, iniData.get(n));
-						iniData.remove(n);
-						it.remove();
-					}
-					else if(!n.isRelevant(id, iniData.get(n), w))
-					{
-						//not relevant to client, initialization order not sent
-						iniData.remove(n);
-						it.remove();
-					}
-				}
-				iniSem.release();
+				Initializable n = it.next();
+				temp.put(n, n.getIniArgs());
 			}
-			catch(InterruptedException e){}
 			byte[] b = PerformInitialization.createByteBuffer(temp, w);
 			c.write(b, true);
 		}
-		//updates the priorities of all network objects
-		try
-		{
-			r.getSemaphore().acquire();
-			for(NetworkUpdateable u: r.getNetworkObjects())
-			{
-				if(u.getID() != id && !u.isDead())
-				{
-					pSem.acquire();
-					if(priorities.get(u) == null && u.getUpdatePriority() > 0)
-					{
-						//detected a new object, adds the object to priority map
-						priorities.put(u, u.getUpdatePriority());
-					}
-					else
-					{
-						priorities.put(u, priorities.get(u)+u.getUpdatePriority());
-					}
-					pSem.release();
-				}
-			}
-			r.getSemaphore().release();
-		}
-		catch(InterruptedException e){}
-		
-		byte[] buff = compileClientUpdatePacket(300);
-		c.write(buff, false);
 	}
 	/**
 	 * compiles a byte buffer of information to be sent to the client
@@ -247,22 +267,6 @@ public final class RelevantSet
 			pSem.acquire();
 			priorities.remove(o);
 			pSem.release();
-		}
-		catch(InterruptedException e){}
-	}
-	/**
-	 * notifies the relevant set that an initialization action has occured
-	 * @param i
-	 * @param args
-	 */
-	public void initializationPerformed(Initializable i, byte[] args)
-	{
-		try
-		{
-			iniSem.acquire();
-			ini.add(i);
-			iniData.put(i, args);
-			iniSem.release();
 		}
 		catch(InterruptedException e){}
 	}
