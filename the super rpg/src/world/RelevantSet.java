@@ -111,14 +111,14 @@ public final class RelevantSet
 				for(int i = 0; i < 256 && ini.size() > 0; i++) //for loop to cap spawn orders at 256
 				{
 					Initializable n = it.next();
-					if(n.immediatelyRelevant(id, w))
+					if(n.immediatelyRelevant(id, iniData.get(n), w))
 					{
 						//order relevant to client, sent
 						temp.put(n, iniData.get(n));
 						iniData.remove(n);
 						it.remove();
 					}
-					else if(!n.isRelevant(id, w))
+					else if(!n.isRelevant(id, iniData.get(n), w))
 					{
 						//not relevant to client, initialization order not sent
 						iniData.remove(n);

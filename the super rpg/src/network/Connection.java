@@ -6,7 +6,6 @@ import java.net.Socket;
 
 import network.operationExecutor.OperationExecutor;
 import network.receiver.TCPReceiver;
-import network.receiver.tcpStreamConverter.TCPStreamConverter;
 import network.writeController.WriteController;
 
 /**
@@ -29,12 +28,12 @@ public final class Connection
 	 * @param oe
 	 * @param converters
 	 */
-	public Connection(Socket tcpSocket, DatagramSocket udpSocket, int port, OperationExecutor oe, TCPStreamConverter[] converters)
+	public Connection(Socket tcpSocket, DatagramSocket udpSocket, int port, OperationExecutor oe)
 	{
 		System.out.println("creating connection...");
 		this.tcpSocket = tcpSocket;
 		wc = new WriteController(tcpSocket, udpSocket, tcpSocket.getInetAddress(), port);
-		tcpReceiver = new TCPReceiver(tcpSocket, oe, converters, this);
+		tcpReceiver = new TCPReceiver(tcpSocket, oe, this);
 		System.out.println("new connection established");
 	}
 	/**
