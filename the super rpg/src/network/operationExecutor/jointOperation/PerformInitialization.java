@@ -24,10 +24,10 @@ public final class PerformInitialization extends Operation
 	private World w;
 	private Initializer initializer;
 	
-	public PerformInitialization(World w, Initializer initializer)
+	public PerformInitialization(World w)
 	{
 		super(IOConstants.performInitialization);
-		this.initializer = initializer;
+		this.initializer = w.getInitializer();
 		this.w = w;
 	}
 	public void performOperation(ByteBuffer buff, Connection c)
@@ -39,7 +39,7 @@ public final class PerformInitialization extends Operation
 			byte dataLength = buff.get();
 			byte[] data = new byte[dataLength-Byte.MIN_VALUE];
 			buff.get(data);
-			w.initialize(initializer.getInitializable(iniID), data);
+			w.initialize(initializer.getInitializable(iniID, data));
 		}
 	}
 	/**
@@ -55,6 +55,7 @@ public final class PerformInitialization extends Operation
 		DataOutputStream dos = new DataOutputStream(baos);
 		try
 		{
+			dos.write(IOConstants.performInitialization);
 			dos.write(data.size()+Byte.MIN_VALUE);
 			for(Initializable i: data.keySet())
 			{

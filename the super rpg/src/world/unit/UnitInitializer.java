@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 
 import world.World;
 import world.initializer.Initializable;
@@ -35,22 +36,31 @@ public final class UnitInitializer implements Initializable
 			y = b.getDouble();
 			radius = b.getShort();
 		}
+		else
+		{
+			server = false;
+			ByteBuffer b = ByteBuffer.wrap(args);
+			unitID = b.getShort();
+			regionID = b.get();
+			radius = b.getShort();
+		}
 	}
-	public void initialize(World w)
+	public HashMap<NetworkUpdateable, Byte> initialize(World w)
 	{
+		HashMap<NetworkUpdateable, Byte> m = new HashMap<NetworkUpdateable, Byte>();
 		if(server)
 		{
 			//unit created on server
 			NetworkUpdateable u = new Unit(false, unitID, new double[]{x, y}, radius);
-			w.registerObject(regionID, u, this);
-			
+			m.put(u, regionID);
 		}
 		else
 		{
 			//unit created on client
 			NetworkUpdateable u = new Unit(true, unitID, radius);
-			w.registerObject(regionID, u, this);
+			m.put(u, regionID);
 		}
+		return m;
 	}
 	public boolean isRelevant(short id, World w)
 	{
@@ -74,9 +84,9 @@ public final class UnitInitializer implements Initializable
 	 * @param x
 	 * @param y
 	 * @param radius
-	 * @return returns the properly formatted data buffer to initialize a unit
+	 * @return returns the properly formatted initializer
 	 */
-	public static byte[] createDataBuffer(short unitID, byte regionID, double x, double y, short radius)
+	public static UnitInitializer createInitializer(short unitID, byte regionID, double x, double y, short radius)
 	{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(baos);
@@ -89,7 +99,22 @@ public final class UnitInitializer implements Initializable
 			dos.writeShort(radius); //should write unit type here
 		}
 		catch(IOException e){}
-		return baos.toByteArray();
+		return new UnitInitializer(baos.toByteArray());
+	}
+	public static UnitInitializer createInitializer(Unit u, byte regionID)
+	{
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		DataOutputStream dos = new DataOutputStream(baos);
+		try
+		{
+			dos.writeShort(u.getID());
+			dos.write(regionID);
+			dos.writeDouble(u.getLocation()[0]);
+			dos.writeDouble(u.getLocation()[1]);
+			dos.writeShort(u.getRadius()); //should write unit type here
+		}
+		catch(IOException e){}
+		return new UnitInitializer(baos.toByteArray());
 	}
 	public byte[] getIniArgs()
 	{

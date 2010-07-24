@@ -16,14 +16,9 @@ import network.IOConstants;
 import network.operationExecutor.OperationExecutor;
 import network.operationExecutor.clientOperation.ControllerSetup;
 import network.operationExecutor.clientOperation.DestroyObject;
-import network.operationExecutor.clientOperation.SpawnNetworkObject;
+import network.operationExecutor.jointOperation.PerformInitialization;
 import network.operationExecutor.jointOperation.UpdateNetworkObjects;
 import network.receiver.UDPReceiver;
-import network.receiver.tcpStreamConverter.ControllerSetupConverter;
-import network.receiver.tcpStreamConverter.DestroyObjectConverter;
-import network.receiver.tcpStreamConverter.ExecuteActionsConverter;
-import network.receiver.tcpStreamConverter.SpawnObjectConverter;
-import network.receiver.tcpStreamConverter.TCPStreamConverter;
 import world.World;
 import world.unit.Avatar;
 import display.Display;
@@ -59,8 +54,8 @@ public final class Client implements Runnable, ConnectionManager
 		exe = new OperationExecutor();
 		exe.registerOperation(new ControllerSetup(w, this));
 		exe.registerOperation(new UpdateNetworkObjects(w));
-		exe.registerOperation(new SpawnNetworkObject(w));
 		exe.registerOperation(new DestroyObject(w));
+		exe.registerOperation(new PerformInitialization(w));
 		System.out.println("operation executor created");
 
 		new UDPReceiver(udpSocket, exe, this);
@@ -76,11 +71,7 @@ public final class Client implements Runnable, ConnectionManager
 	 */
 	private void connectToServer()
 	{
-		TCPStreamConverter[] converters = new TCPStreamConverter[]{
-				new ControllerSetupConverter(), new SpawnObjectConverter(), new DestroyObjectConverter(),
-				new ExecuteActionsConverter()
-		};
-		c = new Connection(tcpSocket, udpSocket, IOConstants.serverPort, exe, converters);
+		c = new Connection(tcpSocket, udpSocket, IOConstants.serverPort, exe);
 		
 		System.out.println("requesting game information...");
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();

@@ -131,6 +131,7 @@ public final class RelevantSet
 							if(!sentIds.contains(u.getID()))
 							{
 								ini.add(w.traceInitialization(u.getID()));
+								sentIds.add(u.getID());
 							}
 						}
 						else
@@ -174,6 +175,7 @@ public final class RelevantSet
 			{
 				Initializable n = it.next();
 				temp.put(n, n.getIniArgs());
+				it.remove();
 			}
 			byte[] b = PerformInitialization.createByteBuffer(temp, w);
 			c.write(b, true);

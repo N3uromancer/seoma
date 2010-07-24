@@ -46,11 +46,13 @@ public final class TCPReceiver extends Thread
 				byte[] buff = new byte[length-Short.MIN_VALUE];
 				dis.read(buff);
 				oe.add(buff, connection);
+				//System.out.println("buff length="+buff.length+" added to operation executor");
 			}
 		}
 		catch(IOException e)
 		{
 			System.out.println("disconnect detected in tcp receiver");
+			//e.printStackTrace();
 			connection.closeConnection();
 		}
 	}

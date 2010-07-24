@@ -10,6 +10,7 @@ import network.IOConstants;
 import network.operationExecutor.Operation;
 import world.World;
 import world.unit.Avatar;
+import world.unit.UnitInitializer;
 
 /**
  * defines a server side operation for connecting a client to
@@ -46,7 +47,7 @@ public final class ConnectClient extends Operation
 		System.out.println("sending controller setup data");
 		
 		Avatar a = new Avatar(true, id, new double[]{l[0], l[1]});
-		w.registerObject(Byte.MIN_VALUE, a);
+		w.initialize(UnitInitializer.createInitializer(a, Byte.MIN_VALUE));
 		w.registerRelevantSet(id, c);
 	}
 }
