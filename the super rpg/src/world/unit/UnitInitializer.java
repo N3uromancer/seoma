@@ -19,9 +19,10 @@ public final class UnitInitializer implements Initializable
 {
 	short unitID;
 	byte regionID;
+	byte unitType;
+	boolean isGhost;
 	double x;
 	double y;
-	short radius;
 	boolean server;
 	
 	public UnitInitializer(byte[] args)
@@ -32,9 +33,10 @@ public final class UnitInitializer implements Initializable
 			ByteBuffer b = ByteBuffer.wrap(args);
 			unitID = b.getShort();
 			regionID = b.get();
+			unitType = b.get();
+			isGhost = b.get()==1;
 			x = b.getDouble();
 			y = b.getDouble();
-			radius = b.getShort();
 		}
 		else
 		{
@@ -42,7 +44,7 @@ public final class UnitInitializer implements Initializable
 			ByteBuffer b = ByteBuffer.wrap(args);
 			unitID = b.getShort();
 			regionID = b.get();
-			radius = b.getShort();
+			unitType = b.get();
 		}
 	}
 	public HashMap<NetworkUpdateable, Byte> initialize(World w)
@@ -50,14 +52,14 @@ public final class UnitInitializer implements Initializable
 		HashMap<NetworkUpdateable, Byte> m = new HashMap<NetworkUpdateable, Byte>();
 		if(server)
 		{
-			//unit created on server
-			NetworkUpdateable u = new Unit(false, unitID, new double[]{x, y}, radius);
+			//unit created on server, isGhost value there for avatar creation
+			Unit u = UnitLoader.createUnit(unitType, isGhost, unitID, new double[]{x, y});
 			m.put(u, regionID);
 		}
 		else
 		{
-			//unit created on client
-			NetworkUpdateable u = new Unit(true, unitID, radius);
+			//unit created on client, all units created in this manner are ghosts
+			Unit u = UnitLoader.createUnit(unitType, true, unitID);
 			m.put(u, regionID);
 		}
 		return m;
@@ -79,14 +81,15 @@ public final class UnitInitializer implements Initializable
 	/**
 	 * a convenience method for compiling a data packet to create a unit, the packet created is for
 	 * creating units on the server although it can be used to create units on a client
+	 * @param unitType the type of unit to be created
+	 * @param isGhost
 	 * @param unitID
 	 * @param regionID
 	 * @param x
 	 * @param y
-	 * @param radius
 	 * @return returns the properly formatted initializer
 	 */
-	public static UnitInitializer createInitializer(short unitID, byte regionID, double x, double y, short radius)
+	public static UnitInitializer createInitializer(byte unitType, boolean isGhost, short unitID, byte regionID, double x, double y)
 	{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(baos);
@@ -94,24 +97,10 @@ public final class UnitInitializer implements Initializable
 		{
 			dos.writeShort(unitID);
 			dos.write(regionID);
+			dos.write(unitType);
+			dos.writeBoolean(isGhost);
 			dos.writeDouble(x);
 			dos.writeDouble(y);
-			dos.writeShort(radius); //should write unit type here
-		}
-		catch(IOException e){}
-		return new UnitInitializer(baos.toByteArray());
-	}
-	public static UnitInitializer createInitializer(Unit u, byte regionID)
-	{
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		DataOutputStream dos = new DataOutputStream(baos);
-		try
-		{
-			dos.writeShort(u.getID());
-			dos.write(regionID);
-			dos.writeDouble(u.getLocation()[0]);
-			dos.writeDouble(u.getLocation()[1]);
-			dos.writeShort(u.getRadius()); //should write unit type here
 		}
 		catch(IOException e){}
 		return new UnitInitializer(baos.toByteArray());
@@ -124,7 +113,7 @@ public final class UnitInitializer implements Initializable
 		{
 			dos.writeShort(unitID);
 			dos.write(regionID);
-			dos.writeShort(radius); //should write unit type here
+			dos.write(unitType);
 		}
 		catch(IOException e){}
 		return baos.toByteArray();

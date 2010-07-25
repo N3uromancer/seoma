@@ -20,7 +20,7 @@ import network.operationExecutor.jointOperation.PerformInitialization;
 import network.operationExecutor.jointOperation.UpdateNetworkObjects;
 import network.receiver.UDPReceiver;
 import world.World;
-import world.unit.Avatar;
+import world.unit.Unit;
 import display.Display;
 
 public final class Client implements Runnable, ConnectionManager
@@ -32,7 +32,7 @@ public final class Client implements Runnable, ConnectionManager
 	private World w;
 	private Connection c;
 	private OperationExecutor exe;
-	private Avatar a; //the client's avatar in the game world
+	private Unit avatar; //the client's avatar in the game world
 	
 	/**
 	 * creates a new client
@@ -82,10 +82,10 @@ public final class Client implements Runnable, ConnectionManager
 	 * called by the operation executor after the client connects to the server,
 	 * starts the main game update thread
 	 */
-	public void connected(Avatar a)
+	public void connected(Unit avatar)
 	{
 		System.out.println("client connected!");
-		this.a = a;
+		this.avatar = avatar;
 		new Thread(this).start();
 	}
 	public void run()
@@ -140,8 +140,8 @@ public final class Client implements Runnable, ConnectionManager
 			dos.writeShort(updateIndex);
 			dos.writeByte(Byte.MIN_VALUE+1);
 			
-			dos.writeShort(a.getID());
-			byte[] buff = a.getState();
+			dos.writeShort(avatar.getID());
+			byte[] buff = avatar.getState();
 			dos.write(buff.length-128);
 			dos.write(buff);
 		}

@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 
-public final class UnitLoader
+public final class UnitLoader2
 {
 	private HashMap<String, Byte> unitTypeID = new HashMap<String, Byte>();
 	

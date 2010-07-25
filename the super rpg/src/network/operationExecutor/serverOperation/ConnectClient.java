@@ -9,7 +9,6 @@ import network.Connection;
 import network.IOConstants;
 import network.operationExecutor.Operation;
 import world.World;
-import world.unit.Avatar;
 import world.unit.UnitInitializer;
 
 /**
@@ -46,8 +45,7 @@ public final class ConnectClient extends Operation
 		c.write(baos.toByteArray(), true);
 		System.out.println("sending controller setup data");
 		
-		Avatar a = new Avatar(true, id, new double[]{l[0], l[1]});
-		w.initialize(UnitInitializer.createInitializer(a, Byte.MIN_VALUE));
+		w.initialize(UnitInitializer.createInitializer(Byte.MIN_VALUE, true, id, Byte.MIN_VALUE, l[0], l[1]));
 		w.registerRelevantSet(id, c);
 	}
 }
