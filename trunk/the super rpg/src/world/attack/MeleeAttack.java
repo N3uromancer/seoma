@@ -1,12 +1,7 @@
 package world.attack;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 import world.World;
 import world.item.weapon.Weapon;
-import world.modifier.ObjectType;
 import world.networkUpdateable.NetworkUpdateable;
 import world.unit.Unit;
 
@@ -18,22 +13,16 @@ public class MeleeAttack extends NetworkUpdateable
 	
 	public MeleeAttack(boolean isGhost, short id, Unit u, Weapon w, byte direction)
 	{
-		super(isGhost, id, ObjectType.attack, 0, false);
+		super(isGhost, id, 0, false);
 		
 		this.u = u;
 		this.w = w;
 		this.direction = direction;
+		setReady();
 	}
 	public byte[] getState()
 	{
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		DataOutputStream dos = new DataOutputStream(baos);
-		try
-		{
-			dos.write(getID);
-		}
-		catch(IOException e){}
-		return baos.toByteArray();
+		return null;
 	}
 	public void loadState(byte[] b)
 	{
@@ -48,22 +37,9 @@ public class MeleeAttack extends NetworkUpdateable
 		//swing sword here
 		//damage hit units here
 	}
-	public double[] getLocation()
-	{
-		return u.getLocation();
-	}
-	public void setLocation(double[] l)
-	{
-		
-	}
 	@Override
-	public byte[] getInitialState() {
+	public boolean isRelevant(short id, World w) {
 		// TODO Auto-generated method stub
-		return null;
-	}
-	@Override
-	public void loadInitialState(byte[] b) {
-		// TODO Auto-generated method stub
-		
+		return false;
 	}
 }
