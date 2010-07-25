@@ -78,6 +78,7 @@ public class Region
 					units.add((Unit)temp);
 				}
 			}
+			units.remove(b);
 		}
 		catch(InterruptedException e){}
 		return units;
