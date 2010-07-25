@@ -273,12 +273,13 @@ public final class RelevantSet
 	 * be notified so that it can clear any outstanding data received regarding the
 	 * object
 	 * @param o
+	 * @param w
 	 */
-	public void destroyObject(NetworkUpdateable o)
+	public void destroyObject(NetworkUpdateable o, World w)
 	{
 		try
 		{
-			if(o.broadcastDeath() && sentIDs.contains(o.getID()))
+			if(o.broadcastDeath() && initializationOrderSent(o.getID(), w))
 			{
 				//clients require notification of object destruction
 				destObjSem.acquire();
