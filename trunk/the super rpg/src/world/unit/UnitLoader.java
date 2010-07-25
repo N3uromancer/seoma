@@ -4,38 +4,41 @@ import java.io.File;
 import java.util.HashMap;
 
 /**
- * defines a unit loader that loads unit either from specified registered classes
- * or from a data file containing unit stats, in units created from classs the
- * actual class is used to create an object, in units created from the data file
- * the standard unit class is used with the arguments specified in the file
- * @author Jack
+ * defines a unit loader that loads units from the unit data file, the only
+ * exception is the avatar unit which is loaded from a class file
  *
  */
 public final class UnitLoader
 {
-	private HashMap<String, Byte> unitTypeID = new HashMap<String, Byte>();
+	private static HashMap<Byte, byte[]> unitTypeID = new HashMap<Byte, byte[]>();
 
-	public UnitLoader(Class<? extends Unit>[] unitClasses, File unitData)
+	static
 	{
-		unitTypeID.put(Unit.class.getName(), Byte.MIN_VALUE);
-		unitTypeID.put(Avatar.class.getName(), (byte)(Byte.MIN_VALUE+1));
+		File unitData;
+		System.out.print("loading unit data... ");
+		
+		System.out.println("done");
 	}
-	public Unit createUnit(String name, boolean isGhost, byte unitType, short id)
+	public static Unit createUnit(byte type, boolean isGhost, short id, double[] l)
 	{
-		/*
-		 * temporary method filler here, this method should create the unit
-		 * specified by the byte type loaded from the unit file
-		 */
-		Unit u = null;
-		if(unitType == UnitTypeConstants.avatar)
+		if(type == Byte.MIN_VALUE)
 		{
-			u = new Avatar(isGhost, id);
+			return new Unit(isGhost, id, l, (short)15);
 		}
 		else
 		{
-			u = new Unit(isGhost, id, (short)10);
+			return new Unit(isGhost, id, l, (short)10);
 		}
-		return u;
 	}
-	public Unit createUnit
+	public static Unit createUnit(byte type, boolean isGhost, short id)
+	{
+		if(type == Byte.MIN_VALUE)
+		{
+			return new Unit(isGhost, id, (short)15);
+		}
+		else
+		{
+			return new Unit(isGhost, id, (short)10);
+		}
+	}
 }

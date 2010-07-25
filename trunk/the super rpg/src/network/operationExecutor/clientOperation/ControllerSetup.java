@@ -7,8 +7,8 @@ import network.IOConstants;
 import network.client.Client;
 import network.operationExecutor.Operation;
 import world.World;
+import world.controller.AvatarController;
 import world.controller.Controller;
-import world.unit.Avatar;
 import world.unit.UnitInitializer;
 
 /**
@@ -34,11 +34,8 @@ public class ControllerSetup extends Operation
 		short x = buff.getShort();
 		short y = buff.getShort();
 		
-		Avatar a = new Avatar(false, id, new double[]{x, y});
-		w.initialize(UnitInitializer.createInitializer(a, Byte.MIN_VALUE));
-		
-		
-		Controller controller = new Controller(a);
+		w.initialize(UnitInitializer.createInitializer(Byte.MIN_VALUE, false, id, Byte.MIN_VALUE, x, y));
+		Controller controller = new Controller(new AvatarController(id));
 		System.out.println("client controller set, avatar id = "+id);
 		w.setController(controller);
 		client.connected(a);

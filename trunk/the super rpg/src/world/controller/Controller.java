@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.Semaphore;
 
+import world.networkUpdateable.NetworkUpdateable;
+
 /**
  * defines a controller for taking user input and controlling game object,
  * controllers are registered and updated by the game world
@@ -65,7 +67,7 @@ public final class Controller implements KeyListener, MouseListener
 	 * off registered user input
 	 * @param tdiff
 	 */
-	public void updateController(double tdiff)
+	public void updateController(NetworkUpdateable n, double tdiff)
 	{
 		try
 		{
@@ -75,7 +77,7 @@ public final class Controller implements KeyListener, MouseListener
 			HashMap<short[], Boolean> clickTemp = new HashMap<short[], Boolean>();
 			downSem.release();
 			clickSem.release();
-			c.interpretUserInput(new UserInput(downTemp, clickTemp), tdiff);
+			c.interpretUserInput(n, new UserInput(downTemp, clickTemp), tdiff);
 		}
 		catch(InterruptedException e){}
 	}

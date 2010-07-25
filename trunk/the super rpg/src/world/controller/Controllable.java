@@ -1,5 +1,6 @@
 package world.controller;
 
+import world.networkUpdateable.NetworkUpdateable;
 import display.Camera;
 
 /**
@@ -9,6 +10,18 @@ import display.Camera;
  */
 public interface Controllable
 {
-	public void interpretUserInput(UserInput ui, double tdiff);
+	/**
+	 * interprets the user input from the controller
+	 * @param n a thread safe reference to the object being controlled
+	 * @param ui
+	 * @param tdiff
+	 */
+	public void interpretUserInput(NetworkUpdateable n, UserInput ui, double tdiff);
 	public void adjustCamera(Camera c);
+	/**
+	 * gets the id of the object being controlled so that
+	 * the world can get a safe reference to the object
+	 * @return returns the id of the object being controlled
+	 */
+	public short getControlledObjID();
 }

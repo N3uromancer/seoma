@@ -255,12 +255,17 @@ public final class World
 	}
 	public void updateWorld(double tdiff)
 	{
-		if(c != null)
-		{
-			c.updateController(tdiff);
-		}
 		try
 		{
+			if(c != null)
+			{
+				short cID = c.getControlledObject().getControlledObjID();
+				objRegMap.get(cID).getSemaphore().acquire();
+				NetworkUpdateable n = objRegMap.get(cID).getNetworkObject(cID);
+				c.updateController(n, tdiff);
+				objRegMap.get(cID).getSemaphore().release();
+			}
+			
 			for(byte id: regions.keySet())
 			{
 				regions.get(id).updateRegion(this, tdiff);

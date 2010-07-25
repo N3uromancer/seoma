@@ -62,6 +62,10 @@ public class Unit extends NetworkUpdateable implements Drawable
 		am.setAttribute(Attribute.health, 100);
 		setReady();
 	}
+	public AttributeManager getAttributeManager()
+	{
+		return am;
+	}
 	public short getRadius()
 	{
 		return radius;
@@ -133,19 +137,11 @@ public class Unit extends NetworkUpdateable implements Drawable
 			//setDead();
 		}
 		intersects = w.getAssociatedRegion(getID()).getIntersectedUnits(this).size() > 0;
-		if(intersects)
-		{
-			//System.out.println(getID()+" intersects");
-		}
 	}
 	public void simulate(World w, double tdiff)
 	{
 		//System.out.println(getID()+" simulated");
 		intersects = w.getAssociatedRegion(getID()).getIntersectedUnits(this).size() > 0;
-		if(intersects)
-		{
-			//System.out.println(getID()+" intersects");
-		}
 	}
 	public boolean isDisplayed()
 	{
