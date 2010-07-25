@@ -15,6 +15,7 @@ import java.util.concurrent.Semaphore;
 import world.World;
 import world.modifier.Drawable;
 import world.networkUpdateable.NetworkUpdateable;
+import world.unit.Unit;
 import display.Camera;
 
 /**
@@ -56,6 +57,30 @@ public class Region
 	public byte getRegionID()
 	{
 		return Byte.MIN_VALUE;
+	}
+	/**
+	 * gets the units intersected by the passed boundable object
+	 * @param b
+	 * @return returns the units intersected by the passed boundable object
+	 */
+	public HashSet<Unit> getIntersectedUnits(Boundable b)
+	{
+		HashSet<Unit> units = new HashSet<Unit>();
+		try
+		{
+			dSem.acquire();
+			HashSet<Boundable> intersections = drawables.intersects(b);
+			dSem.release();
+			for(Boundable temp: intersections)
+			{
+				if(temp instanceof Unit)
+				{
+					units.add((Unit)temp);
+				}
+			}
+		}
+		catch(InterruptedException e){}
+		return units;
 	}
 	/**
 	 * registers an object with the region

@@ -1,11 +1,16 @@
 package world.attack;
 
+import geom.Rectangle;
+
+import java.awt.Graphics2D;
+
 import world.World;
 import world.item.weapon.Weapon;
+import world.modifier.Drawable;
 import world.networkUpdateable.NetworkUpdateable;
 import world.unit.Unit;
 
-public class MeleeAttack extends NetworkUpdateable
+public class MeleeAttack extends NetworkUpdateable implements Drawable
 {
 	private Unit u;
 	private Weapon w;
@@ -37,9 +42,20 @@ public class MeleeAttack extends NetworkUpdateable
 		//swing sword here
 		//damage hit units here
 	}
-	@Override
-	public boolean isRelevant(short id, World w) {
-		// TODO Auto-generated method stub
+	public boolean isRelevant(short id, World w)
+	{
 		return false;
+	}
+	public void draw(Graphics2D g)
+	{
+		
+	}
+	public boolean isDisplayed()
+	{
+		return true;
+	}
+	public Rectangle getBounds()
+	{
+		return null;
 	}
 }
