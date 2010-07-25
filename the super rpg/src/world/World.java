@@ -105,7 +105,7 @@ public final class World
 			relSetSem.acquire();
 			for(RelevantSet set: relevantSets)
 			{
-				set.destroyObject(u);
+				set.destroyObject(u, this);
 			}
 			relSetSem.release();
 			
