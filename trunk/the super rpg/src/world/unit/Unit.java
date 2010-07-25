@@ -34,6 +34,8 @@ public class Unit extends NetworkUpdateable implements Drawable
 	private Inventory inventory = new Inventory();
 	
 	double m = 100; //movement speed
+	
+	boolean intersects = false;
 
 	/**
 	 * blank constructor for creating the unit on clients, state information
@@ -112,7 +114,7 @@ public class Unit extends NetworkUpdateable implements Drawable
 	public void draw(Graphics2D g)
 	{
 		g.setColor(Color.red);
-		if(!(this instanceof Avatar))
+		if(!intersects)
 		{
 			g.setColor(Color.blue);
 			//System.out.println("l=("+l[0]+", "+l[1]+"), r="+r);
@@ -130,10 +132,20 @@ public class Unit extends NetworkUpdateable implements Drawable
 			m *= -1;
 			//setDead();
 		}
+		intersects = w.getAssociatedRegion(getID()).getIntersectedUnits(this).size() > 0;
+		if(intersects)
+		{
+			//System.out.println(getID()+" intersects");
+		}
 	}
 	public void simulate(World w, double tdiff)
 	{
 		//System.out.println(getID()+" simulated");
+		intersects = w.getAssociatedRegion(getID()).getIntersectedUnits(this).size() > 0;
+		if(intersects)
+		{
+			//System.out.println(getID()+" intersects");
+		}
 	}
 	public boolean isDisplayed()
 	{

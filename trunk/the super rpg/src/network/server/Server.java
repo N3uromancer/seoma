@@ -79,7 +79,7 @@ public final class Server implements Runnable, ConnectionManager
 	public void run()
 	{
 		w = new World();
-		for(int i = 0; i < 1; i++)
+		for(int i = 0; i < 30; i++)
 		{
 			Initializable temp = UnitInitializer.createInitializer(w.generateNewID(), Byte.MIN_VALUE, Math.random()*400, Math.random()*400, (short)15);
 			w.initialize(temp);
