@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
@@ -39,6 +40,12 @@ public final class World
 	 * maps each network updateable id in the world to the initializable that created it
 	 */
 	private Map<Short, Initializable> objIniMap = Collections.synchronizedMap(new HashMap<Short, Initializable>());
+	/**
+	 * stores the network updateable objects actually created by each initializable, this is used to
+	 * determine if the initialization order has already been sent to clients if an initialization order
+	 * creates more than 1 network udpateable object
+	 */
+	private Map<Initializable, HashSet<Short>> iniObjMap = Collections.synchronizedMap(new HashMap<Initializable, HashSet<Short>>());
 	
 	private HashMap<Byte, Region> regions = new HashMap<Byte, Region>(); //maps regions to their ids
 	/**
@@ -81,7 +88,13 @@ public final class World
 	{
 		try
 		{
+			Initializable i = objIniMap.get(id);
 			objIniMap.remove(id);
+			iniObjMap.get(i).remove(id);
+			if(iniObjMap.get(i).size() == 0)
+			{
+				iniObjMap.remove(i);
+			}
 			
 			Region r = objRegMap.get(id);
 			r.getSemaphore().acquire();
@@ -115,6 +128,18 @@ public final class World
 	public Initializable traceInitialization(short id)
 	{
 		return objIniMap.get(id);
+	}
+	/**
+	 * gets the ids of all objects created by the passed initializable,
+	 * this method can be used in conjunction to with trace initialization
+	 * method to determine if a given object was created with the same
+	 * initialization order as another object
+	 * @param i
+	 * @return returns the ids of all objects created by the passed initializable
+	 */
+	public HashSet<Short> getInitializedObjects(Initializable i)
+	{
+		return iniObjMap.get(i);
 	}
 	/**
 	 * registers an object with the world, when this method is called the unit data map
@@ -248,10 +273,13 @@ public final class World
 				iniSem.release();
 				//avoid deadlocking threads if the initializable initializes another initializable
 				HashMap<NetworkUpdateable, Byte> netObj = i.initialize(this);
+				HashSet<Short> createdObjIDs = new HashSet<Short>();
 				for(NetworkUpdateable u: netObj.keySet())
 				{
 					registerObject(netObj.get(u), u, i);
+					createdObjIDs.add(u.getID());
 				}
+				iniObjMap.put(i, createdObjIDs);
 			}
 			
 			relSetSem.acquire();

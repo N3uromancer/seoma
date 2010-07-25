@@ -10,6 +10,16 @@ import world.networkUpdateable.NetworkUpdateable;
  * should have a byte array for its sole argument for its constructor, the length
  * of the byte array needed to properly execute an initialization action should
  * not exceed 256
+ * 
+ * the data necessary to initialize objects may change from client to server depending
+ * on the arguments of the network updateables created, however an initializable object
+ * must initialize the same network updateables on the client as on the server, if this
+ * is not followed initializables the create multiple network updateable objects may
+ * cause errors in the relevant sets because they will not be able to determine which
+ * initialization orders to send to their associated clients
+ * 
+ * ex. three network updateables created on server with ids 1, 2, 3; three network udpateables
+ * must be created on the client with ids 1, 2, 3
  * @author Jack
  *
  */
