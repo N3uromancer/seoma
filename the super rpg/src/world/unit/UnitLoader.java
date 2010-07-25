@@ -1,14 +1,26 @@
 package world.unit;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Scanner;
+import java.util.HashMap;
 
-
-public class UnitLoader
+/**
+ * defines a unit loader that loads unit either from specified registered classes
+ * or from a data file containing unit stats, in units created from classs the
+ * actual class is used to create an object, in units created from the data file
+ * the standard unit class is used with the arguments specified in the file
+ * @author Jack
+ *
+ */
+public final class UnitLoader
 {
-	public Unit createUnit(boolean isGhost, byte unitType, short id)
+	private HashMap<String, Byte> unitTypeID = new HashMap<String, Byte>();
+
+	public UnitLoader(Class<? extends Unit>[] unitClasses, File unitData)
+	{
+		unitTypeID.put(Unit.class.getName(), Byte.MIN_VALUE);
+		unitTypeID.put(Avatar.class.getName(), (byte)(Byte.MIN_VALUE+1));
+	}
+	public Unit createUnit(String name, boolean isGhost, byte unitType, short id)
 	{
 		/*
 		 * temporary method filler here, this method should create the unit
@@ -21,90 +33,9 @@ public class UnitLoader
 		}
 		else
 		{
-			u = new Unit(isGhost, id, unitType, (short)10);
+			u = new Unit(isGhost, id, (short)10);
 		}
 		return u;
 	}
-	public UnitLoader(String unitStats)
-	{
-		System.out.println("loading unit file...");
-		File f = new File(unitStats);
-		ArrayList<String> lines = new ArrayList<String>();
-		try
-		{
-			Scanner scanner = new Scanner(f);
-			while(scanner.hasNextLine())
-			{
-				lines.add(scanner.nextLine());
-			}
-		}
-		catch(IOException e){}
-		parseFile(lines);
-	}
-	public static void main(String[] args)
-	{
-		new UnitLoader("example unit stats.txt");
-	}
-	private void parseFile(ArrayList<String> lines)
-	{
-		//System.out.println("parsing unit stat file");
-		int index = 0;
-		byte type = Byte.MIN_VALUE;
-		boolean skip = false;
-		String strip = "";
-		while(index < lines.size())
-		{
-			String line = lines.get(index);
-			line = removeSpaces(line);
-			for(int i = 0; i < line.length(); i++)
-			{
-				char c = line.charAt(i);
-				if(c == '=')
-				{
-					skip = true;
-				}
-				else if(c == '-')
-				{
-					skip = false;
-					parseStrip(strip);
-					strip = "";
-				}
-				else if(!skip)
-				{
-					strip+=c;
-				}
-			}
-			index++;
-		}
-		parseStrip(strip);
-	}
-	/**
-	 * parses a strip of characters from the file
-	 * @param strip
-	 */
-	private void parseStrip(String strip)
-	{
-		if(strip.length() > 0)
-		{
-			String[] s = strip.split(",");
-			for(String temp: s)
-			{
-				System.out.println(temp);
-				//interpret values here
-			}
-		}
-	}
-	private String removeSpaces(String line)
-	{
-		String temp = "";
-		for(int i = 0; i < line.length(); i++)
-		{
-			char c = line.charAt(i);
-			if(c != ' ')
-			{
-				temp+=c;
-			}
-		}
-		return temp;
-	}
+	public Unit createUnit
 }

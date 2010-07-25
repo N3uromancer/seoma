@@ -51,7 +51,7 @@ public final class RelevantSet
 	private LinkedList<Initializable> ini = new LinkedList<Initializable>(); //queued initializations to be sent to the connected client
 	
 	private short id; //the id of the unit for whom the relevant set is maintained
-	private Set<Short> sentIds = Collections.synchronizedSet(new HashSet<Short>());
+	private Set<Short> sentIDs = Collections.synchronizedSet(new HashSet<Short>());
 	private Connection c;
 	private short updateIndex = Short.MIN_VALUE; //used to determine old messages, higher indeces are more recent (until it rolls over)
 	
@@ -128,10 +128,10 @@ public final class RelevantSet
 						{
 							//detected a new object, adds the object to priority map
 							priorities.put(u, u.getUpdatePriority());
-							if(!sentIds.contains(u.getID()))
+							if(!sentIDs.contains(u.getID()) && !initializationOrderSent(u.getID(), w))
 							{
 								ini.add(w.traceInitialization(u.getID()));
-								sentIds.add(u.getID());
+								sentIDs.add(u.getID());
 							}
 						}
 						else
@@ -246,6 +246,27 @@ public final class RelevantSet
 		return null;
 	}
 	/**
+	 * tests to determine if the initialization order for the passed id has
+	 * already been sent to the associated client
+	 * @param id
+	 * @param w
+	 * @return returns true if the initialization order has already been sent,
+	 * false otherwise
+	 */
+	private boolean initializationOrderSent(short id, World w)
+	{
+		Initializable i = w.traceInitialization(id);
+		HashSet<Short> createdObjIDs = w.getInitializedObjects(i);
+		for(Short objID: createdObjIDs)
+		{
+			if(sentIDs.contains(objID))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	/**
 	 * called to notify the relevant set that an object has been destroyed, removes
 	 * the object from the set priority map and cancels the object's spawn order if
 	 * it has not already been sent, notifies the associated client, the client must
@@ -257,7 +278,7 @@ public final class RelevantSet
 	{
 		try
 		{
-			if(o.broadcastDeath())
+			if(o.broadcastDeath() && sentIDs.contains(o.getID()))
 			{
 				//clients require notification of object destruction
 				destObjSem.acquire();
