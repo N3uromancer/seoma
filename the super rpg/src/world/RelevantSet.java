@@ -186,6 +186,9 @@ public final class RelevantSet
 	 * that controls the unit for whom the relevant set is maintained,
 	 * writes highest priority object state information to the buffer
 	 * first before sending lesser priority information
+	 * 
+	 * objects whose update priority is less than 1, or whose state
+	 * information is null are not sent
 	 * @param maxSize the maximum size of the byte buffer
 	 * @return returns a byte buffer containing update information
 	 * to be sent to the associated client
@@ -226,7 +229,7 @@ public final class RelevantSet
 			{
 				NetworkUpdateable n = q.poll();
 				byte[] buff = n.getState();
-				if(netObjData.size()+buff.length+3 <= maxSize)
+				if(netObjData.size()+buff.length+3 <= maxSize && n.getUpdatePriority() > 0 && buff != null)
 				{
 					length++;
 					dos2.writeShort(n.getID());
