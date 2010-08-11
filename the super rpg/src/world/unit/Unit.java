@@ -10,6 +10,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import world.RelevantSet;
 import world.World;
 import world.item.Inventory;
 import world.modifier.Drawable;
@@ -155,7 +156,7 @@ public class Unit extends NetworkUpdateable implements Drawable
 	{
 		return new Rectangle(l[0]-radius, l[1]-radius, radius*2, radius*2);
 	}
-	public boolean isRelevant(short id, World w)
+	public boolean isRelevant(short id, RelevantSet set, World w)
 	{
 		return w.getAssociatedRegion(getID()) == w.getAssociatedRegion(id);
 	}
