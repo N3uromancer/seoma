@@ -118,6 +118,12 @@ public class Region
 			uSem.release();
 		}
 		catch(InterruptedException e){}
+		catch(NullPointerException e)
+		{
+			//for debug purposes
+			System.out.println(id+" cannot be updated, buff length = "+buff.length);
+			e.printStackTrace();
+		}
 	}
 	/**
 	 * gets a single network object from the region, this method should be used in conjunction

@@ -108,7 +108,8 @@ public final class RelevantSet
 	}
 	/**
 	 * updates the priority of all relevant network objects and detects new
-	 * relevant network objects
+	 * relevant network objects, if new objects are detected then their
+	 * initialization orders are traced and flagged to be sent to the client
 	 * @param w
 	 */
 	private void updatePriorities(World w)
@@ -168,7 +169,7 @@ public final class RelevantSet
 			 * shrinking so that the max size can be adjusted dynamically to
 			 * maximize throughput
 			 */
-			System.out.println("rSet for id="+id+" detected initialization orders");
+			/*System.out.println("rSet for id="+id+" detected initialization orders");
 			HashMap<Initializable, byte[]> temp = new HashMap<Initializable, byte[]>();
 			Iterator<Initializable> it = ini.iterator();
 			for(int i = 0; i < 256 && ini.size() > 0; i++) //for loop to cap spawn orders at 256
@@ -178,6 +179,17 @@ public final class RelevantSet
 				it.remove();
 			}
 			byte[] b = PerformInitialization.createByteBuffer(temp, w);
+			c.write(b, true);*/
+			
+			System.out.println("rSet for id="+id+" detected initialization orders");
+			ArrayList<Initializable> temp = new ArrayList<Initializable>();
+			Iterator<Initializable> it = ini.iterator();
+			for(int i = 0; i < 256 && ini.size() > 0; i++) //for loop to cap spawn orders at 256
+			{
+				temp.add(it.next());
+				it.remove();
+			}
+			byte[] b = PerformInitialization.createByteBuffer(temp, w, false);
 			c.write(b, true);
 		}
 	}
@@ -229,7 +241,7 @@ public final class RelevantSet
 			{
 				NetworkUpdateable n = q.poll();
 				byte[] buff = n.getState();
-				if(netObjData.size()+buff.length+3 <= maxSize && n.getUpdatePriority() > 0 && buff != null)
+				if(buff != null && netObjData.size()+buff.length+3 <= maxSize && n.getUpdatePriority() > 0)
 				{
 					length++;
 					dos2.writeShort(n.getID());

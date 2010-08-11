@@ -12,6 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 
 import network.Connection;
+import world.attack.AttackInitializer;
 import world.controller.Controller;
 import world.initializer.Initializable;
 import world.initializer.Initializer;
@@ -68,7 +69,8 @@ public final class World
 		Region r = new Region();
 		regions.put(r.getRegionID(), r);
 		
-		initializer = new Initializer(new String[]{UnitInitializer.class.getName()});
+		initializer = new Initializer(new String[]{
+				UnitInitializer.class.getName(), AttackInitializer.class.getName()});
 	}
 	/**
 	 * gets the region associated with the passed id
@@ -88,22 +90,17 @@ public final class World
 	{
 		try
 		{
-			Initializable i = objIniMap.get(id);
-			objIniMap.remove(id);
-			iniObjMap.get(i).remove(id);
-			if(iniObjMap.get(i).size() == 0)
-			{
-				iniObjMap.remove(i);
-			}
-			
 			Region r = objRegMap.get(id);
 			r.getSemaphore().acquire();
 			NetworkUpdateable u = r.getNetworkObject(id);
 			r.getSemaphore().release();
 			u.setDead();
 			
+			System.out.println("destroying "+u.getClass().getSimpleName()+", id="+u.getID());
+			
 			if(u.broadcastDeath())
 			{
+				System.out.println("broadcasting death for id="+u.getID());
 				relSetSem.acquire();
 				for(RelevantSet set: relevantSets)
 				{
@@ -119,6 +116,24 @@ public final class World
 			waitingSem.acquire();
 			waiting.remove(u);
 			waitingSem.release();
+
+			Initializable i = objIniMap.get(id);
+			if(i != null)
+			{
+				/*
+				 * either destroy order for an object that was never intialized
+				 * (although relevant set should not have sent the destroy order
+				 * because it should be able to determine the object was not
+				 * initialized) or the object was already destroyed in the client
+				 * game (as in the case of attacks)
+				 */
+				objIniMap.remove(id);
+				iniObjMap.get(i).remove(id);
+				if(iniObjMap.get(i).size() == 0)
+				{
+					iniObjMap.remove(i);
+				}
+			}
 		}
 		catch(InterruptedException e){}
 	}
@@ -157,7 +172,7 @@ public final class World
 	private void registerObject(byte regionID, NetworkUpdateable u, Initializable i)
 	{
 		objIniMap.put(u.getID(), i);
-		System.out.println("registering object id="+u.getID()+"...");
+		System.out.println("registering "+u.getClass().getSimpleName()+", id="+u.getID()+"...");
 		if(u.isGhost())
 		{
 			//only ghost objects would have received information
@@ -179,7 +194,7 @@ public final class World
 		if(u.isReady())
 		{
 			//object ready for use within the world, registered with appropriate region
-			System.out.println("object ready, registered with region "+regionID);
+			System.out.println("object "+u.getID()+" ready, registered with region "+regionID);
 			regions.get(regionID).registerObject(u);
 		}
 		else
@@ -268,7 +283,7 @@ public final class World
 				{
 					objRegMap.get(cID).getSemaphore().acquire();
 					NetworkUpdateable n = objRegMap.get(cID).getNetworkObject(cID);
-					ArrayList<Initializable> userActions = c.updateController(n, tdiff);
+					c.updateController(this, n, tdiff);
 					objRegMap.get(cID).getSemaphore().release();
 				}
 			}
@@ -283,6 +298,7 @@ public final class World
 				iniSem.acquire();
 				Initializable i = initializations.poll();
 				iniSem.release();
+				System.out.println(i.getClass().getSimpleName()+" initialized, arg length = "+i.getOriginalIniArgs().length);
 				//avoid deadlocking threads if the initializable initializes another initializable
 				HashMap<NetworkUpdateable, Byte> netObj = i.initialize(this);
 				HashSet<Short> createdObjIDs = new HashSet<Short>();
@@ -302,6 +318,7 @@ public final class World
 			relSetSem.release();
 		}
 		catch(InterruptedException e){}
+		//System.out.println("---------------------------------");
 	}
 	/**
 	 * generates an unused id for a game object

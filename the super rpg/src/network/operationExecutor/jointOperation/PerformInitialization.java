@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
+import java.util.ArrayList;
 
 import network.Connection;
 import network.IOConstants;
@@ -47,9 +47,10 @@ public final class PerformInitialization extends Operation
 	 * orders to a client
 	 * @param data
 	 * @param w
-	 * @return returns a byte buffer containing initialization order data
+	 * @param origArgs true if the original arguments for the initializables should be sent
+	 * @return returns a byte buffer containing data for initialization orders
 	 */
-	public static byte[] createByteBuffer(HashMap<Initializable, byte[]> data, World w)
+	public static byte[] createByteBuffer(ArrayList<Initializable> data, World w, boolean origArgs)
 	{
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(baos);
@@ -57,11 +58,13 @@ public final class PerformInitialization extends Operation
 		{
 			dos.write(IOConstants.performInitialization);
 			dos.write(data.size()+Byte.MIN_VALUE);
-			for(Initializable i: data.keySet())
+			for(Initializable i: data)
 			{
+				byte[] buff = origArgs? i.getOriginalIniArgs(): i.getIniArgs();
+				//System.out.println(i.getIniArgs().length);
 				dos.write(w.getInitializer().getInitializeID(i));
-				dos.write(data.get(i).length+Byte.MIN_VALUE); //data length
-				dos.write(data.get(i));
+				dos.write(buff.length+Byte.MIN_VALUE); //data length
+				dos.write(buff);
 			}
 		}
 		catch(IOException e){}

@@ -40,4 +40,11 @@ public interface Initializable
 	 * to execute the initialization action
 	 */
 	public byte[] getIniArgs();
+	/**
+	 * gets the original arguments used to create the initializable, does not necesarily include
+	 * only minimal information, used for sending actual arguments from controller initialization
+	 * orders from clients to the game server
+	 * @return returns the original arguments used to create the initializable
+	 */
+	public byte[] getOriginalIniArgs();
 }

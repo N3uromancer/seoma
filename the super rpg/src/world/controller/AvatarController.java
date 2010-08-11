@@ -1,7 +1,10 @@
 package world.controller;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import world.attack.AttackInitializer;
+import world.initializer.Initializable;
 import world.networkUpdateable.NetworkUpdateable;
 import world.unit.Unit;
 import display.Camera;
@@ -29,8 +32,10 @@ public final class AvatarController implements Controllable
 		z.put('r', 1.1);
 		z.put('f', .9);
 	}
-	public void interpretUserInput(NetworkUpdateable n, UserInput ui, double tdiff)
+	public ArrayList<Initializable> interpretUserInput(NetworkUpdateable n, UserInput ui, double tdiff)
 	{
+		ArrayList<Initializable> iniActions = new ArrayList<Initializable>();
+		
 		Unit a = (Unit)n;
 		for(char c: ui.getKeyPresses())
 		{
@@ -47,9 +52,13 @@ public final class AvatarController implements Controllable
 		}
 		if(ui.getMousePresses().size() > 0)
 		{
-			System.out.println("mouse clicked");
+			//System.out.println("mouse clicks detected in avatar controller");
+			iniActions.add(new AttackInitializer(AttackInitializer.createAttack(n.getID(), (byte)0)));
 		}
 		location = a.getLocation();
+		
+		
+		return iniActions;
 	}
 	public void adjustCamera(Camera c)
 	{

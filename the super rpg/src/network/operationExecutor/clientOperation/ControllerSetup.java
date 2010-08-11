@@ -35,7 +35,7 @@ public class ControllerSetup extends Operation
 		short y = buff.getShort();
 		
 		w.initialize(UnitInitializer.createInitializer(Byte.MIN_VALUE, false, id, Byte.MIN_VALUE, x, y));
-		Controller controller = new Controller(new AvatarController(id));
+		Controller controller = new Controller(new AvatarController(id), c);
 		System.out.println("client controller set, avatar id = "+id);
 		w.setController(controller);
 		client.connected(id);

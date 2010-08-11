@@ -20,7 +20,6 @@ import network.operationExecutor.jointOperation.PerformInitialization;
 import network.operationExecutor.jointOperation.UpdateNetworkObjects;
 import network.receiver.UDPReceiver;
 import world.World;
-import world.unit.Unit;
 import display.Display;
 
 public final class Client implements Runnable, ConnectionManager
@@ -85,7 +84,7 @@ public final class Client implements Runnable, ConnectionManager
 	public void connected(short avatarID)
 	{
 		System.out.println("client connected!");
-		this.avatar = avatar;
+		this.avatar = avatarID;
 		new Thread(this).start();
 	}
 	public void run()
@@ -157,7 +156,9 @@ public final class Client implements Runnable, ConnectionManager
 		{
 			//System.out.println(InetAddress.getLocalHost());
 			//System.out.println(InetAddress.getByName("QAYPN2"));
-			new Client(true, InetAddress.getByName("QAYPN2"));
+			
+			//new Client(true, InetAddress.getByName("QAYPN2"));
+			new Client(true, InetAddress.getLocalHost());
 		}
 		catch(IOException e)
 		{

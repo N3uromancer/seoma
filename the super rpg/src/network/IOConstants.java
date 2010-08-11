@@ -24,7 +24,7 @@ public class IOConstants
 	public static final byte controllerSetup = 3;
 	public static final byte updateNetworkObjects = 4;
 	public static final byte unitAttack = 5; //probably useless
-	public static final byte spawnObject = 6;
+	public static final byte spawnObject = 6; //probably useless
 	public static final byte executeAction = 7; //probably useless
 	public static final byte destroyObject = 8;
 	public static final byte performInitialization = 9;
