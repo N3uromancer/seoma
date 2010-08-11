@@ -158,7 +158,8 @@ public final class Client implements Runnable, ConnectionManager
 			//System.out.println(InetAddress.getByName("QAYPN2"));
 			
 			//new Client(true, InetAddress.getByName("QAYPN2"));
-			new Client(true, InetAddress.getLocalHost());
+			//new Client(true, InetAddress.getLocalHost());
+			new Client(true, InetAddress.getByName("99.187.186.83")); //kyle's house ip
 		}
 		catch(IOException e)
 		{

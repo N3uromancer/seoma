@@ -1,5 +1,6 @@
 package world.networkUpdateable;
 
+import world.RelevantSet;
 import world.World;
 
 /**
@@ -34,10 +35,11 @@ public abstract class NetworkUpdateable
 	 * tests to determine whether or not this network updateable is relevant
 	 * to the passed id, relevant objects will be updated on clients by the server
 	 * @param id
+	 * @param set the relevant set maintained for the passed id
 	 * @param w
 	 * @return returns true if the object is relevant to the passed id, false otherwise
 	 */
-	public abstract boolean isRelevant(short id, World w);
+	public abstract boolean isRelevant(short id, RelevantSet set, World w);
 	public boolean isDead()
 	{
 		return dead;

@@ -7,6 +7,7 @@ import java.awt.Graphics2D;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import world.RelevantSet;
 import world.World;
 import world.item.weapon.Weapon;
 import world.modifier.Drawable;
@@ -79,9 +80,10 @@ public class MeleeAttack extends NetworkUpdateable implements Drawable
 	{
 		return duration >= 0.0;
 	}
-	public boolean isRelevant(short id, World w) 
+	public boolean isRelevant(short id, RelevantSet set, World w) 
 	{
-		return w.getAssociatedRegion(id) == w.getAssociatedRegion(this.id);
+		return w.getAssociatedRegion(id) == w.getAssociatedRegion(this.id) &&
+			set.isSent(ownerUnit.getID());
 	}
 	public Rectangle getBounds()
 	{

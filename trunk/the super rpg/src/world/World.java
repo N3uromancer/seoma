@@ -302,10 +302,13 @@ public final class World
 				//avoid deadlocking threads if the initializable initializes another initializable
 				HashMap<NetworkUpdateable, Byte> netObj = i.initialize(this);
 				HashSet<Short> createdObjIDs = new HashSet<Short>();
-				for(NetworkUpdateable u: netObj.keySet())
+				if(netObj != null && netObj.size() > 0)
 				{
-					registerObject(netObj.get(u), u, i);
-					createdObjIDs.add(u.getID());
+					for(NetworkUpdateable u: netObj.keySet())
+					{
+						registerObject(netObj.get(u), u, i);
+						createdObjIDs.add(u.getID());
+					}
 				}
 				iniObjMap.put(i, createdObjIDs);
 			}
