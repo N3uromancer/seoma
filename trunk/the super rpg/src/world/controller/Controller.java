@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.Semaphore;
 
+import network.Connection;
+import network.operationExecutor.jointOperation.PerformInitialization;
+import world.World;
 import world.initializer.Initializable;
 import world.networkUpdateable.NetworkUpdateable;
 
@@ -25,14 +28,16 @@ public final class Controller implements KeyListener, MouseListener
 	private HashMap<short[], Boolean> clicks = new HashMap<short[], Boolean>(); //true values indicate right clicks
 	private Semaphore clickSem = new Semaphore(1, true);
 	private Controllable c;
+	private Connection connection;
 	
 	/**
 	 * creates a new controller that is associated with the passed id
 	 * @param id
 	 */
-	public Controller(Controllable c)
+	public Controller(Controllable c, Connection connection)
 	{
 		this.c = c;
+		this.connection = connection;
 	}
 	public void keyPressed(KeyEvent e)
 	{
@@ -67,24 +72,30 @@ public final class Controller implements KeyListener, MouseListener
 	/**
 	 * updates the object associated with the controller based
 	 * off registered user input
+	 * @param w
+	 * @param n
 	 * @param tdiff
-	 * @return returns a list of initializables created by the associated
-	 * controllable object
 	 */
-	public ArrayList<Initializable> updateController(NetworkUpdateable n, double tdiff)
+	public void updateController(World w, NetworkUpdateable n, double tdiff)
 	{
 		try
 		{
 			downSem.acquire();
 			clickSem.acquire();
 			HashSet<Character> downTemp = new HashSet<Character>(down);
-			HashMap<short[], Boolean> clickTemp = new HashMap<short[], Boolean>();
+			HashMap<short[], Boolean> clickTemp = new HashMap<short[], Boolean>(clicks);
+			clicks = new HashMap<short[], Boolean>();
 			downSem.release();
 			clickSem.release();
-			return c.interpretUserInput(n, new UserInput(downTemp, clickTemp), tdiff);
+			ArrayList<Initializable> actions = c.interpretUserInput(n, new UserInput(downTemp, clickTemp), tdiff);
+			if(c != null && actions != null && actions.size() > 0)
+			{
+				//the controller is not on the server, initialization commands are sent to the specified connection
+				byte[] iniData = PerformInitialization.createByteBuffer(actions, w, true);
+				connection.write(iniData, true);
+			}
 		}
 		catch(InterruptedException e){}
-		return null;
 	}
 	/**
 	 * gets the object controlled by this controller
@@ -96,6 +107,7 @@ public final class Controller implements KeyListener, MouseListener
 	}
 	public void mousePressed(MouseEvent e)
 	{
+		//System.out.println("mouse pressed");
 		try
 		{
 			clickSem.acquire();

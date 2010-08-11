@@ -22,6 +22,8 @@ public class MeleeAttack extends NetworkUpdateable implements Drawable
 	private double duration;
 	private short id;
 	
+	HashSet<Unit> hitUnits = new HashSet<Unit>();
+	
 	public MeleeAttack(boolean isGhost, short id, Unit u, byte direction)
 	{
 		super(isGhost, id, 0, false);
@@ -50,32 +52,32 @@ public class MeleeAttack extends NetworkUpdateable implements Drawable
 	{
 		simulate(w, tdiff);
 		//damage hit units here
-		HashSet hitUnits = new HashSet<Unit>();
-		hitUnits = w.getAssociatedRegion(id).getIntersectedUnits(this);
-		Iterator<Unit> i = hitUnits.iterator();
+		HashSet<Unit> intersections = w.getAssociatedRegion(id).getIntersectedUnits(this);
+		Iterator<Unit> i = intersections.iterator();
 		while(i.hasNext())
 		{
 			Unit u = i.next();
-			if(!u.equals(ownerUnit))
+			if(!u.equals(ownerUnit) && !hitUnits.contains(u))
+			{
+				hitUnits.add(u);
 				u.getAttributeManager().setAttribute(Attribute.health, 0);
+				//System.out.println(u.getID()+" was hit!");
+			}
 		}
 	}
 	public void draw(Graphics2D g)
 	{
+		//System.out.println("here");
 		g.setColor(Color.WHITE);
 		g.fillRect((int)ownerUnit.getLocation()[0]-40, (int)ownerUnit.getLocation()[1]-40, 80, 80);
 	}
 	public boolean isDisplayed()
 	{
-		if (duration <= 0.0)
-			return false;
-		return true;
+		return duration >= 0.0;
 	}
-	@Override
 	public boolean isRelevant(short id, World w) 
 	{
-		// TODO Auto-generated method stub
-		return false;
+		return w.getAssociatedRegion(id) == w.getAssociatedRegion(this.id);
 	}
 	public Rectangle getBounds()
 	{

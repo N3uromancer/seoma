@@ -19,6 +19,8 @@ public final class AttackInitializer implements Initializable
 	short unitID;
 	byte direction;
 	
+	boolean assignID = false; //true if initialization order came from a client which cant assign an id
+	
 	byte[] args;
 	
 	public AttackInitializer(byte[] args)
@@ -26,12 +28,37 @@ public final class AttackInitializer implements Initializable
 		this.args = args;
 		
 		ByteBuffer b = ByteBuffer.wrap(args);
-		isGhost = b.get()==1;
-		id = b.getShort();
-		unitID = b.getShort();
-		direction = b.get();
+		if(args.length == 6)
+		{
+			isGhost = b.get()==1;
+			id = b.getShort();
+			unitID = b.getShort();
+			direction = b.get();
+		}
+		else
+		{
+			//arg length = 4
+			isGhost = b.get()==1;
+			unitID = b.getShort();
+			direction = b.get();
+			assignID = true;
+		}
 	}
 	public byte[] getIniArgs()
+	{
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		DataOutputStream dos = new DataOutputStream(baos);
+		try
+		{
+			dos.writeBoolean(true);
+			dos.writeShort(id);
+			dos.writeShort(unitID);
+			dos.write(direction);
+		}
+		catch(IOException e){}
+		return baos.toByteArray();
+	}
+	public byte[] getOriginalIniArgs()
 	{
 		return args;
 	}
@@ -49,6 +76,10 @@ public final class AttackInitializer implements Initializable
 		}
 		catch(InterruptedException e){}
 		
+		if(assignID)
+		{
+			id = w.generateNewID();
+		}
 		MeleeAttack attack = new MeleeAttack(isGhost, id, unit, direction);
 		m.put(attack, w.getAssociatedRegion(unitID).getRegionID());
 		
@@ -62,6 +93,27 @@ public final class AttackInitializer implements Initializable
 		{
 			dos.writeBoolean(isGhost);
 			dos.writeShort(id);
+			dos.writeShort(unitID);
+			dos.write(direction);
+		}
+		catch(IOException e){}
+		return baos.toByteArray();
+	}
+	/**
+	 * creates a new attack on the client initialized by a client avatar, new
+	 * attacks are created as non ghost objects and are flagged to be dynamically
+	 * assigned an id by the server upon their initialization
+	 * @param unitID
+	 * @param direction
+	 * @return
+	 */
+	public static byte[] createAttack(short unitID, byte direction)
+	{
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		DataOutputStream dos = new DataOutputStream(baos);
+		try
+		{
+			dos.writeBoolean(false);
 			dos.writeShort(unitID);
 			dos.write(direction);
 		}

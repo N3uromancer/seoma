@@ -15,6 +15,7 @@ import network.Connection;
 import network.ConnectionManager;
 import network.IOConstants;
 import network.operationExecutor.OperationExecutor;
+import network.operationExecutor.jointOperation.PerformInitialization;
 import network.operationExecutor.jointOperation.UpdateNetworkObjects;
 import network.operationExecutor.serverOperation.ConnectClient;
 import network.receiver.UDPReceiver;
@@ -66,6 +67,7 @@ public final class Server implements Runnable, ConnectionManager
 		OperationExecutor exe = new OperationExecutor();
 		exe.registerOperation(new ConnectClient(w));
 		exe.registerOperation(new UpdateNetworkObjects(w));
+		exe.registerOperation(new PerformInitialization(w));
 
 		DatagramSocket ds = null;
 		try
@@ -79,7 +81,7 @@ public final class Server implements Runnable, ConnectionManager
 	public void run()
 	{
 		w = new World();
-		for(int i = 0; i < 30; i++)
+		for(int i = 0; i < 10; i++)
 		{
 			Initializable temp = UnitInitializer.createInitializer((byte)0, false, w.generateNewID(), Byte.MIN_VALUE, Math.random()*400, Math.random()*400);
 			w.initialize(temp);

@@ -132,6 +132,11 @@ public class Unit extends NetworkUpdateable implements Drawable
 		{
 			script.updateScript(w, tdiff);
 		}
+		if(am.getAttribute(Attribute.health) <= 0)
+		{
+			//System.out.println("unit "+getID()+" killed");
+			setDead();
+		}
 	}
 	public void simulate(World w, double tdiff)
 	{

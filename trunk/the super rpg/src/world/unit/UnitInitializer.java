@@ -25,8 +25,11 @@ public final class UnitInitializer implements Initializable
 	double y;
 	boolean server;
 	
+	byte[] origArgs;
+	
 	public UnitInitializer(byte[] args)
 	{
+		origArgs = args;
 		if(args.length == 21)
 		{
 			server = true;
@@ -117,5 +120,9 @@ public final class UnitInitializer implements Initializable
 		}
 		catch(IOException e){}
 		return baos.toByteArray();
+	}
+	public byte[] getOriginalIniArgs()
+	{
+		return origArgs;
 	}
 }
