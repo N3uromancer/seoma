@@ -38,7 +38,7 @@ public class Region
 	
 	public Region()
 	{
-		drawables = new PartitionManager(0, 0, 1000, 1000, 20, 40, 400);
+		drawables = new PartitionManager(0, 0, 1000, 1000, 20, 100, 400);
 	}
 	/**
 	 * gets the network objects associated with this region, this method should
@@ -232,7 +232,10 @@ public class Region
 			dSem.release();
 			for(Boundable temp: b)
 			{
-				((Drawable)temp).draw(g);
+				if(((Drawable)temp).isDisplayed())
+				{
+					((Drawable)temp).draw(g);
+				}
 			}
 		}
 		catch(InterruptedException e){}

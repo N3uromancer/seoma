@@ -30,7 +30,7 @@ public class MeleeAttack extends NetworkUpdateable implements Drawable
 		
 		this.ownerUnit = u;
 		this.direction = direction;
-		this.duration = 1.0;
+		this.duration = .32;
 		this.id = id;
 		setReady();
 	}
@@ -47,21 +47,25 @@ public class MeleeAttack extends NetworkUpdateable implements Drawable
 		duration -= tdiff;
 		if (duration <= 0.0)
 			setDead();
+		//System.out.println(duration+", tdiff="+tdiff);
 	}
 	public void update(World w, double tdiff)
 	{
 		simulate(w, tdiff);
-		//damage hit units here
-		HashSet<Unit> intersections = w.getAssociatedRegion(id).getIntersectedUnits(this);
-		Iterator<Unit> i = intersections.iterator();
-		while(i.hasNext())
+		if(!isDead())
 		{
-			Unit u = i.next();
-			if(!u.equals(ownerUnit) && !hitUnits.contains(u))
+			//damage hit units here
+			HashSet<Unit> intersections = w.getAssociatedRegion(id).getIntersectedUnits(this);
+			Iterator<Unit> i = intersections.iterator();
+			while(i.hasNext())
 			{
-				hitUnits.add(u);
-				u.getAttributeManager().setAttribute(Attribute.health, 0);
-				//System.out.println(u.getID()+" was hit!");
+				Unit u = i.next();
+				if(!u.equals(ownerUnit) && !hitUnits.contains(u))
+				{
+					hitUnits.add(u);
+					u.getAttributeManager().setAttribute(Attribute.health, 0);
+					//System.out.println(u.getID()+" was hit!");
+				}
 			}
 		}
 	}
