@@ -39,7 +39,6 @@ public final class AvatarController implements Controllable
 				double[] l = a.getLocation();
 				double[] t = actions.get(c);
 				a.setLocation(new double[]{l[0]+t[0]*tdiff, l[1]+t[1]*tdiff});
-				location = a.getLocation();
 			}
 			if(z.containsKey(c))
 			{
@@ -50,13 +49,17 @@ public final class AvatarController implements Controllable
 		{
 			System.out.println("mouse clicked");
 		}
+		location = a.getLocation();
 	}
 	public void adjustCamera(Camera c)
 	{
-		double[] l = {location[0], location[1]};
-		l[1]*=-1;
-		c.centerCamera(l);
-		c.zoom(zoom);
+		if(location != null)
+		{
+			double[] l = {location[0], location[1]};
+			l[1]*=-1;
+			c.centerCamera(l);
+			c.zoom(zoom);
+		}
 	}
 	public short getControlledObjID()
 	{

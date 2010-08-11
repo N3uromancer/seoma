@@ -102,12 +102,15 @@ public final class World
 			r.getSemaphore().release();
 			u.setDead();
 			
-			relSetSem.acquire();
-			for(RelevantSet set: relevantSets)
+			if(u.broadcastDeath())
 			{
-				set.destroyObject(u, this);
+				relSetSem.acquire();
+				for(RelevantSet set: relevantSets)
+				{
+					set.destroyObject(u, this);
+				}
+				relSetSem.release();
 			}
-			relSetSem.release();
 			
 			objDataSem.acquire();
 			objData.remove(id);
@@ -249,7 +252,7 @@ public final class World
 			Camera camera = new Camera(new double[]{0, 0}, dm.getWidth(), dm.getHeight());
 			c.getControlledObject().adjustCamera(camera);
 			g.setTransform(camera.getTransform());
-			Region r = objRegMap.get(((NetworkUpdateable)c.getControlledObject()).getID());
+			Region r = objRegMap.get(c.getControlledObject().getControlledObjID());
 			r.drawRegion(g, dm, camera);
 		}
 	}
@@ -259,11 +262,15 @@ public final class World
 		{
 			if(c != null)
 			{
+				//controller could be set before the controlled object is initialized
 				short cID = c.getControlledObject().getControlledObjID();
-				objRegMap.get(cID).getSemaphore().acquire();
-				NetworkUpdateable n = objRegMap.get(cID).getNetworkObject(cID);
-				c.updateController(n, tdiff);
-				objRegMap.get(cID).getSemaphore().release();
+				if(objRegMap.get(cID) != null)
+				{
+					objRegMap.get(cID).getSemaphore().acquire();
+					NetworkUpdateable n = objRegMap.get(cID).getNetworkObject(cID);
+					ArrayList<Initializable> userActions = c.updateController(n, tdiff);
+					objRegMap.get(cID).getSemaphore().release();
+				}
 			}
 			
 			for(byte id: regions.keySet())

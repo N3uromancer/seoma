@@ -32,7 +32,7 @@ public final class Client implements Runnable, ConnectionManager
 	private World w;
 	private Connection c;
 	private OperationExecutor exe;
-	private Unit avatar; //the client's avatar in the game world
+	private short avatar; //the client's avatar in the game world
 	
 	/**
 	 * creates a new client
@@ -82,7 +82,7 @@ public final class Client implements Runnable, ConnectionManager
 	 * called by the operation executor after the client connects to the server,
 	 * starts the main game update thread
 	 */
-	public void connected(Unit avatar)
+	public void connected(short avatarID)
 	{
 		System.out.println("client connected!");
 		this.avatar = avatar;
@@ -132,29 +132,32 @@ public final class Client implements Runnable, ConnectionManager
 	 */
 	private void updateAvatar(short updateIndex)
 	{
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		DataOutputStream dos = new DataOutputStream(baos);
-		try
+		if(w.getAssociatedRegion(avatar) != null)
 		{
-			dos.write(IOConstants.updateNetworkObjects);
-			dos.writeShort(updateIndex);
-			dos.writeByte(Byte.MIN_VALUE+1);
-			
-			dos.writeShort(avatar.getID());
-			byte[] buff = avatar.getState();
-			dos.write(buff.length-128);
-			dos.write(buff);
+			//avatar has been initialized within the world
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			DataOutputStream dos = new DataOutputStream(baos);
+			try
+			{
+				dos.write(IOConstants.updateNetworkObjects);
+				dos.writeShort(updateIndex);
+				dos.writeByte(Byte.MIN_VALUE+1);
+				dos.writeShort(avatar);
+				byte[] state = w.getAssociatedRegion(avatar).getState(avatar);
+				dos.write(state.length-128);
+				dos.write(state);
+			}
+			catch(IOException e){}
+			c.write(baos.toByteArray(), false);
 		}
-		catch(IOException e){}
-		c.write(baos.toByteArray(), false);
 	}
 	public static void main(String[] args)
 	{
 		try
 		{
-			System.out.println(InetAddress.getLocalHost());
+			//System.out.println(InetAddress.getLocalHost());
 			//System.out.println(InetAddress.getByName("QAYPN2"));
-			//new Client(true, InetAddress.getByName("kyle-PC"));
+			new Client(true, InetAddress.getByName("QAYPN2"));
 		}
 		catch(IOException e)
 		{

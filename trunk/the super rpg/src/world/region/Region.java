@@ -130,6 +130,23 @@ public class Region
 		return uidMap.get(id);
 	}
 	/**
+	 * gets the state for a single object contained within the region
+	 * @param id
+	 * @return returns the state of the object with the passed id
+	 */
+	public byte[] getState(short id)
+	{
+		byte[] state = null;
+		try
+		{
+			uSem.acquire();
+			state = uidMap.get(id).getState();
+			uSem.release();
+		}
+		catch(InterruptedException e){}
+		return state;
+	}
+	/**
 	 * updates the objects contained within the region
 	 * @param w
 	 * @param tdiff

@@ -2,11 +2,16 @@ package world.unit.attribute;
 
 public enum Attribute
 {
-	health()
+	health("health"),
+	movement("movement");
+	
+	private String s;
+	Attribute(String s)
 	{
-		public String toString()
-		{
-			return "health";
-		}
+		this.s = s;
+	}
+	public String toString()
+	{
+		return s;
 	}
 }

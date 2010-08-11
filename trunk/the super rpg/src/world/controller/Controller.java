@@ -4,10 +4,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.Semaphore;
 
+import world.initializer.Initializable;
 import world.networkUpdateable.NetworkUpdateable;
 
 /**
@@ -66,8 +68,10 @@ public final class Controller implements KeyListener, MouseListener
 	 * updates the object associated with the controller based
 	 * off registered user input
 	 * @param tdiff
+	 * @return returns a list of initializables created by the associated
+	 * controllable object
 	 */
-	public void updateController(NetworkUpdateable n, double tdiff)
+	public ArrayList<Initializable> updateController(NetworkUpdateable n, double tdiff)
 	{
 		try
 		{
@@ -77,9 +81,10 @@ public final class Controller implements KeyListener, MouseListener
 			HashMap<short[], Boolean> clickTemp = new HashMap<short[], Boolean>();
 			downSem.release();
 			clickSem.release();
-			c.interpretUserInput(n, new UserInput(downTemp, clickTemp), tdiff);
+			return c.interpretUserInput(n, new UserInput(downTemp, clickTemp), tdiff);
 		}
 		catch(InterruptedException e){}
+		return null;
 	}
 	/**
 	 * gets the object controlled by this controller
