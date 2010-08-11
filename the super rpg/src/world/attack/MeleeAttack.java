@@ -1,11 +1,11 @@
 package world.attack;
 
+import geom.Rectangle;
+
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.HashSet;
 import java.util.Iterator;
-
-import geom.Rectangle;
 
 import world.World;
 import world.item.weapon.Weapon;
@@ -17,23 +17,18 @@ import world.unit.attribute.Attribute;
 public class MeleeAttack extends NetworkUpdateable implements Drawable
 {
 	private Unit ownerUnit;
-	private Weapon w;
+	private Weapon w; //get weapon from unit
 	private byte direction;
 	private double duration;
-	private double x;
-	private double y;
 	private short id;
 	
-	public MeleeAttack(boolean isGhost, short id, Unit u, Weapon w, byte direction)
+	public MeleeAttack(boolean isGhost, short id, Unit u, byte direction)
 	{
 		super(isGhost, id, 0, false);
 		
 		this.ownerUnit = u;
-		this.w = w;
 		this.direction = direction;
 		this.duration = 1.0;
-		this.x = u.getLocation()[0];
-		this.y = u.getLocation()[1];
 		this.id = id;
 		setReady();
 	}
@@ -68,7 +63,7 @@ public class MeleeAttack extends NetworkUpdateable implements Drawable
 	public void draw(Graphics2D g)
 	{
 		g.setColor(Color.WHITE);
-		g.fillRect((int)x-40, (int)y-40, 80, 80);
+		g.fillRect((int)ownerUnit.getLocation()[0]-40, (int)ownerUnit.getLocation()[1]-40, 80, 80);
 	}
 	public boolean isDisplayed()
 	{
@@ -84,6 +79,6 @@ public class MeleeAttack extends NetworkUpdateable implements Drawable
 	}
 	public Rectangle getBounds()
 	{
-		return new Rectangle(x-40, y-40, 80, 80);
+		return new Rectangle(ownerUnit.getLocation()[0]-40, ownerUnit.getLocation()[1]-40, 80, 80);
 	}
 }

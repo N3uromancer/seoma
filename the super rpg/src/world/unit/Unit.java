@@ -16,6 +16,7 @@ import world.modifier.Drawable;
 import world.networkUpdateable.NetworkUpdateable;
 import world.unit.attribute.Attribute;
 import world.unit.attribute.AttributeManager;
+import world.unit.script.Script;
 
 /**
  * defines a unit, units are capable of interacting with the game world
@@ -32,10 +33,7 @@ public class Unit extends NetworkUpdateable implements Drawable
 	private short radius; //radius
 	private AttributeManager am = new AttributeManager();
 	private Inventory inventory = new Inventory();
-	
-	double m = 100; //movement speed
-	
-	boolean intersects = false;
+	private Script script;
 
 	/**
 	 * blank constructor for creating the unit on clients, state information
@@ -46,6 +44,9 @@ public class Unit extends NetworkUpdateable implements Drawable
 	{
 		super(isGhost, id, 1, true);
 		this.radius = radius;
+		
+		am.setAttribute(Attribute.health, 100);
+		am.setAttribute(Attribute.movement, 100);
 	}
 	/**
 	 * constructor for creating the unit and specifying its state, used for creating
@@ -59,7 +60,10 @@ public class Unit extends NetworkUpdateable implements Drawable
 		super(isGhost, id, 1, true);
 		this.l = l;
 		this.radius = radius;
+		
 		am.setAttribute(Attribute.health, 100);
+		am.setAttribute(Attribute.movement, 100);
+		
 		setReady();
 	}
 	public AttributeManager getAttributeManager()
@@ -118,30 +122,25 @@ public class Unit extends NetworkUpdateable implements Drawable
 	public void draw(Graphics2D g)
 	{
 		g.setColor(Color.red);
-		if(!intersects)
-		{
-			g.setColor(Color.blue);
-			//System.out.println("l=("+l[0]+", "+l[1]+"), r="+r);
-		}
 		g.fillOval((int)(l[0]-radius), (int)(l[1]-radius), radius*2, radius*2);
 		//g.setColor(Color.black);
 		//g.drawOval((int)(l[0]-r), (int)(l[1]-r), r*2, r*2);
 	}
 	public void update(World w, double tdiff)
 	{
-		//System.out.println(getID()+" updated, ("+(int)l[0]+", "+(int)l[1]+")");
-		l[0]+=m*tdiff;
-		if(l[0] > 500 || l[0] < 0)
+		if(script != null)
 		{
-			m *= -1;
-			//setDead();
+			script.updateScript(w, tdiff);
 		}
-		intersects = w.getAssociatedRegion(getID()).getIntersectedUnits(this).size() > 0;
 	}
 	public void simulate(World w, double tdiff)
 	{
 		//System.out.println(getID()+" simulated");
-		intersects = w.getAssociatedRegion(getID()).getIntersectedUnits(this).size() > 0;
+		//intersects = w.getAssociatedRegion(getID()).getIntersectedUnits(this).size() > 0;
+	}
+	public void setScript(Script s)
+	{
+		script = s;
 	}
 	public boolean isDisplayed()
 	{
