@@ -122,7 +122,7 @@ public final class RelevantSet
 			{
 				if(u.getID() != id && !u.isDead())
 				{
-					if(u.isRelevant(id, w))
+					if(u.isRelevant(id, this, w))
 					{
 						pSem.acquire();
 						if(priorities.get(u) == null)
@@ -308,5 +308,9 @@ public final class RelevantSet
 			pSem.release();
 		}
 		catch(InterruptedException e){}
+	}
+	public boolean isSent(short id)
+	{
+		return sentIDs.contains(id);
 	}
 }
