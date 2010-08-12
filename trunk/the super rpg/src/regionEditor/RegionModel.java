@@ -23,12 +23,48 @@ import display.Camera;
 public final class RegionModel
 {
 	private Color background = Color.green;
-	private int[] dim;
 	private Terrain[][] t;
+	private int[] dim;
 	
 	public RegionModel()
 	{
 		setSize(1000, 1000);
+	}
+	/**
+	 * sets the size of the region
+	 * @param width
+	 * @param height
+	 */
+	public void setSize(int width, int height)
+	{
+		dim = new int[2];
+		dim[0] = width/World.gridSize*World.gridSize;
+		dim[1] = height/World.gridSize*World.gridSize;
+		
+		Terrain[][] temp = new Terrain[width/World.gridSize][height/World.gridSize];
+		for(int x = 0; x < temp.length; x++)
+		{
+			for(int y = 0; y < temp[0].length; y++)
+			{
+				temp[x][y] = Terrain.grass;
+			}
+		}
+		if(t != null)
+		{
+			//transfers over already placed terrain
+			for(int x = 0; x < t.length; x++)
+			{
+				for(int y = 0; y < t[0].length; y++)
+				{
+					try
+					{
+						temp[x][y] = t[x][y];
+					}
+					catch(ArrayIndexOutOfBoundsException e){}
+				}
+			}
+		}
+		t = temp;
 	}
 	public void setBackgroundColor(Color c)
 	{
@@ -129,42 +165,6 @@ public final class RegionModel
 			}
 		}
 		System.out.println("done");
-	}
-	/**
-	 * sets the size of the region
-	 * @param width
-	 * @param height
-	 */
-	public void setSize(int width, int height)
-	{
-		dim = new int[2];
-		dim[0] = width/World.gridSize*World.gridSize;
-		dim[1] = height/World.gridSize*World.gridSize;
-		
-		Terrain[][] temp = new Terrain[width/World.gridSize][height/World.gridSize];
-		for(int x = 0; x < temp.length; x++)
-		{
-			for(int y = 0; y < temp[0].length; y++)
-			{
-				temp[x][y] = Terrain.grass;
-			}
-		}
-		if(t != null)
-		{
-			//transfers over already placed terrain
-			for(int x = 0; x < t.length; x++)
-			{
-				for(int y = 0; y < t[0].length; y++)
-				{
-					try
-					{
-						temp[x][y] = t[x][y];
-					}
-					catch(ArrayIndexOutOfBoundsException e){}
-				}
-			}
-		}
-		t = temp;
 	}
 	public int[] getSize()
 	{
