@@ -1,11 +1,16 @@
 package world.region;
 
 import geom.Boundable;
+import geom.Rectangle;
 import geomUtil.PartitionManager;
 
 import java.awt.Color;
 import java.awt.DisplayMode;
 import java.awt.Graphics2D;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,6 +20,7 @@ import java.util.concurrent.Semaphore;
 import world.World;
 import world.modifier.Drawable;
 import world.networkUpdateable.NetworkUpdateable;
+import world.terrain.Terrain;
 import world.unit.Unit;
 import display.Camera;
 
@@ -34,11 +40,18 @@ public class Region
 	PartitionManager drawables;
 	Semaphore dSem = new Semaphore(1, true);
 	
-	int[] dim = {1000, 1000}; //the dimensions of the region
+	private Terrain[][] t;
+	private int[] dim; //the dimensions of the region
 	
 	public Region()
 	{
-		drawables = new PartitionManager(0, 0, 1000, 1000, 20, 100, 400);
+		try
+		{
+			loadRegion(new File("test map"));
+		}
+		catch(Exception e){}
+		//setSize(1000, 1000);
+		drawables = new PartitionManager(0, 0, dim[0], dim[1], 20, 100, 400);
 	}
 	/**
 	 * gets the network objects associated with this region, this method should
@@ -201,11 +214,94 @@ public class Region
 			}
 		}
 	}
+	/**
+	 * sets the size of the region
+	 * @param width
+	 * @param height
+	 */
+	public void setSize(int width, int height)
+	{
+		dim = new int[2];
+		dim[0] = width/World.gridSize*World.gridSize;
+		dim[1] = height/World.gridSize*World.gridSize;
+		
+		Terrain[][] temp = new Terrain[width/World.gridSize][height/World.gridSize];
+		for(int x = 0; x < temp.length; x++)
+		{
+			for(int y = 0; y < temp[0].length; y++)
+			{
+				temp[x][y] = Terrain.grass;
+			}
+		}
+		if(t != null)
+		{
+			//transfers over already placed terrain
+			for(int x = 0; x < t.length; x++)
+			{
+				for(int y = 0; y < t[0].length; y++)
+				{
+					try
+					{
+						temp[x][y] = t[x][y];
+					}
+					catch(ArrayIndexOutOfBoundsException e){}
+				}
+			}
+		}
+		t = temp;
+	}
+	/**
+	 * loads the region from the specified file
+	 * @param f
+	 * @throws IOException
+	 * @throws ClassNotFoundException
+	 */
+	public void loadRegion(File f) throws IOException, ClassNotFoundException
+	{
+		System.out.print("loading region... ");
+		FileInputStream fis = new FileInputStream(f);
+		DataInputStream dis = new DataInputStream(fis);
+		int width = dis.readInt();
+		int height = dis.readInt();
+		dim = new int[]{width*World.gridSize, height*World.gridSize};
+		t = new Terrain[width][height];
+		
+		for(int x = 0; x < t.length; x++)
+		{
+			for(int y = 0; y < t[0].length; y++)
+			{
+				String name = dis.readUTF();
+				t[x][y] = Terrain.valueOf(name);
+			}
+		}
+		System.out.println("done");
+	}
 	public void drawRegion(Graphics2D g, DisplayMode dm, Camera c)
 	{
+		//g.setColor(Color.black);
+		//g.drawRect(0, 0, dim[0], dim[1]);
+		//g.fillRect(0, 0, 50, 50);
+
+		double[] l = c.getLocation();
+		l[1]*=-1;
+		Rectangle r = c.getViewBounds();
+		for(int x = (int)(l[0]/World.gridSize) < 0? 0: (int)(l[0]/World.gridSize); x < t.length && x <= (int)((l[0]+r.getWidth())/World.gridSize); x++)
+		{
+			for(int y = (int)(l[1]/World.gridSize) < 0? 0: (int)(l[1]/World.gridSize); y < t[0].length && y <= (int)((l[1]+r.getHeight())/World.gridSize)+1; y++)
+			{
+				g.setColor(t[x][y].getColor());
+				g.fillRect(x*World.gridSize, y*World.gridSize, World.gridSize, World.gridSize);
+			}
+		}
 		g.setColor(Color.black);
-		g.drawRect(0, 0, dim[0], dim[1]);
-		g.fillRect(0, 0, 50, 50);
+		for(int i = 0; i <= dim[0]; i+=World.gridSize)
+		{
+			g.drawLine(i, 0, i, dim[1]);
+		}
+		for(int i = 0; i <= dim[1]; i+=World.gridSize)
+		{
+			g.drawLine(0, i, dim[0], i);
+		}
 		
 		try
 		{
