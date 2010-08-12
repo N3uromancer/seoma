@@ -72,7 +72,7 @@ public class MeleeAttack extends NetworkUpdateable implements Drawable
 	}
 	public void draw(Graphics2D g)
 	{
-		//System.out.println("here");
+		//System.out.println("drawing melee attack");
 		g.setColor(Color.WHITE);
 		g.fillRect((int)ownerUnit.getLocation()[0]-40, (int)ownerUnit.getLocation()[1]-40, 80, 80);
 	}
@@ -80,8 +80,9 @@ public class MeleeAttack extends NetworkUpdateable implements Drawable
 	{
 		return duration >= 0.0;
 	}
-	public boolean isRelevant(short id, RelevantSet set, World w) 
+	public boolean isRelevant(short id, RelevantSet set, World w)
 	{
+		//System.out.println("testing melee attack for sending, relevant="+set.isSent(ownerUnit.getID()));
 		return w.getAssociatedRegion(id) == w.getAssociatedRegion(this.id) &&
 			set.isSent(ownerUnit.getID());
 	}

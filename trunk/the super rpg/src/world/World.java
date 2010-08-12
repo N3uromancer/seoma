@@ -98,7 +98,7 @@ public final class World
 			
 			System.out.println("destroying "+u.getClass().getSimpleName()+", id="+u.getID());
 			
-			if(u.broadcastDeath())
+			if(!u.isGhost() && u.broadcastDeath())
 			{
 				System.out.println("broadcasting death for id="+u.getID());
 				relSetSem.acquire();

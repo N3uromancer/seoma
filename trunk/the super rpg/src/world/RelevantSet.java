@@ -65,6 +65,7 @@ public final class RelevantSet
 	{
 		this.id = id;
 		this.c = c;
+		sentIDs.add(id);
 		System.out.println("relevent set created for id="+id+", connection="+c);
 	}
 	/**
@@ -186,7 +187,9 @@ public final class RelevantSet
 			Iterator<Initializable> it = ini.iterator();
 			for(int i = 0; i < 256 && ini.size() > 0; i++) //for loop to cap spawn orders at 256
 			{
-				temp.add(it.next());
+				Initializable ini = it.next();
+				temp.add(ini);
+				//System.out.println(ini.getClass().getSimpleName()+" sent");
 				it.remove();
 			}
 			byte[] b = PerformInitialization.createByteBuffer(temp, w, false);
