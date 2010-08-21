@@ -19,6 +19,7 @@ import java.util.concurrent.Semaphore;
 
 import world.World;
 import world.modifier.Drawable;
+import world.modifier.Moveable;
 import world.networkUpdateable.NetworkUpdateable;
 import world.terrain.Terrain;
 import world.unit.Unit;
@@ -52,6 +53,28 @@ public class Region
 		catch(Exception e){}
 		//setSize(1000, 1000);
 		drawables = new PartitionManager(0, 0, dim[0], dim[1], 20, 100, 400);
+	}
+	/**
+	 * checks to see if the passed rectangle intersects the terrain of the region
+	 * @param r
+	 * @param allowed a set of terrain that the passed rectangle is allowed to intersect
+	 * @return returns true if the passed rectangle intersects non-allowed terrain,
+	 * false otherwise
+	 */
+	private boolean intersectsTerrain(Rectangle r, HashSet<Terrain> allowed)
+	{
+		for(int x = (int)(r.getLocation()[0]/World.gridSize); x <= (int)((r.getLocation()[0]+r.getWidth())/World.gridSize); x++)
+		{
+			for(int y = (int)(r.getLocation()[1]/World.gridSize); y <= (int)((r.getLocation()[1]+r.getHeight())/World.gridSize); y++)
+			{
+				//System.out.println(t[x][y]+", allowed="+allowed.contains(t[x][y]));
+				if(!allowed.contains(t[x][y]))
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 	/**
 	 * gets the network objects associated with this region, this method should
@@ -184,7 +207,22 @@ public class Region
 				{
 					if(!u.isGhost())
 					{
+						double[] pastLoc = null;
+						if(u instanceof Moveable)
+						{
+							pastLoc = ((Moveable)u).getLocation();
+						}
 						u.update(w, tdiff);
+						if(u instanceof Moveable)
+						{
+							Rectangle bounds = ((Moveable)u).getBounds();
+							double[] l = ((Moveable)u).getLocation();
+							if(intersectsTerrain(bounds, ((Moveable)u).getMovementType()) ||
+									l[0] < 0 || l[0] > dim[0] || l[1] < 0 || l[1] > dim[1])
+							{
+								((Moveable)u).setLocation(pastLoc);
+							}
+						}
 					}
 					else
 					{

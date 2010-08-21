@@ -6,14 +6,9 @@ import world.unit.attribute.Attribute;
 
 public class WanderScript extends Script
 {
-	Unit u;
 	int direction = 1;
 	
-	public WanderScript(Unit u)
-	{
-		this.u = u;
-	}
-	public void updateScript(World w, double tdiff)
+	public void updateScript(Unit u, World w, double tdiff)
 	{
 		double[] l = u.getLocation();
 		double m = u.getAttributeManager().getAttribute(Attribute.movement);
