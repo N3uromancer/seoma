@@ -32,7 +32,7 @@ public final class UnitLoader
 		{
 			//normal unit
 			Unit u = new Unit(isGhost, id, l, (short)10);
-			u.setScript(new WanderScript(u));
+			u.setScript(new WanderScript());
 			return u;
 		}
 	}

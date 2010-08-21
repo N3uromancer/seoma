@@ -7,6 +7,7 @@ import world.attack.AttackInitializer;
 import world.initializer.Initializable;
 import world.networkUpdateable.NetworkUpdateable;
 import world.unit.Unit;
+import world.unit.action.MoveTowards;
 import display.Camera;
 
 public final class AvatarController implements Controllable
@@ -37,17 +38,28 @@ public final class AvatarController implements Controllable
 		ArrayList<Initializable> iniActions = new ArrayList<Initializable>();
 		
 		Unit a = (Unit)n;
-		for(char c: ui.getKeyPresses())
+		if(ui.getKeyPresses().size() > 0)
 		{
-			if(actions.containsKey(c))
+			double[] t = new double[]{0, 0};
+			for(char c: ui.getKeyPresses())
 			{
-				double[] l = a.getLocation();
-				double[] t = actions.get(c);
-				a.setLocation(new double[]{l[0]+t[0]*tdiff, l[1]+t[1]*tdiff});
+				if(actions.containsKey(c))
+				{
+					//double[] l = a.getLocation();
+					//double[] t = actions.get(c);
+					//a.setLocation(new double[]{l[0]+t[0]*tdiff, l[1]+t[1]*tdiff});
+					
+					t[0]+=actions.get(c)[0];
+					t[1]+=actions.get(c)[1];
+				}
+				if(z.containsKey(c))
+				{
+					zoom*=z.get(c);
+				}
 			}
-			if(z.containsKey(c))
+			if(!(t[0]==0 && t[1]==0))
 			{
-				zoom*=z.get(c);
+				a.queueAction(new MoveTowards(t));
 			}
 		}
 		if(ui.getMousePresses().size() > 0)

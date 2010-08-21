@@ -9,12 +9,17 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import world.RelevantSet;
 import world.World;
 import world.item.Inventory;
 import world.modifier.Drawable;
+import world.modifier.Moveable;
 import world.networkUpdateable.NetworkUpdateable;
+import world.terrain.Terrain;
+import world.unit.action.Action;
 import world.unit.attribute.Attribute;
 import world.unit.attribute.AttributeManager;
 import world.unit.script.Script;
@@ -25,7 +30,7 @@ import world.unit.script.Script;
  * @author Jack
  *
  */
-public class Unit extends NetworkUpdateable implements Drawable
+public class Unit extends NetworkUpdateable implements Drawable, Moveable
 {
 	/**
 	 * the location of the center of the unit
@@ -35,6 +40,8 @@ public class Unit extends NetworkUpdateable implements Drawable
 	private AttributeManager am = new AttributeManager();
 	private Inventory inventory = new Inventory();
 	private Script script;
+	private HashSet<Terrain> movementType = new HashSet<Terrain>();//types of terrain the unit can move over
+	private LinkedBlockingQueue<Action> actions = new LinkedBlockingQueue<Action>(); //the actions a unit is to execute
 
 	/**
 	 * blank constructor for creating the unit on clients, state information
@@ -48,6 +55,8 @@ public class Unit extends NetworkUpdateable implements Drawable
 		
 		am.setAttribute(Attribute.health, 100);
 		am.setAttribute(Attribute.movement, 100);
+		
+		movementType.add(Terrain.grass);
 	}
 	/**
 	 * constructor for creating the unit and specifying its state, used for creating
@@ -64,8 +73,14 @@ public class Unit extends NetworkUpdateable implements Drawable
 		
 		am.setAttribute(Attribute.health, 100);
 		am.setAttribute(Attribute.movement, 100);
+
+		movementType.add(Terrain.grass);
 		
 		setReady();
+	}
+	public HashSet<Terrain> getMovementType()
+	{
+		return movementType;
 	}
 	public AttributeManager getAttributeManager()
 	{
@@ -126,18 +141,47 @@ public class Unit extends NetworkUpdateable implements Drawable
 		g.fillOval((int)(l[0]-radius), (int)(l[1]-radius), radius*2, radius*2);
 		//g.setColor(Color.black);
 		//g.drawOval((int)(l[0]-r), (int)(l[1]-r), r*2, r*2);
+		
+		
+		//draws the unit rectangle bounds
+		g.setColor(Color.black);
+		Rectangle bounds = getBounds();
+		g.drawRect((int)bounds.getLocation()[0], (int)bounds.getLocation()[1], (int)bounds.getWidth(), (int)bounds.getHeight());
 	}
 	public void update(World w, double tdiff)
 	{
 		if(script != null)
 		{
-			script.updateScript(w, tdiff);
+			script.updateScript(this, w, tdiff);
 		}
 		if(am.getAttribute(Attribute.health) <= 0)
 		{
 			//System.out.println("unit "+getID()+" killed");
 			setDead();
 		}
+		else if(actions.size() > 0)
+		{
+			Action a = actions.peek();
+			if(a.performAction(this, w, tdiff))
+			{
+				actions.remove();
+			}
+		}
+	}
+	/**
+	 * queues an action for this unit to execute
+	 * @param a the action to be queued
+	 */
+	public void queueAction(Action a)
+	{
+		actions.add(a);
+	}
+	/**
+	 * clears the action queue
+	 */
+	public void clearActions()
+	{
+		actions = new LinkedBlockingQueue<Action>();
 	}
 	public void simulate(World w, double tdiff)
 	{

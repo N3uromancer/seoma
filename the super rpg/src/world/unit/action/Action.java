@@ -1,20 +1,21 @@
 package world.unit.action;
 
 import world.World;
-import world.modifier.Initializable;
+import world.unit.Unit;
 
 /**
- * defines a game action, everything that units do (other than move) is an action,
- * actions are instantaneous but can spawn other updateable objects for the world
- * to process
+ * defines a class for making a unit perform an operation
  * @author Jack
  *
  */
-public abstract class Action implements Initializable
+public interface Action
 {
 	/**
-	 * executes an instantaneous action, ex. attack, spell, open chest, etc
+	 * performs the action
+	 * @param u the unit the action is being performed for
 	 * @param w
+	 * @param tdiff
+	 * @return returns true if the action is complete, false otherwise
 	 */
-	public abstract void executeAction(World w);
+	public boolean performAction(Unit u, World w, double tdiff);
 }
