@@ -2,29 +2,22 @@ package world.unit.script;
 
 import world.World;
 import world.unit.Unit;
-import world.unit.attribute.Attribute;
+import world.unit.action.MoveTowards;
 
 public class WanderScript extends Script
 {
-	int direction = 1;
+	double[] dir; //the direction the unit is wandering
+	double time = 2; //time until a new direction is picked
+	double elapsed = 0;
 	
 	public void updateScript(Unit u, World w, double tdiff)
 	{
-		double[] l = u.getLocation();
-		double m = u.getAttributeManager().getAttribute(Attribute.movement);
-		//System.out.println(m);
-		//System.out.println(u.getID()+" updated, ("+(int)l[0]+", "+(int)l[1]+")");
-		if(l[0] > 500)
+		if(elapsed >= time || dir == null)
 		{
-			direction = -1;
-			//setDead();
+			dir = new double[]{Math.random(), Math.random()};
+			elapsed = 0;
 		}
-		if(l[0] < 0)
-		{
-			direction = 1;
-		}
-		l[0]+=m*tdiff*direction;
-		u.setLocation(l);
-		//intersects = w.getAssociatedRegion(getID()).getIntersectedUnits(this).size() > 0;
+		elapsed+=tdiff;
+		u.queueAction(new MoveTowards(dir));
 	}
 }

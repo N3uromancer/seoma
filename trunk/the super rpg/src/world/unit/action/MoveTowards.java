@@ -2,6 +2,7 @@ package world.unit.action;
 
 import world.World;
 import world.unit.Unit;
+import world.unit.attribute.Attribute;
 
 /**
  * defines an action that moves a unit in the specified direction
@@ -24,7 +25,8 @@ public final class MoveTowards implements Action
 	public boolean performAction(Unit u, World w, double tdiff)
 	{
 		double[] l = u.getLocation();
-		u.setLocation(new double[]{l[0]+t[0]*tdiff, l[1]+t[1]*tdiff});
+		double m = u.getAttributeManager().getAttribute(Attribute.movement);
+		u.setLocation(new double[]{l[0]+t[0]*m*tdiff, l[1]+t[1]*m*tdiff});
 		return true;
 	}
 }
