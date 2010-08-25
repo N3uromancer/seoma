@@ -22,13 +22,12 @@ public final class AvatarController implements Controllable
 	public AvatarController(short id)
 	{
 		this.id = id;
-		double m = 160;
 		actions = new HashMap<Character, double[]>();
 		z = new HashMap<Character, Double>(); //zoom key map
-		actions.put('w', new double[]{0, -m});
-		actions.put('d', new double[]{m, 0});
-		actions.put('s', new double[]{0, m});
-		actions.put('a', new double[]{-m, 0});
+		actions.put('w', new double[]{0, -1});
+		actions.put('d', new double[]{1, 0});
+		actions.put('s', new double[]{0, 1});
+		actions.put('a', new double[]{-1, 0});
 		
 		z.put('r', 1.1);
 		z.put('f', .9);
